@@ -1,0 +1,57 @@
+﻿<Metro:MetroWindow x:Class="Wimm.Ui.LauncherWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:local="clr-namespace:Wimm.Ui"
+        xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
+        xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
+        xmlns:Interop="clr-namespace:System.Runtime.InteropServices;assembly=netstandard"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance ViewModels:LauncherViewModel}"
+        Title="Wimm" Height="450" Width="800"
+        ShowIconOnTitleBar="True">
+    <Metro:MetroWindow.CommandBindings>
+        <CommandBinding Command="{x:Static NavigationCommands.BrowseBack}" CanExecute="BackNavigation_CanExecute" Executed="BackNavigation_Executed"/>
+        <CommandBinding Command="{x:Static NavigationCommands.BrowseForward}" CanExecute="ForwardNavigation_CanExecute" Executed="ForwardNavigation_Executed"/>
+    </Metro:MetroWindow.CommandBindings>
+    <Metro:MetroWindow.Resources>
+        <Converters:MultiplyConverter x:Key="MultiplyConverter"/>
+        <DataTemplate x:Key="HamburgerItemTemplate" DataType="{x:Type ViewModels:MenuItem}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Metro:HamburgerMenu}}, Path=CompactPaneLength, Mode=OneWay}"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <icon:PackIconModern Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Metro:HamburgerMenu}}, Path=CompactPaneLength, Mode=OneWay}" Kind="{Binding IconKind}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="16" Text="{Binding Name}" Foreground="White"/>
+            </Grid>
+        </DataTemplate>
+    </Metro:MetroWindow.Resources>
+    <Metro:MetroWindow.RightWindowCommands>
+        <Metro:WindowCommands>
+            <Button Command="{x:Static NavigationCommands.BrowseBack}">
+                <icon:PackIconModern Width="20" Height="20" Kind="ArrowLeft"/>
+            </Button>
+            <Button Command="{x:Static NavigationCommands.BrowseForward}">
+                <icon:PackIconModern Width="20" Height="20" Kind="ArrowRight"/>
+            </Button>
+        </Metro:WindowCommands>
+    </Metro:MetroWindow.RightWindowCommands>
+    <Metro:HamburgerMenu 
+        Name="SideMenu" 
+        ItemInvoked="SideMenu_ItemInvoked"
+        ItemsSource="{Binding MenuItems}" 
+        ItemTemplate="{StaticResource HamburgerItemTemplate}" 
+        OptionsItemsSource="{Binding OptionMenuItems}"
+        OptionsItemTemplate="{StaticResource HamburgerItemTemplate}">
+        <Metro:HamburgerMenu.HamburgerMenuHeaderTemplate>
+            <DataTemplate>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18" Foreground="White" Text="Wimm"/>
+            </DataTemplate>
+        </Metro:HamburgerMenu.HamburgerMenuHeaderTemplate>
+        <Frame Name="ContentFrame" Source="{Binding ContentUri}" NavigationUIVisibility="Hidden"/>
+    </Metro:HamburgerMenu>
+</Metro:MetroWindow>

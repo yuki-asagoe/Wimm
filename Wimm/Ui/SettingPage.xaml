@@ -1,0 +1,23 @@
+﻿<Page x:Class="Wimm.Ui.SettingPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Wimm.Ui"
+      xmlns:wimm="clr-namespace:Wimm"
+      mc:Ignorable="d" 
+      d:DataContext="{d:DesignInstance wimm:GeneralSetting}"
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="SettingPage"
+      Background="{StaticResource MahApps.Brushes.Window.Background}">
+    <DockPanel LastChildFill="True">
+        <DockPanel DockPanel.Dock="Bottom" LastChildFill="False" Background="{StaticResource MahApps.Brushes.Gray7}">
+            <Button Click="SaveButton_Click" DockPanel.Dock="Right" Content="保存" Style="{DynamicResource MahApps.Styles.Button.Dialogs.Accent}" Margin="{StaticResource Wimm.Margin.Small}"/>
+            <TextBlock Name="FeedBackText" DockPanel.Dock="Left" Margin="10 0" FontSize="16" VerticalAlignment="Center"/>
+        </DockPanel>
+        <StackPanel CanVerticallyScroll="True" Margin="30 0">
+            <TextBlock FontSize="16" Margin="0 5">Tpip3 IPアドレス</TextBlock>
+            <TextBox Text="{Binding Tpip3_IP_Address, Mode=TwoWay,UpdateSourceTrigger=LostFocus}"/>
+        </StackPanel>
+    </DockPanel>
+</Page>

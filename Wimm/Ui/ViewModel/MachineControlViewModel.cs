@@ -1,0 +1,314 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using Wimm.Machines;
+using System.Windows.Media;
+using Wimm.Model.Video;
+using System.IO;
+using Wimm.Model.Control;
+using System.Windows.Interop;
+using System.Windows.Threading;
+using System.Drawing;
+using System.Reflection;
+using Vortice.XInput;
+using Wimm.Model.Console;
+using System.Windows.Input;
+using System.Diagnostics;
+using Wimm.Model.Control.Script.Macro;
+
+namespace Wimm.Ui.ViewModel
+{
+    public sealed class MachineControlViewModel:DependencyObject,IDisposable
+    {
+        public MachineControlViewModel(DirectoryInfo machineDirectory)
+        {
+            TerminalController = new TerminalController(GetDefaultCommands());
+            MachineDirectory = machineDirectory;
+            using var g = Graphics.FromHwnd(IntPtr.Zero);
+            CommandMacroStart = new MacroStartCommand(this);
+            CommandMacroStop = new MacroStopCommand(this);
+            this.DpiX = g.DpiX;
+            this.DpiY = g.DpiY;
+        }
+        private System.Drawing.Size TranslformToDrawingSize(System.Windows.Size size)
+        {
+            return new System.Drawing.Size(//WPF-Size-Unit to pixel-unit
+                (int)((DpiX / 96) * size.Width),
+                (int)((DpiY / 96) * size.Height)
+            );
+        }
+        private DirectoryInfo MachineDirectory { get; init; }
+        private readonly float DpiX;
+        private readonly float DpiY;
+        public async Task<Exception?> OnLoad(HwndSource hwnd,FrameworkElement sizeObservedElement,Dispatcher dispatcher)
+            //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
+        {
+            (var e,var controller) = await Task.Run<(Exception?,MachineController?)>( 
+                () =>
+                {
+                    MachineController? controller = null;
+                    try
+                    {
+                        controller = MachineController
+                            .Builder
+                            .Build(
+                                MachineDirectory,
+                                new Tpip3ConstructorArgs(hwnd, GeneralSetting.Default.Tpip3_IP_Address)
+                            );
+                    }
+                    catch(TargetInvocationException e)
+                    {
+                        if(e.InnerException is Exception innerException)
+                        {
+                            return (innerException,null);
+                        }
+                        return (e, null);
+                    }
+                    catch(Exception e)
+                    {
+                        return (e, null);
+                    }
+                    return (null, controller);
+                }
+            );
+            if(e is not null)
+            {
+                return e;
+            }
+            if(controller is null)
+            {
+                return new InvalidDataException("制御モデルの構築に失敗しました。");
+            }
+            MachineController = controller;
+            var size = sizeObservedElement.RenderSize;
+            VideoProcessor = new VideoProcessor(
+                TranslformToDrawingSize(sizeObservedElement.RenderSize),
+                MachineController.Machine.Camera,
+                dispatcher
+            );
+            sizeObservedElement.SizeChanged += (object? sender, SizeChangedEventArgs args) => {
+                if(VideoProcessor is not null)VideoProcessor.ImageSize = TranslformToDrawingSize(args.NewSize);
+            };
+            MachineName = MachineController.Machine.Name;
+            VideoProcessor.OnImageUpdated += it => CameraOutput = it;
+            highRateTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
+            highRateTimer.Tick += HighRatePeriodicWork;
+            highRateTimer.Interval += new TimeSpan(0, 0, 0, 0, 300);
+            timer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
+            timer.Tick += PeriodicWork;
+            timer.Interval = new TimeSpan(0, 0, 2);//2秒間隔
+            MachineController.StartControlLoop();
+            TerminalController.Post($"ロボットの初期化が完了しました。ロボット名 : {MachineController.Machine.Name}");
+            return null;
+        }
+        private void PeriodicWork(object? sender,EventArgs args)
+        {
+            ConnectionStatus = MachineController?.Machine?.ConnectionStatus ?? ConnectionState.Offline;
+            if(MachineController is not null && XInput.GetState(MachineController.ObservedGamepadIndex,out var state))
+            {
+                ObservedGamepad = state.Gamepad;
+            }
+        }
+        private void HighRatePeriodicWork(object? sender, EventArgs args)
+        {
+            if (MachineController is MachineController controller)
+            {
+                if (controller.IsMacroRunning) { 
+                    ControlStatus = ControlStatus.Macro;
+                    MacroProgress = controller.MacroRunningSecond;
+                }
+                else if (controller.IsControlStopping) { ControlStatus = ControlStatus.Idle; }
+                else { ControlStatus = ControlStatus.Running; }
+            }
+            else ControlStatus = ControlStatus.Idle;
+        }
+        private void OnMachineSet()
+        {
+            (CommandMacroStart as MacroStartCommand)?.OnMachineSet();
+            (CommandMacroStop as MacroStopCommand)?.OnMachineSet();
+        }
+        public void StartMacro(MacroInfo macro)
+        {
+            if (MachineController is MachineController controller)
+            {
+                controller.StartMacro(macro);
+                ControlStatus = ControlStatus.Macro;
+                MacroMaxProgress = controller.MacroMaxSecond;
+                MacroProgress = 0;
+                RunningMacro = macro;
+            }
+        }
+        public void StopMacro()
+        {
+            MachineController?.StopMacro();
+        }
+        private record MacroStartCommand(MachineControlViewModel model) : ICommand
+        {
+            public event EventHandler? CanExecuteChanged;
+            public void OnMachineSet() { CanExecuteChanged?.Invoke(null, new EventArgs()); }
+            public bool CanExecute(object? parameter) => model.MachineController is not null;
+            public void Execute(object? parameter){ if (parameter is MacroInfo info) model.StartMacro(info); }
+        }
+        private record MacroStopCommand(MachineControlViewModel model) : ICommand
+        {
+            public event EventHandler? CanExecuteChanged;
+            public void OnMachineSet() { CanExecuteChanged?.Invoke(null, new EventArgs()); }
+            public bool CanExecute(object? parameter) => model.MachineController is not null;
+            public void Execute(object? parameter) { model.StopMacro(); }
+        }
+
+        private bool disposed;
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            controller?.Dispose();
+            timer?.Stop();
+            TerminalController.Dispose();
+            GC.SuppressFinalize(this);
+        }
+        ~MachineControlViewModel()
+        {
+            if (!disposed) Dispose();
+        }
+
+        private MachineController? controller = null;
+        private DispatcherTimer? timer = null;
+        private DispatcherTimer? highRateTimer = null;
+        public ICommand CommandMacroStart { get; }
+        public ICommand CommandMacroStop { get; }
+        public TerminalController TerminalController { get; }
+        public MachineController? MachineController { get { return controller; } private set { controller = value;OnMachineSet(); } }
+        private VideoProcessor? VideoProcessor { get; set; }
+        public ICommand TerminalExecuteCommand => TerminalController.ExecuteCommand;
+        public IEnumerable TerminalLines => TerminalController.LinesView;
+        public static DependencyProperty IsControlRunningProperty
+            = DependencyProperty.Register(
+                "IsControlRunning", typeof(bool), typeof(MachineControlViewModel),
+                new PropertyMetadata((DependencyObject property,DependencyPropertyChangedEventArgs args) => {
+                    if(property is MachineControlViewModel model && args.NewValue is bool value)
+                    {
+                        if (value){
+                            model.MachineController?.StartControlLoop();
+                        }else{
+                            model.MachineController?.StopControlLoop();
+                        }
+                    }
+                })
+            );
+        public static DependencyProperty MachineNameProperty
+            = DependencyProperty.Register("MachineName", typeof(string), typeof(MachineControlViewModel));
+        public static DependencyProperty GeneralProgressLabelProperty
+            = DependencyProperty.Register("GeneralProgressLabel", typeof(string), typeof(MachineControlViewModel));
+        public static DependencyProperty GeneralProgressProperty
+            = DependencyProperty.Register("GeneralProgress", typeof(double), typeof(MachineControlViewModel));
+        public static DependencyProperty ConnectionStatusProperty
+            = DependencyProperty.Register("ConnectionStatus", typeof(ConnectionState), typeof(MachineControlViewModel));
+        public static DependencyProperty DetectedQRCodeValueProperty
+            = DependencyProperty.Register("DetectedQRCodeValue", typeof(string), typeof(MachineControlViewModel));
+        public static DependencyProperty CameraOutputProperty
+            = DependencyProperty.Register("CameraOutput", typeof(ImageSource), typeof(MachineControlViewModel));
+        public static DependencyProperty ObservedGamepadProperty
+            = DependencyProperty.Register("ObservedGamepad", typeof(Gamepad), typeof(MachineControlViewModel));
+        public static DependencyProperty RunningMacroProperty
+            = DependencyProperty.Register("RunningMacro", typeof(MacroInfo), typeof(MachineControlViewModel));
+        public static DependencyProperty MacroMaxProgressProperty
+            = DependencyProperty.Register("MacroMaxProgress", typeof(double), typeof(MachineControlViewModel));
+        public static DependencyProperty MacroProgressProperty
+            = DependencyProperty.Register("MacroProgress", typeof(double), typeof(MachineControlViewModel));
+        public static DependencyProperty ControlStateProperty
+            = DependencyProperty.Register("ControlStatus", typeof(ControlStatus), typeof(MachineControlViewModel));
+
+        public ControlStatus ControlStatus
+        {
+            get { return (ControlStatus)GetValue(ControlStateProperty); }
+            set { SetValue(ControlStateProperty, value); }
+        }
+        public MacroInfo RunningMacro
+        {
+            get { return (MacroInfo)GetValue(RunningMacroProperty); }
+            set { SetValue(RunningMacroProperty, value); }
+        }
+        public double MacroProgress
+        {
+            get { return (double)GetValue(MacroProgressProperty); }
+            set { SetValue(MacroProgressProperty, value); }
+        }
+        public double MacroMaxProgress
+        {
+            get { return (double)GetValue(MacroMaxProgressProperty); }
+            set { SetValue(MacroMaxProgressProperty, value); }
+        }
+        public Gamepad ObservedGamepad
+        {
+            get { return (Gamepad)GetValue(ObservedGamepadProperty); }
+            set { SetValue(ObservedGamepadProperty, value); }
+        }
+        public string MachineName
+        {
+            get { return (string)GetValue(MachineNameProperty); }
+            set { SetValue(MachineNameProperty, value); }
+        }
+        public string GeneralProgressLabel
+        {
+            get { return (string)GetValue(GeneralProgressLabelProperty); }
+            set { SetValue(GeneralProgressLabelProperty, value); }
+        }
+        public double GeneralProgress
+        {
+            get { return (double)GetValue(GeneralProgressProperty); }
+            set { SetValue(GeneralProgressProperty, value); }
+        }
+        public ConnectionState ConnectionStatus
+        {
+            get { return (ConnectionState)GetValue(ConnectionStatusProperty); }
+            private set { SetValue(ConnectionStatusProperty,value); }
+        }
+        public string DetectedQRCodeValue
+        {
+            get { return GetValue(DetectedQRCodeValueProperty) as string ?? ""; }
+            private set { SetValue(DetectedQRCodeValueProperty, value); }
+        }
+        public ImageSource? CameraOutput
+        {
+            get { return GetValue(CameraOutputProperty) as ImageSource; }
+            private set { if(value is not null)SetValue(CameraOutputProperty, value); }
+        }
+        public bool IsControlRunning
+        {
+            get { return (bool)GetValue(IsControlRunningProperty); }
+            set { SetValue(IsControlRunningProperty, value); }
+        }
+
+        private CommandNode[] GetDefaultCommands()
+        {
+            return new CommandNode[]
+            {
+                new CommandNode("camera",
+                    new[]
+                    {
+                        new CommandNode(
+                            "activate",Array.Empty<CommandNode>(),
+                            new[]{new KeyValuePair<string,Type>("number",typeof(int))},
+                            (param) =>{}
+                        )
+                    }
+                ),
+                new CommandNode("timer",
+                    new[]
+                    {
+                        new CommandNode(
+                            "set",Array.Empty<CommandNode>(),
+                            new []{new KeyValuePair<string,Type>("number",typeof(int))},
+                            (param)=>{}
+                        )
+                    }
+                )
+            };
+        }
+    }
+}

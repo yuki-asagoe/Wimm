@@ -1,0 +1,27 @@
+﻿<Page x:Class="Wimm.Ui.EntrancePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Wimm.Ui"
+      xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="EntrancePage" 
+      >
+    <Page.Resources>
+        <Converters:MultiplyConverter x:Key="MultiplyConverter"/>
+    </Page.Resources>
+    <Page.Background>
+        <LinearGradientBrush StartPoint="0.1,0.1" EndPoint="0.8,0.8">
+            <GradientStop Offset="0" Color="Transparent"/>
+            <GradientStop Offset="1" Color="{StaticResource MahApps.Colors.AccentBase}"/>
+        </LinearGradientBrush>
+    </Page.Background>
+    <Grid>
+        <StackPanel Margin="0 80 80 0" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Image MinWidth="400" Width="{Binding ActualWidth, ConverterParameter=0.5, Converter={StaticResource MultiplyConverter}, RelativeSource={RelativeSource AncestorType=Grid}}" Source="/Resources/Image/wimm_logo.png"/>
+            <TextBlock FontSize="{Binding ActualWidth, ConverterParameter=0.04, Converter={StaticResource MultiplyConverter}, RelativeSource={RelativeSource AncestorType=StackPanel}}" Margin="5 0" FontStyle="Italic" HorizontalAlignment="Right" Text="六甲おろし ロボット抽象化統一制御プログラム"/>
+        </StackPanel>
+    </Grid>
+</Page>

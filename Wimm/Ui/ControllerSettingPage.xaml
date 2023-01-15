@@ -1,0 +1,65 @@
+﻿<Page x:Class="Wimm.Ui.ControllerSettingPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+      xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:local="clr-namespace:Wimm.Ui"
+      xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance ViewModels:ControllerSettingViewModel}"
+      Title="ControllerSettingPage">
+    <Page.Resources>
+        <Converters:MultiplyConverter x:Key="MultiplyC"/>
+        <Converters:BatteryKindConverter x:Key="BatteryC"/>
+    </Page.Resources>
+    <DockPanel>
+        <ListView Name="ControllerList" SelectionChanged="ListView_SelectionChanged" SelectionMode="Single" Margin="30" Width="{Binding Path=ActualWidth, Converter={StaticResource MultiplyC}, ConverterParameter=0.7, RelativeSource={RelativeSource AncestorType=Page}}" HorizontalAlignment="Center" VerticalAlignment="Center" ItemsSource="{Binding Gamepads}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="1"/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel Margin="20">
+                        <DockPanel.Style>
+                            <Style TargetType="DockPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Connected}" Value="false">
+                                        <Setter Property="Opacity" Value="0.3"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DockPanel.Style>
+                        <TextBlock 
+                        Text="Selected" 
+                        DockPanel.Dock="Bottom" 
+                        HorizontalAlignment="Center"
+                        FontSize="16"
+                        Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=IsSelected, Converter={StaticResource BooleanToVisibilityConverter} }"/>
+                        <icon:PackIconModern 
+                        MinWidth="24" MinHeight="24"
+                        Width="{Binding RelativeSource={RelativeSource AncestorType=ListView},Path=Width, ConverterParameter=0.04, Converter={StaticResource MultiplyC}}"
+                        DockPanel.Dock="Bottom" HorizontalAlignment="Center" Kind="{Binding Battery, Converter={StaticResource BatteryC}}"/>
+                        <icon:PackIconModern 
+                        MinHeight="60" MinWidth="60"
+                        HorizontalAlignment="Center"
+                        Width="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=Width, Converter={StaticResource MultiplyC}, ConverterParameter=0.1}"
+                        Height="{Binding RelativeSource={RelativeSource Self}, Path=Width}" 
+                        Kind="ControllerXbox"/>
+                    </DockPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </DockPanel>
+</Page>
