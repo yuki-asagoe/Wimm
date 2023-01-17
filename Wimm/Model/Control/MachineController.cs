@@ -59,6 +59,10 @@ namespace Wimm.Model.Control
             ObservedGamepadIndex = controllerIndex;
             ControlTimer = new Timer(OnTimer, null, 0, controlPeriod);
             ControlPeriod = controlPeriod;
+            if (Machine.Camera.Channels.Length > 0)
+            {
+                Machine.Camera.Activate(Machine.Camera.Channels[0], true);
+            }
         }
         //この内部は別スレッド
         private void OnTimer(object? state)
