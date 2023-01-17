@@ -46,7 +46,7 @@ namespace Wimm.Model.Control
                 stream.WriteLine("-- map(key_array,button_array,action)");
                 stream.WriteLine("-- 引数にbuttonsとkeysが与えられます。");
                 stream.WriteLine("-- buttons : Votice.XInput.GamepadButtons");
-                stream.WriteLine("-- keys : System.Windows.Input.Keys");
+                stream.WriteLine("-- keys : 未定、現在参照できません map関数の入力は受け入れますが何もしません");
             }
             File.Create(scriptFolder.FullName + "/on_control.neo.lua").Close();
             var macroFolder = new DirectoryInfo(scriptFolder + "/macro");
@@ -215,10 +215,6 @@ namespace Wimm.Model.Control
                     (Action<LuaTable, LuaTable, Func<LuaResult>>)MapControl
                 ),
                 new KeyValuePair<string, object>(
-                    "keys",
-                    LuaKeysEnum.KeyboardEnum
-                ),
-                new KeyValuePair<string, object>(
                     "buttons",
                     LuaKeysEnum.GamepadKeyEnum
                 ),
@@ -231,7 +227,7 @@ namespace Wimm.Model.Control
                 on_controlFile.FullName,
                 new LuaCompileOptions(),
                 new KeyValuePair<string, Type>(RootModuleName,typeof(LuaTable)),
-                new KeyValuePair<string, Type>("keys",typeof(LuaTable)),
+                new KeyValuePair<string, Type>("buttons",typeof(LuaTable)),
                 new KeyValuePair<string, Type>("gamepad",typeof(Gamepad))
             );
             if (macroFolder.Exists)
@@ -244,21 +240,12 @@ namespace Wimm.Model.Control
 
         private void MapControl(LuaTable keys,LuaTable buttons,Func<LuaResult> action)
         {
-            var keyBuilder = new LinkedList<Key>();
-            foreach((_,var value) in keys)
-            {
-                if (value is int key)
-                {
-                    keyBuilder.AddLast((Key)key);
-                }
-            }
             var buttonBits = 0;
             foreach((_,var value) in buttons)
             {
                 if (value is int button) buttonBits |= button;
             }
             KeyBindings.Add(new KeyBinding(
-                keyBuilder.ToImmutableArray(),
                 (GamepadButtons)buttonBits,
                 action
                 ));
@@ -291,18 +278,20 @@ namespace Wimm.Model.Control
                 if (RunningMacro.IsRunning){ RunningMacro.Process(ControlEnvironment); }
                 else { RunningMacro.Dispose();RunningMacro = null; }
             }
-            else if (KeyBindings is not null && XInput.GetState(ControllerIndex,out var state))
+            else if (KeyBindings is not null)
             {
                 foreach (var bind in KeyBindings)
                 {
                     if (bind.IsActive(ControllerIndex)) bind.Action();
                 }
-                ControlChunk?.Run(
-                    ControlEnvironment,
-                    ModuleTable,
-                    LuaKeysEnum.GamepadKeyEnum,
-                    state.Gamepad
-                );
+                if (XInput.GetState(ControllerIndex, out var state)) {
+                    ControlChunk?.Run(
+                        ControlEnvironment,
+                        ModuleTable,
+                        LuaKeysEnum.GamepadKeyEnum,
+                        state.Gamepad
+                    );
+                }
             }
         }
         public bool TryControl()

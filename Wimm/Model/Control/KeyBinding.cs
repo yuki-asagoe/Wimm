@@ -10,14 +10,12 @@ using Vortice.XInput;
 
 namespace Wimm.Model.Control
 {
-    public record KeyBinding(ImmutableArray<Key> Keys,GamepadButtons GamepadKeys,Func<LuaResult> Action)
+    public record KeyBinding(GamepadButtons GamepadKeys,Func<LuaResult> Action)
     {
         public bool IsActive(int gamepadIndex)
         {
             if (!XInput.GetState(gamepadIndex, out var padState)) return false;
-            var gamepadPressed= (padState.Gamepad.Buttons & GamepadKeys) == GamepadKeys;
-            if (!gamepadPressed) return false;
-            return Keys.All(x => Keyboard.IsKeyDown(x));
+            return (padState.Gamepad.Buttons & GamepadKeys) == GamepadKeys;
         }
         public void Run() => Action();
         public void TryRun(int gamepadIndex)
