@@ -17,6 +17,10 @@ namespace Wimm.Model.Control
             if (!XInput.GetState(gamepadIndex, out var padState)) return false;
             return (padState.Gamepad.Buttons & GamepadKeys) == GamepadKeys;
         }
+        public bool IsActive(Gamepad gamepad)
+        {
+            return (gamepad.Buttons & GamepadKeys) == GamepadKeys;
+        }
         public void Run() => Action();
         public void TryRun(int gamepadIndex)
         {

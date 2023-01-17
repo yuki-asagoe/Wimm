@@ -278,20 +278,18 @@ namespace Wimm.Model.Control
                 if (RunningMacro.IsRunning){ RunningMacro.Process(ControlEnvironment); }
                 else { RunningMacro.Dispose();RunningMacro = null; }
             }
-            else if (KeyBindings is not null)
+            else if (KeyBindings is not null && XInput.GetState(ControllerIndex, out var state))
             {
                 foreach (var bind in KeyBindings)
                 {
-                    if (bind.IsActive(ControllerIndex)) bind.Action();
+                    if (bind.IsActive(state.Gamepad)) bind.Action();
                 }
-                if (XInput.GetState(ControllerIndex, out var state)) {
-                    ControlChunk?.Run(
+                ControlChunk?.Run(
                         ControlEnvironment,
                         ModuleTable,
                         LuaKeysEnum.GamepadKeyEnum,
                         state.Gamepad
                     );
-                }
             }
         }
         public bool TryControl()
