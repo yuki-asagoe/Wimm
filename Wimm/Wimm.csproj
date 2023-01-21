@@ -60,6 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Model\Launcher\" />
     <Folder Include="Ui\UserControls\" />
   </ItemGroup>
 

@@ -7,16 +7,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Wimm.Model.Generator;
 
-namespace Wimm.Model.Launcher
+namespace Wimm.Ui.Records
 {
-    public record MachineEntry(string Name,string ControlBoardName,DirectoryInfo MachineDirectory,ImageSource? Icon)
+    public record MachineEntry(string Name, string ControlBoardName, DirectoryInfo MachineDirectory, ImageSource? Icon)
     {
         public static MachineEntry[]? LoadEntries()
         {
             var dir = MachineFolderGenerator.GetMachineRootFolder();
             if (dir is null) return null;
             var list = new LinkedList<MachineEntry>();
-            foreach(var i in dir.GetDirectories())
+            foreach (var i in dir.GetDirectories())
             {
                 var metainfoFile = new FileInfo(i.FullName + "/meta_info.json");
                 if (!metainfoFile.Exists) continue;
@@ -42,7 +42,8 @@ namespace Wimm.Model.Launcher
                             );
                         }
                     }
-                }catch(IOException)
+                }
+                catch (IOException)
                 {
                     continue;
                 }
@@ -50,5 +51,5 @@ namespace Wimm.Model.Launcher
             return list.ToArray();
         }
     }
-    
+
 }

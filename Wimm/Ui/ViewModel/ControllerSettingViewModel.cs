@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using Vortice.XInput;
 
 namespace Wimm.Ui.ViewModel
@@ -27,7 +28,12 @@ namespace Wimm.Ui.ViewModel
                     new GameControllerModel(3)
                 }
             );
+            Timer = new DispatcherTimer();
+            Timer.Interval = new TimeSpan(0, 0, 2);
+            Timer.Tick += (_, _) => UpdateState();
+            Timer.Start();
         }
+        private DispatcherTimer Timer { get; }
         public void UpdateState()
         {
             foreach(var i in Gamepads)

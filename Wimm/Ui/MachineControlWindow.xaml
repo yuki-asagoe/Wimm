@@ -11,29 +11,71 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance ViewModels:MachineControlViewModel}"
         Title="{Binding MachineName}" Height="650" Width="900">
+    <Metro:MetroWindow.Resources>
+        <Style x:Key="HeaderTextBlock" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.AccentBase}"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style x:Key="InfomationTile" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.IdealForeground}"/>
+            <Setter Property="Margin" Value="{StaticResource Wimm.Margin.Small}"/>
+            <Setter Property="Padding" Value="{StaticResource Wimm.Margin.Small}"/>
+        </Style>
+    </Metro:MetroWindow.Resources>
     <Grid>
         <DockPanel LastChildFill="True" Background="{StaticResource MahApps.Brushes.Gray9}">
             <StatusBar DockPanel.Dock="Bottom">
-                <StatusBarItem>
-                    <BulletDecorator>
-                        <BulletDecorator.Bullet>
-                            <TextBlock Text="{Binding GeneralProgressLabel}"/>
-                        </BulletDecorator.Bullet>
-                        <Metro:MetroProgressBar Width="250" Minimum="0" Maximum="1" Value="{Binding GeneralProgress}"/>
-                    </BulletDecorator>
-                </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
                     <TextBlock>
                         Connection : <Run Text="{Binding ConnectionStatus}"/>
                     </TextBlock>
                 </StatusBarItem>
             </StatusBar>
-            <Border DockPanel.Dock="Right" Margin="5 0 0 0" Name="InformationField" Width="300" Background="{StaticResource MahApps.Brushes.Window.Background}">
-                <DockPanel LastChildFill="True">
-                    <ListBox Margin="{StaticResource Wimm.Margin.Middle}"></ListBox>
-                </DockPanel>
+            <Border DockPanel.Dock="Right" Name="InformationField" Width="300" Margin="{StaticResource Wimm.Margin.Small}">
+                <StackPanel CanVerticallyScroll="True">
+                    <Border Style="{StaticResource InfomationTile}">
+                        <StackPanel>
+                            <TextBlock Text="Camera" Style="{StaticResource HeaderTextBlock}"/>
+                            <DataGrid HeadersVisibility="None" Margin="{StaticResource Wimm.Margin.Small.Horizontal}" SelectionMode="Single" GridLinesVisibility="Horizontal" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" ItemsSource="{Binding CameraChannelEntries}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Width="SizeToCells" Header="Index" Binding="{Binding Index}"/>
+                                <DataGridTextColumn Width="*" Header="Name" Binding="{Binding Name}"/>
+                                <DataGridTemplateColumn Header="Activation">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Metro:ToggleSwitch IsOn="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource InfomationTile}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Control" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlock}"/>
+                                <Metro:ToggleSwitch Margin="{StaticResource Wimm.Margin.Large.Horizontal}" IsOn="{Binding IsControlRunning, Mode=TwoWay}"/>
+                            </StackPanel>
+                            <StackPanel Margin="{StaticResource Wimm.Margin.Small.Horizontal}" Visibility="{Binding IsControlRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <BulletDecorator>
+                                    <BulletDecorator.Bullet>
+                                        <TextBlock>Running : <Run Text="{Binding RunningMacro.Name}"/></TextBlock>
+                                    </BulletDecorator.Bullet>
+                                    <Metro:MetroProgressBar Value="{Binding MacroProgress}" Maximum="{Binding MacroMaxProgress}" Margin="{StaticResource Wimm.Margin.Small.Horizontal}"/>
+                                </BulletDecorator>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource InfomationTile}">
+                        <StackPanel>
+                            <TextBlock Text="QR Code Detection" Style="{StaticResource HeaderTextBlock}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </Border>
-            <ContentControl DockPanel.Dock="Bottom" Height="150" Margin="10 0 10 10">
+            <ContentControl DockPanel.Dock="Bottom" Height="150" Margin="10 0 0 10">
                 <t:Terminal
                     Name="InteractionTerminal"
                     ItemsSource="{Binding TerminalLines, Mode=OneWay}"
@@ -50,8 +92,8 @@
                     </b:Interaction.Triggers>
                 </t:Terminal>
             </ContentControl>
-            <Border Name="ScreenField" Margin="{StaticResource Wimm.Margin.Middle}" Background="{StaticResource MahApps.Brushes.Gray1}">
-                <Image Name="Screen"/>
+            <Border Name="ScreenField" Margin="10 10 0 10" Background="{StaticResource MahApps.Brushes.Gray1}">
+                <Image Name="Screen" Stretch="Uniform"/>
             </Border>
         </DockPanel>
     </Grid>

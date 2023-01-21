@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using Wimm.Machines.Tpip3.Import;
 using Wimm.Machines.Video;
 
@@ -37,7 +38,7 @@ namespace Wimm.Machines.Tpip3
                         byte[] data = new byte[byteSize];
                         Marshal.Copy(arrayAddress, data, 0, byteSize);
                         var image = Cv2.ImDecode(data, ImreadModes.Unchanged);
-                        (Channels[activeChannelIndex] as Tpip3CameraChannel)?.SetRawFrame(image);
+                        CallUpdateHandler(new[] { (Channels[activeChannelIndex], image) });
                         handled = true;
                     }
                     TPJT3.NativeMethods.free_jpeg_file();
@@ -49,13 +50,11 @@ namespace Wimm.Machines.Tpip3
         {
             base.Activate(channel, activation);
             activeChannelIndex = Channels.IndexOf(channel);
-            TPJT3.NativeMethods.chg_camera(activeChannelIndex);
+            if(activation)TPJT3.NativeMethods.chg_camera(activeChannelIndex);
         }
     }
     public class Tpip3CameraChannel : Channel
     {
-        public Tpip3CameraChannel(string name):base(name)
-        {}
-        internal void SetRawFrame(Mat image) { RawFrame = image; }
+        public Tpip3CameraChannel(string name):base(name){}
     }
 }

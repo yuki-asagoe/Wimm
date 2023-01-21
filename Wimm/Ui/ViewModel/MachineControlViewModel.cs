@@ -19,6 +19,9 @@ using Wimm.Model.Console;
 using System.Windows.Input;
 using System.Diagnostics;
 using Wimm.Model.Control.Script.Macro;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using Wimm.Ui.Records;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -28,22 +31,10 @@ namespace Wimm.Ui.ViewModel
         {
             TerminalController = new TerminalController(GetDefaultCommands());
             MachineDirectory = machineDirectory;
-            using var g = Graphics.FromHwnd(IntPtr.Zero);
             CommandMacroStart = new MacroStartCommand(this);
             CommandMacroStop = new MacroStopCommand(this);
-            this.DpiX = g.DpiX;
-            this.DpiY = g.DpiY;
-        }
-        private System.Drawing.Size TranslformToDrawingSize(System.Windows.Size size)
-        {
-            return new System.Drawing.Size(//WPF-Size-Unit to pixel-unit
-                (int)((DpiX / 96) * size.Width),
-                (int)((DpiY / 96) * size.Height)
-            );
         }
         private DirectoryInfo MachineDirectory { get; init; }
-        private readonly float DpiX;
-        private readonly float DpiY;
         public async Task<Exception?> OnLoad(HwndSource hwnd,FrameworkElement sizeObservedElement,Dispatcher dispatcher)
             //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
         {
@@ -86,35 +77,33 @@ namespace Wimm.Ui.ViewModel
             MachineController = controller;
             var size = sizeObservedElement.RenderSize;
             VideoProcessor = new VideoProcessor(
-                TranslformToDrawingSize(sizeObservedElement.RenderSize),
-                MachineController.Machine.Camera,
-                dispatcher
+                new System.Drawing.Size(600,800),
+                MachineController.Machine.Camera
             );
-            sizeObservedElement.SizeChanged += (object? sender, SizeChangedEventArgs args) => {
-                if(VideoProcessor is not null)VideoProcessor.ImageSize = TranslformToDrawingSize(args.NewSize);
+            VideoProcessor.ImageUpdated += (image) =>
+            {
+                dispatcher.Invoke(() => { CameraOutput = image; });
             };
             MachineName = MachineController.Machine.Name;
-            VideoProcessor.OnImageUpdated += it => CameraOutput = it;
-            highRateTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
-            highRateTimer.Tick += HighRatePeriodicWork;
-            highRateTimer.Interval += new TimeSpan(0, 0, 0, 0, 300);
-            timer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
-            timer.Tick += PeriodicWork;
-            timer.Interval = new TimeSpan(0, 0, 2);//2秒間隔
+            foreach(var c in MachineController.Machine.Camera.Channels)
+            {
+                CameraChannelEntries.Add(new CameraChannelEntry(MachineController.Machine.Camera,c));
+            }
+            VideoProcessor.ImageUpdated += it => CameraOutput = it;
+            periodicTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
+            periodicTimer.Tick += HighRatePeriodicWork;
+            periodicTimer.Interval += new TimeSpan(0, 0, 0, 0, 500);
             MachineController.StartControlLoop();
             TerminalController.Post($"ロボットの初期化が完了しました。ロボット名 : {MachineController.Machine.Name}");
             return null;
         }
-        private void PeriodicWork(object? sender,EventArgs args)
+        private void HighRatePeriodicWork(object? sender, EventArgs args)
         {
             ConnectionStatus = MachineController?.Machine?.ConnectionStatus ?? ConnectionState.Offline;
-            if(MachineController is not null && XInput.GetState(MachineController.ObservedGamepadIndex,out var state))
+            if (MachineController is not null && XInput.GetState(MachineController.ObservedGamepadIndex, out var state))
             {
                 ObservedGamepad = state.Gamepad;
             }
-        }
-        private void HighRatePeriodicWork(object? sender, EventArgs args)
-        {
             if (MachineController is MachineController controller)
             {
                 if (controller.IsMacroRunning) { 
@@ -167,7 +156,7 @@ namespace Wimm.Ui.ViewModel
             if (disposed) return;
             disposed = true;
             controller?.Dispose();
-            timer?.Stop();
+            periodicTimer?.Stop();
             TerminalController.Dispose();
             GC.SuppressFinalize(this);
         }
@@ -177,8 +166,8 @@ namespace Wimm.Ui.ViewModel
         }
 
         private MachineController? controller = null;
-        private DispatcherTimer? timer = null;
-        private DispatcherTimer? highRateTimer = null;
+        private DispatcherTimer? periodicTimer = null;
+        public ObservableCollection<CameraChannelEntry> CameraChannelEntries { get; } = new();
         public ICommand CommandMacroStart { get; }
         public ICommand CommandMacroStop { get; }
         public TerminalController TerminalController { get; }
@@ -186,7 +175,7 @@ namespace Wimm.Ui.ViewModel
         private VideoProcessor? VideoProcessor { get; set; }
         public ICommand TerminalExecuteCommand => TerminalController.ExecuteCommand;
         public IEnumerable TerminalLines => TerminalController.LinesView;
-        public static DependencyProperty IsControlRunningProperty
+        public readonly static DependencyProperty IsControlRunningProperty
             = DependencyProperty.Register(
                 "IsControlRunning", typeof(bool), typeof(MachineControlViewModel),
                 new PropertyMetadata((DependencyObject property,DependencyPropertyChangedEventArgs args) => {
@@ -200,27 +189,23 @@ namespace Wimm.Ui.ViewModel
                     }
                 })
             );
-        public static DependencyProperty MachineNameProperty
+        public readonly static DependencyProperty MachineNameProperty
             = DependencyProperty.Register("MachineName", typeof(string), typeof(MachineControlViewModel));
-        public static DependencyProperty GeneralProgressLabelProperty
-            = DependencyProperty.Register("GeneralProgressLabel", typeof(string), typeof(MachineControlViewModel));
-        public static DependencyProperty GeneralProgressProperty
-            = DependencyProperty.Register("GeneralProgress", typeof(double), typeof(MachineControlViewModel));
-        public static DependencyProperty ConnectionStatusProperty
+        public readonly static DependencyProperty ConnectionStatusProperty
             = DependencyProperty.Register("ConnectionStatus", typeof(ConnectionState), typeof(MachineControlViewModel));
-        public static DependencyProperty DetectedQRCodeValueProperty
+        public readonly static DependencyProperty DetectedQRCodeValueProperty
             = DependencyProperty.Register("DetectedQRCodeValue", typeof(string), typeof(MachineControlViewModel));
-        public static DependencyProperty CameraOutputProperty
+        public readonly static DependencyProperty CameraOutputProperty
             = DependencyProperty.Register("CameraOutput", typeof(ImageSource), typeof(MachineControlViewModel));
-        public static DependencyProperty ObservedGamepadProperty
+        public readonly static DependencyProperty ObservedGamepadProperty
             = DependencyProperty.Register("ObservedGamepad", typeof(Gamepad), typeof(MachineControlViewModel));
-        public static DependencyProperty RunningMacroProperty
+        public readonly static DependencyProperty RunningMacroProperty
             = DependencyProperty.Register("RunningMacro", typeof(MacroInfo), typeof(MachineControlViewModel));
-        public static DependencyProperty MacroMaxProgressProperty
+        public readonly static DependencyProperty MacroMaxProgressProperty
             = DependencyProperty.Register("MacroMaxProgress", typeof(double), typeof(MachineControlViewModel));
-        public static DependencyProperty MacroProgressProperty
+        public readonly static DependencyProperty MacroProgressProperty
             = DependencyProperty.Register("MacroProgress", typeof(double), typeof(MachineControlViewModel));
-        public static DependencyProperty ControlStateProperty
+        public readonly static DependencyProperty ControlStateProperty
             = DependencyProperty.Register("ControlStatus", typeof(ControlStatus), typeof(MachineControlViewModel));
 
         public ControlStatus ControlStatus
@@ -253,16 +238,6 @@ namespace Wimm.Ui.ViewModel
             get { return (string)GetValue(MachineNameProperty); }
             set { SetValue(MachineNameProperty, value); }
         }
-        public string GeneralProgressLabel
-        {
-            get { return (string)GetValue(GeneralProgressLabelProperty); }
-            set { SetValue(GeneralProgressLabelProperty, value); }
-        }
-        public double GeneralProgress
-        {
-            get { return (double)GetValue(GeneralProgressProperty); }
-            set { SetValue(GeneralProgressProperty, value); }
-        }
         public ConnectionState ConnectionStatus
         {
             get { return (ConnectionState)GetValue(ConnectionStatusProperty); }
@@ -294,7 +269,17 @@ namespace Wimm.Ui.ViewModel
                         new CommandNode(
                             "activate",Array.Empty<CommandNode>(),
                             new[]{new KeyValuePair<string,Type>("number",typeof(int))},
-                            (param) =>{}
+                            (param) =>{
+                                if(MachineController is not null && param.Count >= 1 && int.TryParse(param[0],out var index))
+                                {
+                                    if (0 <= index && index < CameraChannelEntries.Count)
+                                    {
+                                        CameraChannelEntries[index].IsActive=true;
+                                    }
+                                    TerminalController.Post($"{index}番カメラのアクティブ化を要求しました");
+                                }
+                                else{ TerminalController.Post("引数のパースに失敗。"); }
+                            }
                         )
                     }
                 ),
@@ -304,9 +289,15 @@ namespace Wimm.Ui.ViewModel
                         new CommandNode(
                             "set",Array.Empty<CommandNode>(),
                             new []{new KeyValuePair<string,Type>("number",typeof(int))},
-                            (param)=>{}
+                            (param)=>{
+                            }
                         )
                     }
+                ),
+                new CommandNode("exit",
+                    Array.Empty<CommandNode>(),
+                    Array.Empty<KeyValuePair<string,Type>>(),
+                    (_)=>{}
                 )
             };
         }

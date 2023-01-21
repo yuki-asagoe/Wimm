@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Wimm.Model.Generator;
-using Wimm.Model.Launcher;
+using Wimm.Ui.Records;
 
 namespace Wimm.Ui.ViewModel
 {

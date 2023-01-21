@@ -47,12 +47,6 @@ namespace Wimm.Ui
         }
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyDown(e);
-            if(Key.D1 <= e.Key && e.Key <= Key.D9 && ViewModel.MachineController?.Machine?.Camera is Camera camera)
-            {
-                if (e.Key - Key.D1 + 1 <= camera.Channels.Length)
-                    camera.Activate(camera.Channels[e.Key - Key.D1], true);
-            }
             if(e.Key is Key.LeftShift or Key.RightShift)
             {
                 ViewModel.IsControlRunning = !ViewModel.IsControlRunning;

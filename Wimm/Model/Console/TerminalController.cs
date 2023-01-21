@@ -70,7 +70,7 @@ namespace Wimm.Model.Console
             }
             else if(commandNodes.Length - index == parent.ParamsHint.Count)//引数の戸数が正しいことを確認
             {
-                return (parent, commandNodes.Length > index + 1 ? commandNodes[(index + 1)..] : Array.Empty<string>());
+                return (parent, commandNodes.Length > index ? commandNodes[index..] : Array.Empty<string>());
             }
             else
             {

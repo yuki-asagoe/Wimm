@@ -15,7 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Wimm.Model.Launcher;
+using Wimm.Ui.Records;
 using Wimm.Ui.ViewModel;
 
 namespace Wimm.Ui
