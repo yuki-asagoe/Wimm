@@ -27,6 +27,7 @@ namespace Wimm.Machines.Tpip3
         {
             if (msg == WM_PAINT)
             {
+                if (!CanDataSend) { return IntPtr.Zero; }
                 ulong timeStamp = TPJT3.NativeMethods.JF_get_stamp();
                 if (lastTimeStamp < timeStamp)
                 {
@@ -38,7 +39,7 @@ namespace Wimm.Machines.Tpip3
                         byte[] data = new byte[byteSize];
                         Marshal.Copy(arrayAddress, data, 0, byteSize);
                         var image = Cv2.ImDecode(data, ImreadModes.Unchanged);
-                        CallUpdateHandler(new[] { (Channels[activeChannelIndex], image) });
+                        CallUpdateHandler(new[] { new FrameData(Channels[activeChannelIndex], image) });
                         handled = true;
                     }
                     TPJT3.NativeMethods.free_jpeg_file();

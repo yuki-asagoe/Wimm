@@ -15,6 +15,7 @@ namespace Wimm.Machines.Video
         /// </summary>
         public abstract bool SupportingMultiObservation { get; }
         public ImmutableArray<Channel> Channels { get; protected init; }
+        private Task? imageUpdateTask = null;
         public virtual void Activate(Channel channel,bool activation)
         {
             if (!activation)
@@ -36,23 +37,47 @@ namespace Wimm.Machines.Video
             }
         }
         public ImmutableArray<Channel> ActiveChannels { get { return Channels.Where(it => it.IsActive).ToImmutableArray(); } }
+        private LinkedList<ICameraUpdateListener> Listeners { get; } = new LinkedList<ICameraUpdateListener>();
+        public void AddListener(ICameraUpdateListener listener)
+        {
+            if (!Listeners.Contains(listener))
+            {
+                Listeners.AddLast(listener);
+            }
+        }
+        public void RemoveListener(ICameraUpdateListener listener)
+        {
+            Listeners.Remove(listener);
+        }
         /// <summary>
-        /// カメラの更新を受けるハンドラ
-        /// </summary>
-        /// <param name="sentFrames">送信されたカメラと画像のペア、画像は処理後にリソース解放が行われるので単に参照を保持し続けることは推奨しません。</param>
-        public delegate void CameraUpdateHandler((Channel channel,Mat frame)[]sentFrames);
-        public event CameraUpdateHandler? OnUpdate;
-        /// <summary>
-        /// カメラの更新通知を呼び出します
+        /// カメラの更新通知を非同期に呼び出します。
+        /// 画像リソースは処理後自動で解放されます。
         /// </summary>
         /// <param name="frames">送信される画像とチャネルのペア</param>
-        /// <param name="disposeAll">framesに渡された画像を処理後に解放するか、falseを渡す場合は解放処理を実装することを推奨します。</param>
-        protected void CallUpdateHandler((Channel channel, Mat frame)[] frames,bool disposeAll=true) {
-            if(OnUpdate is not null)OnUpdate (frames);
-            if(disposeAll)foreach (var i in frames)
+        protected void CallUpdateHandler(FrameData[] frames) {
+            imageUpdateTask=Task.Run(() =>
             {
-                if (!i.frame.IsDisposed) i.frame.Dispose();
-            }
+                foreach (var i in ListenableHandlers)
+                {
+                    i.OnReceiveData(frames);
+                }
+                foreach (var i in frames)
+                {
+                    if (!i.Frame.IsDisposed) i.Frame.Dispose();
+                }
+            });
+        }
+        /// <summary>
+        /// 現在データを転送できる状態にあるかを返します
+        /// </summary>
+        /// <value><c>false</c> : 画像を転送できない状態である。更新のあったフレームは破棄しても問題ありません。</value>
+        protected bool CanDataSend
+        {
+            get { return Listeners.Any((it) => it.IsReadyToReceive) && (imageUpdateTask?.IsCompleted??true/*暇してる*/); }
+        }
+        protected IEnumerable<ICameraUpdateListener> ListenableHandlers
+        {
+            get { return Listeners.Where((it) => it.IsReadyToReceive); }
         }
     }
     public class Channel
@@ -63,4 +88,21 @@ namespace Wimm.Machines.Video
         public event Action<bool>? ActivationChanged;
         public bool IsActive { get { return active; } internal set { active = value; ActivationChanged?.Invoke(value); } }
     }
+    public interface ICameraUpdateListener
+    {
+        /// <summary>
+        /// 現在画像データを処理できる状態であるかを返します
+        /// </summary>
+        bool IsReadyToReceive { get; }
+        /// <summary>
+        /// データを受け取った際呼び出されます。動作スレッドは不定です。
+        /// </summary>
+        void OnReceiveData(FrameData[] frames);
+    }
+    /// <summary>
+    /// チャネルと送信された画像を扱うレコード
+    /// </summary>
+    /// <param name="Channel">画像を提供したChannel</param>
+    /// <param name="Frame">対応する画像。画像は処理後にリソース解放が行われるので単に参照を保持し続けることは推奨しません。</param>
+    public record FrameData(Channel Channel, Mat Frame) { }
 }
