@@ -8,16 +8,14 @@
         xmlns:local="clr-namespace:Wimm.Ui"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
+        xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance ViewModels:MachineControlViewModel}"
         Title="{Binding MachineName}" Height="650" Width="900">
     <Metro:MetroWindow.Resources>
-        <Style x:Key="HeaderTextBlock" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.AccentBase}"/>
-            <Setter Property="FontSize" Value="20"/>
+        <Converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
+        <Style x:Key="InfomationTile" TargetType="Expander" BasedOn="{StaticResource MahApps.Styles.Expander}">
             <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-        <Style x:Key="InfomationTile" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource MahApps.Brushes.IdealForeground}"/>
             <Setter Property="Margin" Value="{StaticResource Wimm.Margin.Small}"/>
             <Setter Property="Padding" Value="{StaticResource Wimm.Margin.Small}"/>
@@ -34,9 +32,8 @@
             </StatusBar>
             <Border DockPanel.Dock="Right" Name="InformationField" Width="300" Margin="{StaticResource Wimm.Margin.Small}">
                 <StackPanel CanVerticallyScroll="True">
-                    <Border Style="{StaticResource InfomationTile}">
+                    <Expander Style="{StaticResource InfomationTile}" Header="Camera" IsExpanded="True">
                         <StackPanel>
-                            <TextBlock Text="Camera" Style="{StaticResource HeaderTextBlock}"/>
                             <DataGrid HeadersVisibility="None" Margin="{StaticResource Wimm.Margin.Small.Horizontal}" SelectionMode="Single" GridLinesVisibility="Horizontal" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" ItemsSource="{Binding CameraChannelEntries}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Width="SizeToCells" Header="Index" Binding="{Binding Index}"/>
@@ -51,13 +48,10 @@
                             </DataGrid.Columns>
                         </DataGrid>
                         </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource InfomationTile}">
+                    </Expander>
+                    <Expander Style="{StaticResource InfomationTile}" Header="Control" IsExpanded="True">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Control" VerticalAlignment="Center" Style="{StaticResource HeaderTextBlock}"/>
-                                <Metro:ToggleSwitch Margin="{StaticResource Wimm.Margin.Large.Horizontal}" IsOn="{Binding IsControlRunning, Mode=TwoWay}"/>
-                            </StackPanel>
+                            <Metro:ToggleSwitch IsOn="{Binding IsControlRunning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <StackPanel Margin="{StaticResource Wimm.Margin.Small.Horizontal}" Visibility="{Binding IsControlRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <BulletDecorator>
                                     <BulletDecorator.Bullet>
@@ -67,12 +61,43 @@
                                 </BulletDecorator>
                             </StackPanel>
                         </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource InfomationTile}">
+                    </Expander>
+                    <Expander Header="QR Code Detection" Style="{StaticResource InfomationTile}" IsExpanded="True">
                         <StackPanel>
-                            <TextBlock Text="QR Code Detection" Style="{StaticResource HeaderTextBlock}"/>
+                            <Metro:ProgressRing Margin="{StaticResource Wimm.Margin.Small.Vertical}" Visibility="{Binding QRDetectionRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <Separator Visibility="{Binding DetectedQRCodeValue, Converter={StaticResource NotNullToVisibilityConverter}}"/>
+                            <Grid Visibility="{Binding DetectedQRCodeValue, Converter={StaticResource NotNullToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock 
+                                    HorizontalAlignment="Center" 
+                                    Margin="{StaticResource Wimm.Margin.Small.Vertical}"
+                                    Grid.Column="1">検出されました。</TextBlock>
+                                <TextBlock
+                                    HorizontalAlignment="Center" 
+                                    Margin="{StaticResource Wimm.Margin.Middle.Vertical}" 
+                                    Text="{Binding DetectedQRCodeValue}"
+                                    Grid.Column="1" Grid.Row="1"
+                                    />
+                                <Image Stretch="Uniform" Grid.RowSpan="2" Source="{Binding DetectedQRCode}"/>
+                            </Grid>
+                            <Button Command="{Binding CommandStartQRDetect}">自動検知 ON</Button>
+                            <Button 
+                                Command="{Binding CommandStopQRDetect}" 
+                                Visibility="{Binding QRDetectionRunning, Converter={StaticResource BooleanToVisibilityConverter}}">キャンセル</Button>
                         </StackPanel>
-                    </Border>
+                    </Expander>
+                    <Expander Header="Audio" Style="{StaticResource InfomationTile}" IsExpanded="True">
+                        <StackPanel>
+                            
+                        </StackPanel>
+                    </Expander>
                 </StackPanel>
             </Border>
             <ContentControl DockPanel.Dock="Bottom" Height="150" Margin="10 0 0 10">

@@ -36,6 +36,12 @@ namespace Wimm.Model.Video
         /// 動作スレッドを保障しません、Dispatcherなどを用いて明示的にUIスレッドに結果をフィードバックすることを推奨します。
         /// </summary>
         public event ImageUpdateHandler? ImageUpdated;
+        /// <summary>
+        /// QRコードのデータが更新された時に呼び出されます。
+        /// 動作スレッドを保障しません、Dispatcherなどを用いて明示的にUIスレッドに結果をフィードバックすることを推奨します。
+        /// </summary>
+        public event QRResultUpdateHandler? QRUpdated;
+        public delegate void QRResultUpdateHandler(QRDetectionResult result);
         public delegate void ImageUpdateHandler(BitmapSource image);
         /// <summary>
         /// 画像加工処理を行います、非常に高頻度で呼び出されることが想定されるのであまり重たくしすぎないでください
@@ -46,9 +52,37 @@ namespace Wimm.Model.Video
             return frames[0].Frame.ToBitmapSource();
         }
         public bool IsReadyToReceive => true;
-        public void OnReceiveData(FrameData[] frames)
+        public async void OnReceiveData(FrameData[] frames)
         {
+            if(qrDetectionTask?.IsCompleted??true && QRDetecting)
+            {
+                //適切に処理できるようにしてくれ
+                qrDetectionTask = DetectQR(frames[0].Frame.Clone());
+                var result=await qrDetectionTask;
+                if(result is not null)
+                {
+                    QRDetecting = false;
+                    QRUpdated?.Invoke(result);
+                }
+            }
             ImageUpdated?.Invoke(Draw(frames));
         }
+        private Task<QRDetectionResult?> DetectQR(Mat image)
+        {
+            return Task.Run(() =>
+            {
+                using var target=image;
+                using var detector = new QRCodeDetector();
+                var result=detector.DetectAndDecode(image, out var area);
+                if(result is null || result.Length == 0)
+                {
+                    return null;
+                }
+                return new QRDetectionResult(result, null);
+            });
+        }
+        private Task<QRDetectionResult?>? qrDetectionTask = null;
+        public bool QRDetecting { get; set; }
     }
+    public record QRDetectionResult(string Result,BitmapSource? DetectedArea);
 }

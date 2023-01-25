@@ -22,6 +22,8 @@ using Wimm.Model.Control.Script.Macro;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Wimm.Ui.Records;
+using Wimm.Ui.Commands;
+using System.Windows.Media.Imaging;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -33,6 +35,20 @@ namespace Wimm.Ui.ViewModel
             MachineDirectory = machineDirectory;
             CommandMacroStart = new MacroStartCommand(this);
             CommandMacroStop = new MacroStopCommand(this);
+            CommandStartQRDetect = new DelegateCommand(() =>
+            {
+                if(VideoProcessor is not null)VideoProcessor.QRDetecting = true;
+                QRDetectionRunning = true;
+            }, 
+            () => { return VideoProcessor is not null && QRDetectionRunning is false; }
+            );
+            CommandStopQRDetect = new DelegateCommand(() =>
+            {
+                if (VideoProcessor is not null) VideoProcessor.QRDetecting = false;
+                QRDetectionRunning = false;
+            },
+            () => { return VideoProcessor is not null && QRDetectionRunning is true; }
+            );
         }
         private DirectoryInfo MachineDirectory { get; init; }
         public async Task<Exception?> OnLoad(HwndSource hwnd,FrameworkElement sizeObservedElement,Dispatcher dispatcher)
@@ -80,9 +96,15 @@ namespace Wimm.Ui.ViewModel
                 new System.Drawing.Size(600,800),
                 MachineController.Machine.Camera
             );
+            VideoProcessor.QRUpdated += (result) =>
+                dispatcher.BeginInvoke(() => {
+                    QRDetectionRunning = false;
+                    DetectedQRCodeValue = result.Result;
+                    if(result.DetectedArea is not null)DetectedQRCode = result.DetectedArea;
+                });
             VideoProcessor.ImageUpdated += (image) =>
             {
-                dispatcher.Invoke(() => { CameraOutput = image; });
+                dispatcher.BeginInvoke(() => { CameraOutput = image; });
             };
             MachineName = MachineController.Machine.Name;
             foreach(var c in MachineController.Machine.Camera.Channels)
@@ -93,7 +115,6 @@ namespace Wimm.Ui.ViewModel
             periodicTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
             periodicTimer.Tick += HighRatePeriodicWork;
             periodicTimer.Interval += new TimeSpan(0, 0, 0, 0, 500);
-            MachineController.StartControlLoop();
             TerminalController.Post($"ロボットの初期化が完了しました。ロボット名 : {MachineController.Machine.Name}");
             return null;
         }
@@ -170,6 +191,8 @@ namespace Wimm.Ui.ViewModel
         public ObservableCollection<CameraChannelEntry> CameraChannelEntries { get; } = new();
         public ICommand CommandMacroStart { get; }
         public ICommand CommandMacroStop { get; }
+        public ICommand CommandStartQRDetect { get; }
+        public ICommand CommandStopQRDetect { get; }
         public TerminalController TerminalController { get; }
         public MachineController? MachineController { get { return controller; } private set { controller = value;OnMachineSet(); } }
         private VideoProcessor? VideoProcessor { get; set; }
@@ -193,8 +216,12 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("MachineName", typeof(string), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ConnectionStatusProperty
             = DependencyProperty.Register("ConnectionStatus", typeof(ConnectionState), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty QRDetectionRunningProperty
+            = DependencyProperty.Register("QRDetectionRunning", typeof(bool), typeof(MachineControlViewModel));
         public readonly static DependencyProperty DetectedQRCodeValueProperty
             = DependencyProperty.Register("DetectedQRCodeValue", typeof(string), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty DetectedQRCodeProperty
+            = DependencyProperty.Register("DetectedQRCode", typeof(BitmapSource), typeof(MachineControlViewModel));
         public readonly static DependencyProperty CameraOutputProperty
             = DependencyProperty.Register("CameraOutput", typeof(ImageSource), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ObservedGamepadProperty
@@ -243,10 +270,20 @@ namespace Wimm.Ui.ViewModel
             get { return (ConnectionState)GetValue(ConnectionStatusProperty); }
             private set { SetValue(ConnectionStatusProperty,value); }
         }
+        public bool QRDetectionRunning
+        {
+            get { return (bool)GetValue(QRDetectionRunningProperty); }
+            set { SetValue(QRDetectionRunningProperty, value); }
+        }
         public string DetectedQRCodeValue
         {
             get { return GetValue(DetectedQRCodeValueProperty) as string ?? ""; }
             private set { SetValue(DetectedQRCodeValueProperty, value); }
+        }
+        public BitmapSource DetectedQRCode
+        {
+            get { return (BitmapSource)GetValue(DetectedQRCodeProperty); }
+            private set { SetValue(DetectedQRCodeProperty, value); }
         }
         public ImageSource? CameraOutput
         {
