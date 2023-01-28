@@ -111,10 +111,10 @@ namespace Wimm.Ui.ViewModel
             {
                 CameraChannelEntries.Add(new CameraChannelEntry(MachineController.Machine.Camera,c));
             }
-            VideoProcessor.ImageUpdated += it => CameraOutput = it;
             periodicTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
             periodicTimer.Tick += HighRatePeriodicWork;
             periodicTimer.Interval += new TimeSpan(0, 0, 0, 0, 500);
+            periodicTimer.Start();
             TerminalController.Post($"ロボットの初期化が完了しました。ロボット名 : {MachineController.Machine.Name}");
             return null;
         }

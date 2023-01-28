@@ -32,10 +32,6 @@ namespace Wimm.Machines.Tpip3
         {
             Hwnd = hwnd;
             TpipInitialized = true;
-            if (Camera is Tpip3Camera camera)
-            {
-                hwnd.AddHook(camera.WndProc);
-            }
             TPJT3.NativeMethods.init(machineIpAddress, hwnd.Handle);
         }
         protected Tpip3Machine()

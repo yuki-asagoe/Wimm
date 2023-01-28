@@ -118,7 +118,7 @@
                 </t:Terminal>
             </ContentControl>
             <Border Name="ScreenField" Margin="10 10 0 10" Background="{StaticResource MahApps.Brushes.Gray1}">
-                <Image Name="Screen" Stretch="Uniform"/>
+                <Image Name="Screen" Source="{Binding CameraOutput}" Stretch="Uniform"/>
             </Border>
         </DockPanel>
     </Grid>

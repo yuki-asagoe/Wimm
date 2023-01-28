@@ -49,7 +49,9 @@ namespace Wimm.Model.Video
         /// </summary>
         private BitmapSource Draw(FrameData[] frames)
         {
-            return frames[0].Frame.ToBitmapSource();
+            var image = frames[0].Frame.ToBitmapSource();
+            image.Freeze();
+            return image;
         }
         public bool IsReadyToReceive => true;
         public async void OnReceiveData(FrameData[] frames)

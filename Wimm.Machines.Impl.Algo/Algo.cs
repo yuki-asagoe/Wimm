@@ -103,8 +103,12 @@ namespace Wimm.Machines.Impl.Algo
             Microphone = new AlgoMicrophone();
             Speaker = new AlgoSpeaker();
             Camera = new Tpip3Camera(
-                "フロント","アーム","バック","トップ"
+                "フロント", "バック", "アーム","トップ"
             );
+            if(Camera is Tpip3Camera camera)
+            {
+                hwnd.AddHook(camera.WndProc);
+            }
             Wheels = CreateWheels(this);
             Arm = CreateArm(this);
             StructuredModules

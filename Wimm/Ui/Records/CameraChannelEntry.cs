@@ -16,7 +16,10 @@ namespace Wimm.Ui.Records
         public CameraChannelEntry(Camera camera,Channel channel)
         {
             Channel = channel;
-            channel.ActivationChanged += (active) => { IsActive = active; };
+            channel.ActivationChanged += (active) => { 
+                this.active = active;
+                Notify(nameof(IsActive));
+            };
             name = channel.Name;
             Camera = camera;
             Index = Camera.Channels.IndexOf(channel);
