@@ -9,6 +9,7 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
         xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
+        xmlns:Machines="clr-namespace:Wimm.Machines;assembly=Wimm.Machines"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance ViewModels:MachineControlViewModel}"
         Title="{Binding MachineName}" Height="650" Width="900">
@@ -26,6 +27,15 @@
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem HorizontalAlignment="Right">
                     <TextBlock>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ConnectionStatus}" Value="{x:Static Machines:ConnectionState.Offline}">
+                                        <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Control.Validation}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
                         Connection : <Run Text="{Binding ConnectionStatus}"/>
                     </TextBlock>
                 </StatusBarItem>
