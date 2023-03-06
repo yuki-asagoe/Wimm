@@ -60,7 +60,7 @@ namespace Wimm.Machines.Impl.Algo.Component
             SourceAddress = CanDestinationAddress.BroadCast,
             MessageType = CanDataType.Command
         };
-        public byte[] CanData { get; } = new byte[4];
+        public byte[] CanData { get; } = new byte[2];
         public void Send()
         {
             MotorBoardSupporter.Send(ID, CanData);

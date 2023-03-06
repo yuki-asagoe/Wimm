@@ -47,6 +47,7 @@ namespace Wimm.Ui.ViewModel
         public GameControllerModel(int userIndex)
         {
             index = userIndex;
+            Update();
         }
         private int index;
         private bool connected;
