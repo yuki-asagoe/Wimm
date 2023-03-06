@@ -250,6 +250,11 @@ namespace Wimm.Ui.ViewModel
             get { return (ControlStatus)GetValue(ControlStateProperty); }
             set { SetValue(ControlStateProperty, value); }
         }
+        public double MachineSpeedModifier
+        {
+            get { return (double)GetValue(MachineSpeedModifierProperty); }
+            set { SetValue(MachineSpeedModifierProperty, value); }
+        }
         public MacroInfo RunningMacro
         {
             get { return (MacroInfo)GetValue(RunningMacroProperty); }
