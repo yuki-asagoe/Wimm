@@ -16,7 +16,15 @@
         <Converters:MultiplyConverter x:Key="MultiplyC"/>
         <Converters:BatteryKindConverter x:Key="BatteryC"/>
     </Page.Resources>
-    <DockPanel>
+    <DockPanel LastChildFill="True">
+        <icon:PackIconModern
+            DockPanel.Dock="Right"
+            Kind="InformationCircle"
+            Margin="{StaticResource Wimm.Margin.Small}"
+            ToolTip="Wimmはコントローラー入力にXInputのみを受け付けます。"
+            Width="25"
+            Height="25"
+            />
         <ListView Name="ControllerList" SelectionChanged="ListView_SelectionChanged" SelectionMode="Single" Margin="30" Width="{Binding Path=ActualWidth, Converter={StaticResource MultiplyC}, ConverterParameter=0.7, RelativeSource={RelativeSource AncestorType=Page}}" HorizontalAlignment="Center" VerticalAlignment="Center" ItemsSource="{Binding Gamepads}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
