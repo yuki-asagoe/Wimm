@@ -37,17 +37,14 @@ namespace Wimm.Machines.Video
             }
         }
         public ImmutableArray<Channel> ActiveChannels { get { return Channels.Where(it => it.IsActive).ToImmutableArray(); } }
-        private LinkedList<ICameraUpdateListener> Listeners { get; } = new LinkedList<ICameraUpdateListener>();
-        public void AddListener(ICameraUpdateListener listener)
+        private ICameraUpdateListener? Listener { get; set; } = null;
+        public void SetListener(ICameraUpdateListener listener)
         {
-            if (!Listeners.Contains(listener))
-            {
-                Listeners.AddLast(listener);
-            }
+            Listener = listener;
         }
-        public void RemoveListener(ICameraUpdateListener listener)
+        public void RemoveListener()
         {
-            Listeners.Remove(listener);
+            Listener = null;
         }
         /// <summary>
         /// カメラの更新通知を非同期に呼び出します。
@@ -57,10 +54,7 @@ namespace Wimm.Machines.Video
         protected void CallUpdateHandler(FrameData[] frames) {
             imageUpdateTask=Task.Run(() =>
             {
-                foreach (var i in ListenableHandlers)
-                {
-                    i.OnReceiveData(frames);
-                }
+                Listener?.OnReceiveData(frames);
                 foreach (var i in frames)
                 {
                     if (!i.Frame.IsDisposed) i.Frame.Dispose();
@@ -73,11 +67,11 @@ namespace Wimm.Machines.Video
         /// <value><c>false</c> : 画像を転送できない状態である。更新のあったフレームは破棄しても問題ありません。</value>
         protected bool CanDataSend
         {
-            get { return Listeners.Any((it) => it.IsReadyToReceive) && (imageUpdateTask?.IsCompleted??true/*暇してる*/); }
+            get { return Listener?.IsReadyToReceive ?? false && (imageUpdateTask?.IsCompleted??true/*暇してる*/); }
         }
-        protected IEnumerable<ICameraUpdateListener> ListenableHandlers
+        protected ICameraUpdateListener? getHandler
         {
-            get { return Listeners.Where((it) => it.IsReadyToReceive); }
+            get { return Listener; }
         }
     }
     public class Channel

@@ -27,7 +27,7 @@ namespace Wimm.Model.Video
         {
             ImageSize = imageSize;
             Camera = camera;
-            camera.AddListener(this);
+            camera.SetListener(this);
         }
         public System.Drawing.Size ImageSize { get; set; }
         Camera Camera { get; init; }
@@ -58,8 +58,8 @@ namespace Wimm.Model.Video
         {
             if(qrDetectionTask?.IsCompleted??true && QRDetecting)
             {
-                //適切に処理できるようにしてくれ
                 qrDetectionTask = DetectQR(frames[0].Frame.Clone());
+                ImageUpdated?.Invoke(Draw(frames));
                 var result=await qrDetectionTask;
                 if(result is not null)
                 {
@@ -67,7 +67,10 @@ namespace Wimm.Model.Video
                     QRUpdated?.Invoke(result);
                 }
             }
-            ImageUpdated?.Invoke(Draw(frames));
+            else
+            {
+                ImageUpdated?.Invoke(Draw(frames));
+            }
         }
         private Task<QRDetectionResult?> DetectQR(Mat image)
         {
