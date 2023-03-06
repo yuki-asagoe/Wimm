@@ -24,45 +24,49 @@ namespace Wimm.Machines.Impl.Algo
 
         public override Camera Camera { get; }
         public AlgoControlProcess? ControlProcess{ get; set; }
+        private event Action<ArmControlCanData>? SetArmDefault;
+        private event Action<WheelControlCanData>? SetWheelDefault;
+        private event Action<ContainerControlCanData>? SetContainerDefault;
         public override ControlProcess StartControlProcess()
         {
-            ControlProcess = new AlgoControlProcess(() => { this.ControlProcess = null; });
+            ControlProcess = new AlgoControlProcess(this,() => { this.ControlProcess = null; });
             return ControlProcess;
         }
         private static ModuleGroup CreateWheels(Algo algo)
         {
-            return new ModuleGroup(
-                "wheels",
-                ImmutableArray<ModuleGroup>.Empty,
+            var wheels = 
                 ImmutableArray.Create<Module>(
                     new AlgoWheelMotor(
                         "r_front_wheel", "機動用右前メカナムホイール",
                         WheelMotorDataIndex.RightFront, algo
                     ),
                     new AlgoWheelMotor(
-                        "r_back_wheel","機動用右後メカナムホイール",
-                        WheelMotorDataIndex.RightBack,algo
+                        "r_back_wheel", "機動用右後メカナムホイール",
+                        WheelMotorDataIndex.RightBack, algo
                     ),
                     new AlgoWheelMotor(
-                        "l_front_wheel","機動用左前メカナムホイール",
-                        WheelMotorDataIndex.LeftFront,algo
+                        "l_front_wheel", "機動用左前メカナムホイール",
+                        WheelMotorDataIndex.LeftFront, algo
                     ),
                     new AlgoWheelMotor(
-                        "l_back_wheel","機動用左後メカナムホイール",
-                        WheelMotorDataIndex.LeftBack,algo
+                        "l_back_wheel", "機動用左後メカナムホイール",
+                        WheelMotorDataIndex.LeftBack, algo
                     )
-                )
+                );
+            foreach(AlgoWheelMotor wheel in wheels) { algo.SetWheelDefault += wheel.SetDefaultCanData; }
+            return new ModuleGroup(
+                "wheels",
+                ImmutableArray<ModuleGroup>.Empty,
+                wheels
             );
         }
         private static ModuleGroup CreateArm(Algo algo)
         {
-            return new ModuleGroup(
-                "arms",
-                ImmutableArray<ModuleGroup>.Empty,
+            var motors =
                 ImmutableArray.Create<Module>(
                     new AlgoArmServo(
-                        "roll_servo","アームのひねりを扱うサーボ",
-                        ArmDataIndex.Roll,-80,80,algo
+                        "roll_servo", "アームのひねりを扱うサーボ",
+                        ArmDataIndex.Roll, -80, 80, algo
                     ),
                     new AlgoArmServo(
                         "pitch_servo", "アームの上下回転を扱うサーボ",
@@ -76,7 +80,12 @@ namespace Wimm.Machines.Impl.Algo
                         "roll_servo", "アームのカメラの回転を扱うサーボ",
                         ArmDataIndex.Camera, -70, 25, algo
                     )
-                )
+                );
+            foreach(AlgoArmServo motor in motors) { algo.SetArmDefault += motor.SetDefaultCanData; }
+            return new ModuleGroup(
+                "arms",
+                ImmutableArray<ModuleGroup>.Empty,
+                motors
             );
         }
         public Algo():base()
@@ -121,24 +130,27 @@ namespace Wimm.Machines.Impl.Algo
                     )
                 );
         }
-    }
-    public sealed class AlgoControlProcess : ControlProcess
-    {
-        Action FinishedHander { get; }
-        public AlgoControlProcess(Action processFinishedHandler)
+        public sealed class AlgoControlProcess : ControlProcess
         {
-            FinishedHander = processFinishedHandler;
-        }
-        public ContainerControlCanData ContainerData = new ContainerControlCanData();
-        public ArmControlCanData ArmControlData { get; } = new ArmControlCanData();
-        public WheelControlCanData WheelControlData { get; }= new WheelControlCanData();
-        public override void Dispose()
-        {
-            ArmControlData.Send();
-            WheelControlData.Send();
-            ContainerData.Send();
-            FinishedHander();
-            base.Dispose();
+            Action FinishedHander { get; }
+            public AlgoControlProcess(Algo parent,Action processFinishedHandler)
+            {
+                FinishedHander = processFinishedHandler;
+                parent.SetArmDefault?.Invoke(ArmControlData);
+                parent.SetWheelDefault?.Invoke(WheelControlData);
+                parent.SetContainerDefault?.Invoke(ContainerData);
+            }
+            public ContainerControlCanData ContainerData { get; } = new ContainerControlCanData();
+            public ArmControlCanData ArmControlData { get; } = new ArmControlCanData();
+            public WheelControlCanData WheelControlData { get; } = new WheelControlCanData();
+            public override void Dispose()
+            {
+                ArmControlData.Send();
+                WheelControlData.Send();
+                ContainerData.Send();
+                FinishedHander();
+                base.Dispose();
+            }
         }
     }
 }

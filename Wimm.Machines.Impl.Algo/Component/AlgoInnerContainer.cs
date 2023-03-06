@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Wimm.Machines.Impl.Algo.Component.RokkoOroshiMotorBoard;
+using static Wimm.Machines.Impl.Algo.Algo;
 
 namespace Wimm.Machines.Impl.Algo.Component
 {

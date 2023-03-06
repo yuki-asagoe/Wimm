@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Immutable;
 using Wimm.Machines.Component;
 using Wimm.Machines.Impl.Algo.Component.RokkoOroshiMotorBoard;
+using static Wimm.Machines.Impl.Algo.Algo;
 
 namespace Wimm.Machines.Impl.Algo.Component
 {
@@ -16,7 +17,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         private double angle = 0;
         private double AngleMax { get; }
         private double AngleMin { get; }
-        private static int MaxSpeed = 3;
+        private static int MaxSpeed = 5;
         private double Angle
         {
             get { return angle; }
@@ -25,8 +26,8 @@ namespace Wimm.Machines.Impl.Algo.Component
         public AlgoArmServo(string name, string description,ArmDataIndex index,double angleMax,double angleMin, Algo algo) : base(name, description)
         {
             Parent = algo;
-            AngleMax = Math.Max(angleMax,127);
-            AngleMin = Math.Min(angleMin,-127);
+            AngleMax = Math.Min(angleMax,127);
+            AngleMin = Math.Max(angleMin,-127);
             DataIndex = index;
         }
 
@@ -56,6 +57,10 @@ namespace Wimm.Machines.Impl.Algo.Component
                 Angle += MaxSpeed*speed;
                 process.ArmControlData.CanData[(int)DataIndex] = (byte)Angle;
             }
+        }
+        public void SetDefaultCanData(ArmControlCanData data)
+        {
+            data.CanData[(int)DataIndex] = (byte)Angle;
         }
         public override string ModuleName => "アルゴ アーム モーター";
 

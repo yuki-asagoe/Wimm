@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Wimm.Machines.Impl.Algo.Algo;
 
 namespace Wimm.Machines.Impl.Algo.Component
 {
