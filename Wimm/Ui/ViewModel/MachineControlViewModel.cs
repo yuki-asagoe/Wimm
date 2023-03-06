@@ -212,6 +212,16 @@ namespace Wimm.Ui.ViewModel
                     }
                 })
             );
+        public readonly static DependencyProperty MachineSpeedModifierProperty
+            = DependencyProperty.Register(
+                "MachineSpeedModifier", typeof(double), typeof(MachineControlViewModel),
+                new PropertyMetadata((property, args) => { 
+                    if(property is MachineControlViewModel model && model.MachineController?.Machine is Machine machine && args.NewValue is double value)
+                    {
+                        machine.SpeedModifier = value;
+                    }
+                })
+            );
         public readonly static DependencyProperty MachineNameProperty
             = DependencyProperty.Register("MachineName", typeof(string), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ConnectionStatusProperty
@@ -313,7 +323,8 @@ namespace Wimm.Ui.ViewModel
                                     {
                                         CameraChannelEntries[index].IsActive=true;
                                     }
-                                    TerminalController.Post($"{index}番カメラのアクティブ化を要求しました");
+                                    TerminalController.Post($"{index}番カメラのアクティブ化" +
+                                        $"を要求しました");
                                 }
                                 else{ TerminalController.Post("引数のパースに失敗。"); }
                             }

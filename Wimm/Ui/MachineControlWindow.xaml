@@ -61,7 +61,19 @@
                     </Expander>
                     <Expander Style="{StaticResource InfomationTile}" Header="Control" IsExpanded="True">
                         <StackPanel>
-                            <Metro:ToggleSwitch IsOn="{Binding IsControlRunning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <DockPanel LastChildFill="True" Margin="0 0 0 4">
+                                <Metro:ToggleSwitch DockPanel.Dock="Left" IsOn="{Binding IsControlRunning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <StackPanel>
+                                    <TextBlock Margin="4 0 4 2">
+                                        Speed : <Run Text="{Binding MachineSpeedModifier}"/>
+                                    </TextBlock>
+                                    <Slider 
+                                        Minimum="0" Maximum="1"
+                                        IsEnabled="{Binding IsControlRunning}"
+                                        Value="{Binding MachineSpeedModifier, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </DockPanel>
+                            <Separator/>
                             <StackPanel Margin="{StaticResource Wimm.Margin.Small.Horizontal}" Visibility="{Binding IsControlRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <BulletDecorator>
                                     <BulletDecorator.Bullet>
