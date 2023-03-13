@@ -24,10 +24,10 @@ namespace Wimm.Machines.Impl.Algo
 
         public override Camera Camera { get; }
         public AlgoControlProcess? ControlProcess{ get; set; }
-        private event Action<ArmControlCanData>? SetArmDefault;
-        private event Action<WheelControlCanData>? SetWheelDefault;
-        private event Action<ContainerControlCanData>? SetContainerDefault;
-        private event Action<LiftControlCanData>? SetLiftDefault;
+        internal event Action<ArmControlCanData>? SetArmDefault;
+        internal event Action<WheelControlCanData>? SetWheelDefault;
+        internal event Action<ContainerControlCanData>? SetContainerDefault;
+        internal event Action<LiftControlCanData>? SetLiftDefault;
         public override ControlProcess StartControlProcess()
         {
             ControlProcess = new AlgoControlProcess(this,() => { this.ControlProcess = null; });
@@ -54,7 +54,6 @@ namespace Wimm.Machines.Impl.Algo
                         WheelMotorDataIndex.LeftBack, algo
                     )
                 );
-            foreach(AlgoWheelMotor wheel in wheels) { algo.SetWheelDefault += wheel.SetDefaultCanData; }
             return new ModuleGroup(
                 "wheels",
                 ImmutableArray<ModuleGroup>.Empty,
@@ -86,10 +85,6 @@ namespace Wimm.Machines.Impl.Algo
                         110,0,algo
                     )
                 );
-            foreach(var motor in motors) { 
-                if(motor is AlgoArmServo servo)algo.SetArmDefault += servo.SetDefaultCanData; 
-                if(motor is AlgoArmRootServo root)algo.SetLiftDefault+= root.SetDefaultCanData;
-            }
             return new ModuleGroup(
                 "arms",
                 ImmutableArray<ModuleGroup>.Empty,

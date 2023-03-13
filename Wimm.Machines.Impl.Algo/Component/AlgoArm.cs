@@ -19,6 +19,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         {
             Parent = algo;
             DataIndex = index;
+            algo.SetArmDefault += SetDefaultCanData;
         }
 
         public override Feature<Action<double, double>> SetAngleFeature 
@@ -92,6 +93,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         {
             Parent = algo;
             Angle = 30;
+            algo.SetLiftDefault += SetDefaultCanData;
         }
         public void SetDefaultCanData(LiftControlCanData data)
         {
