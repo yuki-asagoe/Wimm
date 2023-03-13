@@ -34,7 +34,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         {
             if(Parent.ControlProcess is AlgoControlProcess process)
             {
-                process.WheelControlData.CanData[(int)ContainerDataIndex.Belt] = (byte)Math.Sign(rotationDirection);
+                process.ContainerData.CanData[(int)ContainerDataIndex.Belt] = (byte)(Math.Sign(rotationDirection));
             }
         }
         /// <summary>
@@ -45,7 +45,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         {
             if (Parent.ControlProcess is AlgoControlProcess process)
             {
-                process.WheelControlData.CanData[(int)ContainerDataIndex.Bed] = (byte)Math.Sign(liftDirection);
+                process.ContainerData.CanData[(int)ContainerDataIndex.Bed] = (byte)(Math.Sign(liftDirection));
             }
         }
         private const string CommonDescription = "アルゴ内部の救助対象格納用スペース";

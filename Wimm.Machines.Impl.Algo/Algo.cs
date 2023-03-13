@@ -66,19 +66,19 @@ namespace Wimm.Machines.Impl.Algo
                 ImmutableArray.Create<Module>(
                     new AlgoArmServo(
                         "roll_servo", "アームのひねりを扱うサーボ",
-                        ArmDataIndex.Roll, -80, 80, algo
+                        ArmDataIndex.Roll, 80, -80, algo
                     ),
                     new AlgoArmServo(
                         "pitch_servo", "アームの上下回転を扱うサーボ",
-                        ArmDataIndex.Pitch, -85, 85, algo
+                        ArmDataIndex.Pitch, 85, -85, algo
                     ),
                     new AlgoArmServo(
                         "grip_servo", "アームのつかみを扱うサーボ",
-                        ArmDataIndex.Grip, -60, 65, algo
+                        ArmDataIndex.Grip, 55, -55, algo
                     ),
                     new AlgoArmServo(
-                        "roll_servo", "アームのカメラの回転を扱うサーボ",
-                        ArmDataIndex.Camera, -70, 25, algo
+                        "top_camera_servo", "上部のカメラの回転を扱うサーボ",
+                        ArmDataIndex.Camera, 30, -45, algo
                     )
                 );
             foreach(AlgoArmServo motor in motors) { algo.SetArmDefault += motor.SetDefaultCanData; }

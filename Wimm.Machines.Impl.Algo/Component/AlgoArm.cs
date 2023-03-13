@@ -17,7 +17,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         private double angle = 0;
         private double AngleMax { get; }
         private double AngleMin { get; }
-        private static int MaxSpeed = 5;
+        private static int MaxSpeed = 10;
         private double Angle
         {
             get { return angle; }
@@ -40,7 +40,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         {
             if(Parent.ControlProcess is AlgoControlProcess process)
             {
-                Angle = angleDegree;
+                Angle = Math.Clamp(angleDegree,AngleMin,AngleMax);
                 process.ArmControlData.CanData[(int)DataIndex] = (byte)Angle;
             }
         }
@@ -54,7 +54,7 @@ namespace Wimm.Machines.Impl.Algo.Component
             if(Parent.ControlProcess is AlgoControlProcess process)
             {
                 speed = Math.Clamp(speed, -1, 1);
-                Angle += MaxSpeed*speed;
+                Angle += MaxSpeed*speed*Parent.SpeedModifier;
                 process.ArmControlData.CanData[(int)DataIndex] = (byte)Angle;
             }
         }

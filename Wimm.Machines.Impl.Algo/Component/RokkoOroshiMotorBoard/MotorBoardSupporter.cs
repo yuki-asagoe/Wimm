@@ -18,7 +18,7 @@ namespace Wimm.Machines.Impl.Algo.Component.RokkoOroshiMotorBoard
         /// <returns>エラー値。エラーがあればfalse。</returns>
         public static bool Send(CanID transportInfo, byte[] data,byte targetBoardNumber=0)
         {
-            if (data.Length <= 8) return false;
+            if (data.Length > 8) return false;
             TPJT3.CanMessage message = new();
             message.flg = 0;//send
             message.RTR = 0;//?
