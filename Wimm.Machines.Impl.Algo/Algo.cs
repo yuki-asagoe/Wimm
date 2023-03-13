@@ -27,6 +27,7 @@ namespace Wimm.Machines.Impl.Algo
         private event Action<ArmControlCanData>? SetArmDefault;
         private event Action<WheelControlCanData>? SetWheelDefault;
         private event Action<ContainerControlCanData>? SetContainerDefault;
+        private event Action<LiftControlCanData>? SetLiftDefault;
         public override ControlProcess StartControlProcess()
         {
             ControlProcess = new AlgoControlProcess(this,() => { this.ControlProcess = null; });
@@ -79,9 +80,16 @@ namespace Wimm.Machines.Impl.Algo
                     new AlgoArmServo(
                         "top_camera_servo", "上部のカメラの回転を扱うサーボ",
                         ArmDataIndex.Camera, 30, -45, algo
+                    ),
+                    new AlgoArmRootServo(
+                        "root_servo","アームの根本のピッチ回転を扱うサーボ",
+                        110,0,algo
                     )
                 );
-            foreach(AlgoArmServo motor in motors) { algo.SetArmDefault += motor.SetDefaultCanData; }
+            foreach(var motor in motors) { 
+                if(motor is AlgoArmServo servo)algo.SetArmDefault += servo.SetDefaultCanData; 
+                if(motor is AlgoArmRootServo root)algo.SetLiftDefault+= root.SetDefaultCanData;
+            }
             return new ModuleGroup(
                 "arms",
                 ImmutableArray<ModuleGroup>.Empty,
@@ -139,15 +147,18 @@ namespace Wimm.Machines.Impl.Algo
                 parent.SetArmDefault?.Invoke(ArmControlData);
                 parent.SetWheelDefault?.Invoke(WheelControlData);
                 parent.SetContainerDefault?.Invoke(ContainerData);
+                parent.SetLiftDefault?.Invoke(LiftControlCanData);
             }
             public ContainerControlCanData ContainerData { get; } = new ContainerControlCanData();
             public ArmControlCanData ArmControlData { get; } = new ArmControlCanData();
             public WheelControlCanData WheelControlData { get; } = new WheelControlCanData();
+            public LiftControlCanData LiftControlCanData { get; } = new LiftControlCanData();
             public override void Dispose()
             {
                 ArmControlData.Send();
                 WheelControlData.Send();
                 ContainerData.Send();
+                LiftControlCanData.Send();
                 FinishedHander();
                 base.Dispose();
             }
