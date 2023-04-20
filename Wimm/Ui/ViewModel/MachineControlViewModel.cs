@@ -64,7 +64,8 @@ namespace Wimm.Ui.ViewModel
                             .Builder
                             .Build(
                                 MachineDirectory,
-                                new Tpip3ConstructorArgs(hwnd, GeneralSetting.Default.Tpip3_IP_Address)
+                                new Tpip3ConstructorArgs(hwnd, GeneralSetting.Default.Tpip3_IP_Address),
+                                TerminalController.GetLogger()
                             );
                     }
                     catch(TargetInvocationException e)

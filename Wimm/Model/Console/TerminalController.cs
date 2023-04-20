@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using Wimm.Logging;
 
 namespace Wimm.Model.Console
 {
@@ -97,6 +98,10 @@ namespace Wimm.Model.Console
             if (!logDir.Exists) logDir.Create();
             return new FileInfo(logDir.FullName + "/latest.log");
         }
+        public ILogger GetLogger()
+        {
+            return new TerminalLogger(this);
+        }
 
         public void Dispose()
         {
@@ -128,6 +133,23 @@ namespace Wimm.Model.Console
                 {
                     Controller.EnterCommand(input);
                 }
+            }
+        }
+        private class TerminalLogger : ILogger
+        {
+            private readonly TerminalController Controller;
+            public TerminalLogger(TerminalController controller)
+            {
+                Controller = controller;
+            }
+            public void Info(String message) {
+                Controller.Post(message, MessageLevel.Info);
+            }
+            public void Warn(String message) {
+                Controller.Post(message, MessageLevel.Warning);
+            }
+            public void Error(String message) {
+                Controller.Post(message, MessageLevel.Error);
             }
         }
     }

@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Interop;
+using Wimm.Logging;
 using Wimm.Machines;
 using Wimm.Machines.Tpip3;
 using Wimm.Model.Control.Script;
@@ -80,12 +81,12 @@ namespace Wimm.Model.Control
         }
         public class Builder
         {
-            public static MachineController Build(DirectoryInfo machineDirectory,Tpip3ConstructorArgs? tpip3Arg)
+            public static MachineController Build(DirectoryInfo machineDirectory,Tpip3ConstructorArgs? tpip3Arg,ILogger? logger=null)
             {
                 var dll = new FileInfo(machineDirectory + "/" + machineDirectory.Name + ".dll");
                 Machine machine = GetMachine(dll,tpip3Arg);
                 int gamepadIndex = GeneralSetting.Default.SelectedControllerIndex;
-                ScriptDriver binder = new ScriptDriver(machine,machineDirectory,gamepadIndex);
+                ScriptDriver binder = new ScriptDriver(machine,machineDirectory,gamepadIndex,logger);
                 return new MachineController(machine, binder,gamepadIndex);
             }
             public static Machine GetMachine(FileInfo dll,Tpip3ConstructorArgs? tpip3Arg)

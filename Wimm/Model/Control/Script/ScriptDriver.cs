@@ -12,6 +12,7 @@ using Wimm.Machines;
 using Wimm.Machines.Component;
 using Wimm.Model.Control.Script;
 using Wimm.Model.Control.Script.Macro;
+using Wimm.Logging;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Wimm.Model.Control
         Lua lua = new Lua();
         int ControllerIndex { get; } = 0;
         string RootModuleName { get; init; }
+        ILogger? Logger { get; init; }
         LuaTable ModuleTable { get; init; }
         LuaGlobal ControlEnvironment { get; init; }
         LuaChunk? ControlChunk { get; set; }
@@ -34,7 +36,7 @@ namespace Wimm.Model.Control
         public RunningMacro? RunningMacro
         { get; private set; }
         //TODO これ別クラスに分けたほうがいい説。DocumentBuilderとか
-        //100行をゆうに超える関数を作ってしまったことは謝罪する
+        //100行をゆうに超える関数を作ってしまったことはすまん　ごめんね
         public static void GenerateFolder(Machine machine,DirectoryInfo scriptFolder,DirectoryInfo docsFolder)
         {
             #region scriptFolder
@@ -182,14 +184,16 @@ namespace Wimm.Model.Control
             }
             #endregion
         }
-        public ScriptDriver(Machine machine,DirectoryInfo machineFolder,int controllerIndex)
+        public ScriptDriver(Machine machine,DirectoryInfo machineFolder,int controllerIndex,ILogger? logger=null)
         {
             ControllerIndex = controllerIndex;
             Machine = machine;
             ControlEnvironment = lua.CreateEnvironment();
+            logger?.Info("Luaマシンモジュールの構築を開始します。");
             ModuleTable = ConstructTableFromGroup(machine.StructuredModules);
             ControlEnvironment.Add(machine.StructuredModules.Name, ModuleTable);
             RootModuleName = machine.StructuredModules.Name;
+            Logger = logger;
             #region //Load Machine Folder
             var scriptFolder = new DirectoryInfo(machineFolder.FullName + "/script");
             var definitionFile = new FileInfo(scriptFolder.FullName + "/definition.neo.lua");
@@ -206,8 +210,10 @@ namespace Wimm.Model.Control
             {
                 throw new FileNotFoundException("初期化に必要なスクリプトファイルが見つかりません。ファイル名を確認してください。");
             }
-            ControlEnvironment.DoChunk(definitionFile.FullName);
             ControlEnvironment.DoChunk(initializeFile.FullName);
+            logger?.Info("initializeファイルの実行が完了しました");
+            ControlEnvironment.DoChunk(definitionFile.FullName);
+            logger?.Info("definitionファイルの実行が完了しました");
             ControlEnvironment.DoChunk(
                 control_mapFile.FullName,
                 new KeyValuePair<string, object>(
@@ -230,6 +236,8 @@ namespace Wimm.Model.Control
                 new KeyValuePair<string, Type>("buttons",typeof(LuaTable)),
                 new KeyValuePair<string, Type>("gamepad",typeof(Gamepad))
             );
+            logger?.Info("キーマッピングの配置が完了しました");
+            logger?.Info("マクロの識別を開始します");
             if (macroFolder.Exists)
             {
                 var serializer = new MacroFolderLoader(macroFolder, lua);
@@ -240,6 +248,11 @@ namespace Wimm.Model.Control
 
         private void MapControl(LuaTable keys,LuaTable buttons,Func<LuaResult> action)
         {
+            if(action is null)
+            {
+                Logger?.Warn($"[{nameof(ScriptDriver)}]対応するLuaアクションがnilであるキーマッピングがあるため、これをスキップしました。");
+                return;
+            }
             var buttonBits = 0;
             foreach((_,var value) in buttons)
             {
