@@ -20,6 +20,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         {
             this.number = number;
             Parent = parent;
+            parent.SetWheelDefault += SetDefaultCanData;
         }
         public override Feature<Action<double>> RotationFeature => new Feature<Action<double>>(
             Motor.RotationFeatureName,"モータを回転させます。回転方向はモーターボードの実装依存です。",Rotation

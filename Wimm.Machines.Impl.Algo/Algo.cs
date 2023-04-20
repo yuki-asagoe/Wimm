@@ -24,9 +24,10 @@ namespace Wimm.Machines.Impl.Algo
 
         public override Camera Camera { get; }
         public AlgoControlProcess? ControlProcess{ get; set; }
-        private event Action<ArmControlCanData>? SetArmDefault;
-        private event Action<WheelControlCanData>? SetWheelDefault;
-        private event Action<ContainerControlCanData>? SetContainerDefault;
+        internal event Action<ArmControlCanData>? SetArmDefault;
+        internal event Action<WheelControlCanData>? SetWheelDefault;
+        internal event Action<ContainerControlCanData>? SetContainerDefault;
+        internal event Action<LiftControlCanData>? SetLiftDefault;
         public override ControlProcess StartControlProcess()
         {
             ControlProcess = new AlgoControlProcess(this,() => { this.ControlProcess = null; });
@@ -53,7 +54,6 @@ namespace Wimm.Machines.Impl.Algo
                         WheelMotorDataIndex.LeftBack, algo
                     )
                 );
-            foreach(AlgoWheelMotor wheel in wheels) { algo.SetWheelDefault += wheel.SetDefaultCanData; }
             return new ModuleGroup(
                 "wheels",
                 ImmutableArray<ModuleGroup>.Empty,
@@ -66,22 +66,25 @@ namespace Wimm.Machines.Impl.Algo
                 ImmutableArray.Create<Module>(
                     new AlgoArmServo(
                         "roll_servo", "アームのひねりを扱うサーボ",
-                        ArmDataIndex.Roll, -80, 80, algo
+                        ArmDataIndex.Roll, 80, -80, algo
                     ),
                     new AlgoArmServo(
                         "pitch_servo", "アームの上下回転を扱うサーボ",
-                        ArmDataIndex.Pitch, -85, 85, algo
+                        ArmDataIndex.Pitch, 85, -85, algo
                     ),
                     new AlgoArmServo(
                         "grip_servo", "アームのつかみを扱うサーボ",
-                        ArmDataIndex.Grip, -60, 65, algo
+                        ArmDataIndex.Grip, 55, -55, algo
                     ),
                     new AlgoArmServo(
-                        "roll_servo", "アームのカメラの回転を扱うサーボ",
-                        ArmDataIndex.Camera, -70, 25, algo
+                        "top_camera_servo", "上部のカメラの回転を扱うサーボ",
+                        ArmDataIndex.Camera, 30, -45, algo
+                    ),
+                    new AlgoArmRootServo(
+                        "root_servo","アームの根本のピッチ回転を扱うサーボ",
+                        110,0,algo
                     )
                 );
-            foreach(AlgoArmServo motor in motors) { algo.SetArmDefault += motor.SetDefaultCanData; }
             return new ModuleGroup(
                 "arms",
                 ImmutableArray<ModuleGroup>.Empty,
@@ -139,15 +142,18 @@ namespace Wimm.Machines.Impl.Algo
                 parent.SetArmDefault?.Invoke(ArmControlData);
                 parent.SetWheelDefault?.Invoke(WheelControlData);
                 parent.SetContainerDefault?.Invoke(ContainerData);
+                parent.SetLiftDefault?.Invoke(LiftControlCanData);
             }
             public ContainerControlCanData ContainerData { get; } = new ContainerControlCanData();
             public ArmControlCanData ArmControlData { get; } = new ArmControlCanData();
             public WheelControlCanData WheelControlData { get; } = new WheelControlCanData();
+            public LiftControlCanData LiftControlCanData { get; } = new LiftControlCanData();
             public override void Dispose()
             {
                 ArmControlData.Send();
                 WheelControlData.Send();
                 ContainerData.Send();
+                LiftControlCanData.Send();
                 FinishedHander();
                 base.Dispose();
             }

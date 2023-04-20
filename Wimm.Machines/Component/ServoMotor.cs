@@ -8,13 +8,30 @@ namespace Wimm.Machines.Component
 {
     public abstract class ServoMotor : Module
     {
-        protected ServoMotor(string name, string description) : base(name, description)
+        protected ServoMotor(string name, string description,double minAngle,double maxAngle) : base(name, description)
         {
+            
+            AngleMax = maxAngle;
+            AngleMin = minAngle;
+            angle = Math.Clamp(0, AngleMin, AngleMax);
+            GetAngleFeature =
+                new Feature<Func<double>>(
+                    GetAngleFeatureName, "角度を取得します", () => Angle
+                );
             Features = ImmutableArray.Create(
                 RotationFeature.CastToBaseForm(),
-                SetAngleFeature.CastToBaseForm()
+                SetAngleFeature.CastToBaseForm(),
+                GetAngleFeature.CastToBaseForm()
             );
         }
+        private double angle;
+        protected double Angle
+        {
+            get { return angle; }
+            set { angle = Math.Clamp(value, AngleMin, AngleMax); }
+        }
+        protected double AngleMax { get; }
+        protected double AngleMin { get; }
         /// <summary>
         /// 回転を表現するFeatureとして推奨される名前
         /// </summary>
@@ -25,6 +42,7 @@ namespace Wimm.Machines.Component
         /// </summary>
         /// <remarks>明確な意図が無い場合はこの名前を使用してください</remarks>
         public static string SetAngleFeatureName = "setangle";
+        public static string GetAngleFeatureName = "getangle";
         /// <summary>
         /// 角度の指定を表現するFeatureを返します。
         /// </summary>
@@ -34,6 +52,7 @@ namespace Wimm.Machines.Component
         /// 第二引数:double 速度 最大値を基準に 1~0
         /// </remarks>
         public abstract Feature<Action<double, double>> SetAngleFeature { get; }
+        public Feature<Func<double>> GetAngleFeature { get; }
         /// <summary>
         /// 回転を表現するFeatureInfoを返します。
         /// </summary>

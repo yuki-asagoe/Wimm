@@ -39,6 +39,7 @@ namespace Wimm.Ui.ViewModel
             {
                 if(VideoProcessor is not null)VideoProcessor.QRDetecting = true;
                 QRDetectionRunning = true;
+                TerminalController.Post("QRコード検出を開始します。");
             }, 
             () => { return VideoProcessor is not null && QRDetectionRunning is false; }
             );
@@ -46,6 +47,7 @@ namespace Wimm.Ui.ViewModel
             {
                 if (VideoProcessor is not null) VideoProcessor.QRDetecting = false;
                 QRDetectionRunning = false;
+                TerminalController.Post("QRコード検出を停止しました。");
             },
             () => { return VideoProcessor is not null && QRDetectionRunning is true; }
             );
@@ -102,6 +104,7 @@ namespace Wimm.Ui.ViewModel
                     QRDetectionRunning = false;
                     DetectedQRCodeValue = result.Result;
                     if(result.DetectedArea is not null)DetectedQRCode = result.DetectedArea;
+                    TerminalController.Post($"QRコードが検出されました。[{result.Result}]");
                 });
             VideoProcessor.ImageUpdated += (image) =>
             {
@@ -116,6 +119,8 @@ namespace Wimm.Ui.ViewModel
             periodicTimer.Tick += HighRatePeriodicWork;
             periodicTimer.Interval += new TimeSpan(0, 0, 0, 0, 500);
             periodicTimer.Start();
+            IsControlRunning = false;
+            MachineSpeedModifier = 1;
             TerminalController.Post($"ロボットの初期化が完了しました。ロボット名 : {MachineController.Machine.Name}");
             return null;
         }
