@@ -69,6 +69,7 @@
                                     </TextBlock>
                                     <Slider 
                                         Minimum="0" Maximum="1"
+                                        SmallChange="0.1" LargeChange="0.5"
                                         IsEnabled="{Binding IsControlRunning}"
                                         Value="{Binding MachineSpeedModifier, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
