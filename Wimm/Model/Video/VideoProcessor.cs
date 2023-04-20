@@ -79,11 +79,18 @@ namespace Wimm.Model.Video
                 using var target=image;
                 using var detector = new QRCodeDetector();
                 var result=detector.DetectAndDecode(image, out var area);
-                if(result is null || result.Length == 0)
+                if(result is null || result.Length == 0 || area is null)
                 {
                     return null;
                 }
-                return new QRDetectionResult(result, null);
+                using var clippedImage=image.Clone(new OpenCvSharp.Rect((int)area[0].X, (int)area[0].Y, (int)(area[1].X - area[0].X), (int)(area[1].Y - area[0].Y)));
+                if(clippedImage is null)
+                {
+                    return null;
+                }
+                var clippedImageSource = clippedImage.ToWriteableBitmap();
+                clippedImageSource.Freeze();
+                return new QRDetectionResult(result, clippedImageSource);
             });
         }
         private Task<QRDetectionResult?>? qrDetectionTask = null;
