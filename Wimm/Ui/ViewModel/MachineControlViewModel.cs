@@ -119,7 +119,7 @@ namespace Wimm.Ui.ViewModel
             periodicTimer.Tick += HighRatePeriodicWork;
             periodicTimer.Interval += new TimeSpan(0, 0, 0, 0, 500);
             periodicTimer.Start();
-            IsControlRunning = false;
+            IsControlRunning = true;
             MachineSpeedModifier = 1;
             TerminalController.Post($"ロボットの初期化が完了しました。ロボット名 : {MachineController.Machine.Name}");
             return null;
