@@ -50,7 +50,13 @@ namespace Wimm.Model.Control
                 stream.WriteLine("-- buttons : Votice.XInput.GamepadButtons");
                 stream.WriteLine("-- keys : 未定、現在参照できません map関数の入力は受け入れますが何もしません");
             }
-            File.Create(scriptFolder.FullName + "/on_control.neo.lua").Close();
+            using (var stream = new StreamWriter(File.Create(scriptFolder.FullName + "/on_control.neo.lua")))
+            {
+                stream.WriteLine("-- 毎制御ごとに呼び出します。以下引数");
+                stream.WriteLine("-- {Root Module Name} - StructuredModlues これの名前はマシンDLL依存なんだけどよくないかな");
+                stream.WriteLine("-- buttons : LuaTable (Votice.XInput.GamepadButtons - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/GamepadButtons.cs)");
+                stream.WriteLine("-- gamepad : Vortice.Xinput.Gamepad - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/Gamepad.cs");
+            }
             var macroFolder = new DirectoryInfo(scriptFolder + "/macro");
             if (!macroFolder.Exists) { Directory.CreateDirectory(macroFolder.FullName); }
             using (var macros = new Utf8JsonWriter(File.Create(macroFolder + "/macros.json"))) 
@@ -297,12 +303,19 @@ namespace Wimm.Model.Control
                 {
                     if (bind.IsActive(state.Gamepad)) bind.Action();
                 }
-                ControlChunk?.Run(
+                try
+                {
+                    ControlChunk?.Run(
                         ControlEnvironment,
                         ModuleTable,
                         LuaKeysEnum.GamepadKeyEnum,
                         state.Gamepad
                     );
+                }
+                catch (LuaRuntimeException ex)
+                {
+                    Logger?.Error($"Lua Runtime Error in {ex.FileName}:Line.{ex.Column} : {ex.Message}");
+                }
             }
         }
         public bool TryControl()
