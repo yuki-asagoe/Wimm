@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wimm.Machines.Tpip3", "Wimm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wimm.Machines.Impl.Algo", "Wimm.Machines.Impl.Algo\Wimm.Machines.Impl.Algo.csproj", "{66F5BC71-3BCC-490D-BCF8-C67C7ED4E36C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wimm.Machines.TpipForRasberryPi", "Wimm.Machines.TpipForRasberryPi\Wimm.Machines.TpipForRasberryPi.csproj", "{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{66F5BC71-3BCC-490D-BCF8-C67C7ED4E36C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66F5BC71-3BCC-490D-BCF8-C67C7ED4E36C}.Release|x86.ActiveCfg = Release|x86
 		{66F5BC71-3BCC-490D-BCF8-C67C7ED4E36C}.Release|x86.Build.0 = Release|x86
+		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Debug|x86.Build.0 = Debug|Any CPU
+		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Release|x86.ActiveCfg = Release|Any CPU
+		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
