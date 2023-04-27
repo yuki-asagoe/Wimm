@@ -82,11 +82,17 @@ namespace Wimm.Model.Console
         {
             var message = level is MessageLevel.Input?$"> {text}":$"[{level}]{text}";
             LogOutput?.WriteLine($"[{DateTime.Now}]{message}");
-            if (Lines.Count == LineSize)
+            try
             {
-                Lines.RemoveFirst();
+                if (Lines.Count == LineSize)
+                {
+                    Lines.RemoveFirst();
+                }
+                Lines.AddLast(message);
             }
-            Lines.AddLast(message);
+            catch (InvalidOperationException _){
+                /*ここを通るのは多分画面初期化が完了する前にログされた時なのでお行儀悪いけどもみ消します　ファイルには出力されるんで*/
+            }
         }
         public static FileInfo? GetLogFile()
         {
