@@ -83,21 +83,21 @@ namespace Wimm.Model.Video
                 {
                     return null;
                 }
-                try
+                //ゴリ押しこそ正義
+                int minX = (int)area.Select(x => x.X).Min();
+                int minY = (int)area.Select(x => x.Y).Min();
+                int maxX = (int)area.Select(x => x.X).Max();
+                int maxY = (int)area.Select(x => x.Y).Max();
+                using var clippedImage = image.Clone(new OpenCvSharp.Rect(
+                    minX,minY,maxX-minX,maxY-minX
+                ));
+                if (clippedImage is null)
                 {
-                    using var clippedImage = image.Clone(new OpenCvSharp.Rect((int)area[0].X, (int)area[0].Y, (int)(area[1].X - area[0].X), (int)(area[1].Y - area[0].Y)));
-                    if (clippedImage is null)
-                    {
-                        return null;
-                    }
-                    var clippedImageSource = clippedImage.ToWriteableBitmap();
-                    clippedImageSource.Freeze();
-                    return new QRDetectionResult(result, clippedImageSource);
-                }catch (OpenCVException ex) // TODO
-                {
-                    return new QRDetectionResult(result, null);
+                    return null;
                 }
-                
+                var clippedImageSource = clippedImage.ToWriteableBitmap();
+                clippedImageSource.Freeze();
+                return new QRDetectionResult(result, clippedImageSource);
             });
         }
         private Task<QRDetectionResult?>? qrDetectionTask = null;

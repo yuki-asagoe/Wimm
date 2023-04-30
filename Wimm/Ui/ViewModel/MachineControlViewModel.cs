@@ -31,7 +31,7 @@ namespace Wimm.Ui.ViewModel
     {
         public MachineControlViewModel(DirectoryInfo machineDirectory)
         {
-            TerminalController = new TerminalController(GetDefaultCommands());
+            TerminalController = new TerminalController(null,GetDefaultCommands());
             MachineDirectory = machineDirectory;
             CommandMacroStart = new MacroStartCommand(this);
             CommandMacroStop = new MacroStopCommand(this);
@@ -56,6 +56,7 @@ namespace Wimm.Ui.ViewModel
         public async Task<Exception?> OnLoad(HwndSource hwnd,FrameworkElement sizeObservedElement,Dispatcher dispatcher)
             //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
         {
+            TerminalController.UIDispatcher = dispatcher;
             (var e,var controller) = await Task.Run<(Exception?,MachineController?)>( 
                 () =>
                 {

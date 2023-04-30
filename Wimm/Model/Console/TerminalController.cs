@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Wimm.Logging;
 
 namespace Wimm.Model.Console
@@ -22,10 +23,12 @@ namespace Wimm.Model.Console
         public ObservableFixedSizeRingBuffer<string> Lines { get; } = new ObservableFixedSizeRingBuffer<string>(LineSize);
         private ISynchronizedView<string,string> View { get; }
         public INotifyCollectionChangedSynchronizedView<string,string> LinesView { get; }
-        public TerminalController(IEnumerable<CommandNode> commands)
+        public Dispatcher? UIDispatcher { get; set; }
+        public TerminalController(Dispatcher? dispatcher,IEnumerable<CommandNode> commands)
         {
             View = Lines.CreateView(x => x);
             LinesView= View.WithINotifyCollectionChanged();
+            UIDispatcher = dispatcher;
 
             LogFile = GetLogFile();
             if(LogFile is not null)
@@ -82,17 +85,13 @@ namespace Wimm.Model.Console
         {
             var message = level is MessageLevel.Input?$"> {text}":$"[{level}]{text}";
             LogOutput?.WriteLine($"[{DateTime.Now}]{message}");
-            try
-            {
+            UIDispatcher?.BeginInvoke(() => {
                 if (Lines.Count == LineSize)
                 {
                     Lines.RemoveFirst();
                 }
                 Lines.AddLast(message);
-            }
-            catch (InvalidOperationException _){
-                /*ここを通るのは多分画面初期化が完了する前にログされた時なのでお行儀悪いけどもみ消します　ファイルには出力されるんで*/
-            }
+            });
         }
         public static FileInfo? GetLogFile()
         {
