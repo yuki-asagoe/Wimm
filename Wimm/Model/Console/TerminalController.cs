@@ -23,8 +23,8 @@ namespace Wimm.Model.Console
         public ObservableFixedSizeRingBuffer<string> Lines { get; } = new ObservableFixedSizeRingBuffer<string>(LineSize);
         private ISynchronizedView<string,string> View { get; }
         public INotifyCollectionChangedSynchronizedView<string,string> LinesView { get; }
-        public Dispatcher? UIDispatcher { get; set; }
-        public TerminalController(Dispatcher? dispatcher,IEnumerable<CommandNode> commands)
+        public Dispatcher UIDispatcher { get; init; }
+        public TerminalController(Dispatcher dispatcher,IEnumerable<CommandNode> commands)
         {
             View = Lines.CreateView(x => x);
             LinesView= View.WithINotifyCollectionChanged();
@@ -85,7 +85,7 @@ namespace Wimm.Model.Console
         {
             var message = level is MessageLevel.Input?$"> {text}":$"[{level}]{text}";
             LogOutput?.WriteLine($"[{DateTime.Now}]{message}");
-            UIDispatcher?.BeginInvoke(() => {
+            UIDispatcher.BeginInvoke(() => {
                 if (Lines.Count == LineSize)
                 {
                     Lines.RemoveFirst();

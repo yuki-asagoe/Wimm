@@ -6,17 +6,13 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Xml;
-using System.Windows.Input;
 using Vortice.XInput;
 using Wimm.Machines;
 using Wimm.Machines.Component;
 using Wimm.Model.Control.Script;
 using Wimm.Model.Control.Script.Macro;
 using Wimm.Logging;
-using System.Text.RegularExpressions;
 using System.Text;
-using System.Linq;
-using System.Security.Cryptography.Xml;
 
 namespace Wimm.Model.Control
 {
@@ -32,6 +28,7 @@ namespace Wimm.Model.Control
         LuaChunk? ControlChunk { get; set; }
         ControlProcess? ControlProcess { get; set; }
         List<KeyBinding> KeyBindings { get; } = new List<KeyBinding>();
+        WimmFeatureProvider WimmFeature { get; }
         public ImmutableArray<MacroInfo> MacroList { get; private set; }
         public RunningMacro? RunningMacro
         { get; private set; }
@@ -44,7 +41,7 @@ namespace Wimm.Model.Control
             File.Create(scriptFolder.FullName + "/definition.neo.lua").Close();
             using(var stream= new StreamWriter(File.Create(scriptFolder.FullName + "/control_map.neo.lua")))
             {
-                stream.WriteLine("-- コントロールの操作のマッピングを行います。");
+                stream.WriteLine("-- コントロールの操作のマッピングを行います。高度な制御がいるならon_controlを使ってネ");
                 stream.WriteLine("-- map(key_array,button_array,action)");
                 stream.WriteLine("-- 引数にbuttonsとkeysが与えられます。");
                 stream.WriteLine("-- buttons : Votice.XInput.GamepadButtons");
@@ -54,8 +51,10 @@ namespace Wimm.Model.Control
             {
                 stream.WriteLine("-- 毎制御ごとに呼び出します。以下引数");
                 stream.WriteLine("-- {Root Module Name} - StructuredModlues これの名前はマシンDLL依存なんだけどよくないかな");
-                stream.WriteLine("-- buttons : LuaTable (Votice.XInput.GamepadButtons - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/GamepadButtons.cs)");
+                stream.WriteLine("-- buttons : Votice.XInput.GamepadButtons - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/GamepadButtons.cs");
                 stream.WriteLine("-- gamepad : Vortice.Xinput.Gamepad - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/Gamepad.cs");
+                stream.WriteLine("-- input : Wimm.Model.Control.Script.InputSupporter");
+                stream.WriteLine("-- wimm : Wimm.Model.Control.Script.WimmFeatureProvider");
             }
             var macroFolder = new DirectoryInfo(scriptFolder + "/macro");
             if (!macroFolder.Exists) { Directory.CreateDirectory(macroFolder.FullName); }
@@ -190,8 +189,9 @@ namespace Wimm.Model.Control
             }
             #endregion
         }
-        public ScriptDriver(Machine machine,DirectoryInfo machineFolder,int controllerIndex,ILogger? logger=null)
+        public ScriptDriver(Machine machine,DirectoryInfo machineFolder,int controllerIndex,WimmFeatureProvider wimmFeature,ILogger? logger=null)
         {
+            WimmFeature = wimmFeature;
             ControllerIndex = controllerIndex;
             Machine = machine;
             ControlEnvironment = lua.CreateEnvironment();
@@ -240,7 +240,9 @@ namespace Wimm.Model.Control
                 new LuaCompileOptions(),
                 new KeyValuePair<string, Type>(RootModuleName,typeof(LuaTable)),
                 new KeyValuePair<string, Type>("buttons",typeof(LuaTable)),
-                new KeyValuePair<string, Type>("gamepad",typeof(Gamepad))
+                new KeyValuePair<string, Type>("gamepad",typeof(Gamepad)),
+                new KeyValuePair<string, Type>("wimm",typeof(WimmFeatureProvider)),
+                new KeyValuePair<string, Type>("input", typeof(InputSupporter))
             );
             logger?.Info("キーマッピングの配置が完了しました");
             logger?.Info("マクロの識別を開始します");
@@ -309,7 +311,9 @@ namespace Wimm.Model.Control
                         ControlEnvironment,
                         ModuleTable,
                         LuaKeysEnum.GamepadKeyEnum,
-                        state.Gamepad
+                        state.Gamepad,
+                        WimmFeature,
+                        new InputSupporter()
                     );
                 }
                 catch (LuaRuntimeException ex)
