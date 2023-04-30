@@ -343,6 +343,39 @@ namespace Wimm.Ui.ViewModel
                         )
                     }
                 ),
+                new CommandNode("qr",
+                    new[]
+                    {
+                        new CommandNode(
+                            "detect",Array.Empty<CommandNode>(),Array.Empty<KeyValuePair<string,Type>>(),
+                            (param) =>
+                            {
+                                if (QRDetectionRunning)
+                                {
+                                    TerminalController.Post("QRコード検出は実行中です。");
+                                }
+                                else
+                                {
+                                    if(CommandStartQRDetect.CanExecute(null))CommandStartQRDetect.Execute(null);
+                                }
+                            }
+                        ),
+                        new CommandNode(
+                            "stop",Array.Empty<CommandNode>(),Array.Empty<KeyValuePair<string,Type>>(),
+                            (param) =>
+                            {
+                                if (!QRDetectionRunning)
+                                {
+                                    TerminalController.Post("QRコード検出は実行されていません。");
+                                }
+                                else
+                                {
+                                    if(CommandStopQRDetect.CanExecute(null))CommandStartQRDetect.Execute(null);
+                                }
+                            }
+                        )
+                    }
+                ),
                 new CommandNode("timer",
                     new[]
                     {
