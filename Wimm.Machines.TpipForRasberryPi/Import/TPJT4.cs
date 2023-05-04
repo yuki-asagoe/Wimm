@@ -59,7 +59,7 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public struct mctrl_can_str
+        public struct CanMessage
         {
 
             /// unsigned char
@@ -78,12 +78,12 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
             public ushort STD_ID;
 
             /// unsigned char[8]
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
-            public string data;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
+            public byte[] data;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public struct mctrl_i2c_str
+        public struct I2CMessage
         {
 
             /// unsigned char
@@ -96,8 +96,8 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
             public uint sz;
 
             /// unsigned char[1024]
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1024)]
-            public string data;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)]
+            public byte data;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -235,14 +235,6 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
             /// char[36]
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 36)]
             public string dt;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct HWND__
-        {
-
-            /// int
-            public int unused;
         }
 
         public partial class NativeMethods
@@ -399,14 +391,14 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
             ///buf: mctrl_can_t*
             ///size: int
             [DllImport("TPJTwr_42.dll", EntryPoint = "TPJT_Send_CANdata", CallingConvention = CallingConvention.StdCall)]
-            public static extern int Send_CANdata(int no, ref mctrl_can_str buf, int size);
+            public static extern int Send_CANdata(int no, ref CanMessage buf, int size);
 
 
             /// Return Type: int
             ///no: int
             ///buf: mctrl_can_t*
             [DllImport("TPJTwr_42.dll", EntryPoint = "TPJT_Recv_CANdata", CallingConvention = CallingConvention.StdCall)]
-            public static extern int Recv_CANdata(int no, ref mctrl_can_str buf);
+            public static extern int Recv_CANdata(int no, ref CanMessage buf);
 
 
             /// Return Type: int
@@ -493,7 +485,7 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
             ///buf: mctrl_can_t*
             ///buf_size: int
             [DllImport("TPJTwr_42.dll", EntryPoint = "TPJT_Recv_CANdata_ex", CallingConvention = CallingConvention.StdCall)]
-            public static extern int Recv_CANdata_ex(int no, ref mctrl_can_str buf, int buf_size);
+            public static extern int Recv_CANdata_ex(int no, ref CanMessage buf, int buf_size);
 
 
             /// Return Type: unsigned int
