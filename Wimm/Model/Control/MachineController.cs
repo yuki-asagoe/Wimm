@@ -15,8 +15,10 @@ using System.Windows.Interop;
 using Wimm.Logging;
 using Wimm.Machines;
 using Wimm.Machines.Tpip3;
+using Wimm.Machines.TpipForRasberryPi;
 using Wimm.Model.Control.Script;
 using Wimm.Model.Control.Script.Macro;
+using Wimm.Ui.Records;
 
 namespace Wimm.Model.Control
 {
@@ -81,15 +83,15 @@ namespace Wimm.Model.Control
         }
         public class Builder
         {
-            public static MachineController Build(DirectoryInfo machineDirectory,Tpip3ConstructorArgs? tpip3Arg,ILogger? logger=null)
+            public static MachineController Build(DirectoryInfo machineDirectory,TpipConstructorArgs? tpipArg,WimmFeatureProvider wimmFeature,ILogger? logger=null)
             {
                 var dll = new FileInfo(machineDirectory + "/" + machineDirectory.Name + ".dll");
-                Machine machine = GetMachine(dll,tpip3Arg);
+                Machine machine = GetMachine(dll,tpipArg);
                 int gamepadIndex = GeneralSetting.Default.SelectedControllerIndex;
-                ScriptDriver binder = new ScriptDriver(machine,machineDirectory,gamepadIndex,logger);
+                ScriptDriver binder = new ScriptDriver(machine,machineDirectory,gamepadIndex,wimmFeature,logger);
                 return new MachineController(machine, binder,gamepadIndex);
             }
-            public static Machine GetMachine(FileInfo dll,Tpip3ConstructorArgs? tpip3Arg)
+            public static Machine GetMachine(FileInfo dll,TpipConstructorArgs? tpipArg)
             {
                 if (!dll.Exists)
                 {
@@ -111,9 +113,15 @@ namespace Wimm.Model.Control
                         "Machineクラスの定義が見つかりませんでした。"
                     );
                 }
-                Machine? machine =
-                    tpip3Arg is not null ? GetTpip3Machine(machineType,tpip3Arg):null ??//TODO
-                    GetDefaultMachine(machineType);
+                Machine? machine = null;
+                if (tpipArg is not null)
+                {
+                    machine = GetTpip3Machine(machineType, tpipArg) ?? GetTpip4Machine(machineType, tpipArg);
+                }
+                else
+                {
+                    machine = GetDefaultMachine(machineType);
+                }
                 if (machine is null)
                 {
                     throw new TypeLoadException(
@@ -136,9 +144,18 @@ namespace Wimm.Model.Control
                 }
                 return null;
             }
-            public static Machine? GetTpip3Machine(Type machineType, Tpip3ConstructorArgs args)
+            public static Machine? GetTpip3Machine(Type machineType, TpipConstructorArgs args)
             {
                 if (machineType.IsSubclassOf(typeof(Tpip3Machine)))
+                {
+                    var constructor = machineType.GetConstructor(new Type[] { typeof(string), typeof(HwndSource) });
+                    return constructor?.Invoke(new object[] { args.TpipIpAddress, args.Hwnd }) as Tpip3Machine;
+                }
+                return null;
+            }
+            public static Machine? GetTpip4Machine(Type machineType,TpipConstructorArgs args)
+            {
+                if (machineType.IsSubclassOf(typeof(TpipForRasberryPiMachine)))
                 {
                     var constructor = machineType.GetConstructor(new Type[] { typeof(string), typeof(HwndSource) });
                     return constructor?.Invoke(new object[] { args.TpipIpAddress, args.Hwnd }) as Tpip3Machine;
@@ -197,5 +214,5 @@ namespace Wimm.Model.Control
             Dispose();
         }
     }
-    public record class Tpip3ConstructorArgs(HwndSource Hwnd, string TpipIpAddress) { }
+    public record class TpipConstructorArgs(HwndSource Hwnd, string TpipIpAddress) { }
 }

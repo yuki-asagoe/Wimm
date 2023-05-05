@@ -24,6 +24,7 @@ using System.ComponentModel;
 using Wimm.Ui.Records;
 using Wimm.Ui.Commands;
 using System.Windows.Media.Imaging;
+using Wimm.Model.Control.Script;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -51,8 +52,10 @@ namespace Wimm.Ui.ViewModel
             },
             () => { return VideoProcessor is not null && QRDetectionRunning is true; }
             );
+            WimmFeatureProvider = new WimmFeatureProvider(this);
         }
         private DirectoryInfo MachineDirectory { get; init; }
+        private WimmFeatureProvider WimmFeatureProvider { get; init; }
         public async Task<Exception?> OnLoad(HwndSource hwnd,FrameworkElement sizeObservedElement,Dispatcher dispatcher)
             //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
         {
@@ -66,7 +69,8 @@ namespace Wimm.Ui.ViewModel
                             .Builder
                             .Build(
                                 MachineDirectory,
-                                new Tpip3ConstructorArgs(hwnd, GeneralSetting.Default.Tpip3_IP_Address),
+                                new TpipConstructorArgs(hwnd, GeneralSetting.Default.Tpip_IP_Address),
+                                WimmFeatureProvider,
                                 TerminalController.GetLogger()
                             );
                     }

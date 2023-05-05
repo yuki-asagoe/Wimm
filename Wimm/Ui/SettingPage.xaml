@@ -16,7 +16,7 @@
             <TextBlock Name="FeedBackText" DockPanel.Dock="Left" Margin="10 0" FontSize="16" VerticalAlignment="Center"/>
         </DockPanel>
         <StackPanel CanVerticallyScroll="True" Margin="30 0">
-            <TextBlock FontSize="16" Margin="0 5">Tpip3 IPアドレス</TextBlock>
+            <TextBlock FontSize="16" Margin="0 5">Tpip IPアドレス</TextBlock>
             <TextBox Text="{Binding Tpip3_IP_Address, Mode=TwoWay,UpdateSourceTrigger=LostFocus}"/>
         </StackPanel>
     </DockPanel>

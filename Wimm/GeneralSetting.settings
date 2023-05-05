@@ -2,7 +2,7 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Wimm" GeneratedClassName="GeneralSetting">
   <Profiles />
   <Settings>
-    <Setting Name="Tpip3_IP_Address" Type="System.String" Scope="User">
+    <Setting Name="Tpip_IP_Address" Type="System.String" Scope="User">
       <Value Profile="(Default)">192.168.0.200</Value>
     </Setting>
     <Setting Name="SelectedControllerIndex" Type="System.Int32" Scope="User">
