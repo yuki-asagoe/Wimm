@@ -25,23 +25,25 @@ using Wimm.Ui.Records;
 using Wimm.Ui.Commands;
 using System.Windows.Media.Imaging;
 using Wimm.Model.Control.Script;
+using System.Collections.Immutable;
+using Wimm.Model.Video.Filters;
 
 namespace Wimm.Ui.ViewModel
 {
-    public sealed class MachineControlViewModel:DependencyObject,IDisposable
+    public sealed class MachineControlViewModel : DependencyObject, IDisposable
     {
         public MachineControlViewModel(DirectoryInfo machineDirectory)
         {
-            TerminalController = new TerminalController(Dispatcher,GetDefaultCommands());
+            TerminalController = new TerminalController(Dispatcher, GetDefaultCommands());
             MachineDirectory = machineDirectory;
             CommandMacroStart = new MacroStartCommand(this);
             CommandMacroStop = new MacroStopCommand(this);
             CommandStartQRDetect = new DelegateCommand(() =>
             {
-                if(VideoProcessor is not null)VideoProcessor.QRDetecting = true;
+                if (VideoProcessor is not null) VideoProcessor.QRDetecting = true;
                 QRDetectionRunning = true;
                 TerminalController.Post("QRコード検出を開始します。");
-            }, 
+            },
             () => { return VideoProcessor is not null && QRDetectionRunning is false; }
             );
             CommandStopQRDetect = new DelegateCommand(() =>
@@ -56,10 +58,10 @@ namespace Wimm.Ui.ViewModel
         }
         private DirectoryInfo MachineDirectory { get; init; }
         private WimmFeatureProvider WimmFeatureProvider { get; init; }
-        public async Task<Exception?> OnLoad(HwndSource hwnd,FrameworkElement sizeObservedElement,Dispatcher dispatcher)
-            //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
+        public async Task<Exception?> OnLoad(HwndSource hwnd, FrameworkElement sizeObservedElement, Dispatcher dispatcher)
+        //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
         {
-            (var e,var controller) = await Task.Run<(Exception?,MachineController?)>( 
+            (var e, var controller) = await Task.Run<(Exception?, MachineController?)>(
                 () =>
                 {
                     MachineController? controller = null;
@@ -74,40 +76,40 @@ namespace Wimm.Ui.ViewModel
                                 TerminalController.GetLogger()
                             );
                     }
-                    catch(TargetInvocationException e)
+                    catch (TargetInvocationException e)
                     {
-                        if(e.InnerException is Exception innerException)
+                        if (e.InnerException is Exception innerException)
                         {
-                            return (innerException,null);
+                            return (innerException, null);
                         }
                         return (e, null);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         return (e, null);
                     }
                     return (null, controller);
                 }
             );
-            if(e is not null)
+            if (e is not null)
             {
                 return e;
             }
-            if(controller is null)
+            if (controller is null)
             {
                 return new InvalidDataException("制御モデルの構築に失敗しました。");
             }
             MachineController = controller;
             var size = sizeObservedElement.RenderSize;
             VideoProcessor = new VideoProcessor(
-                new System.Drawing.Size(600,800),
+                new System.Drawing.Size(600, 800),
                 MachineController.Machine.Camera
             );
             VideoProcessor.QRUpdated += (result) =>
                 dispatcher.BeginInvoke(() => {
                     QRDetectionRunning = false;
                     DetectedQRCodeValue = result.Result;
-                    if(result.DetectedArea is not null)DetectedQRCode = result.DetectedArea;
+                    if (result.DetectedArea is not null) DetectedQRCode = result.DetectedArea;
                     TerminalController.Post($"QRコードが検出されました。[{result.Result}]");
                 });
             VideoProcessor.ImageUpdated += (image) =>
@@ -115,9 +117,9 @@ namespace Wimm.Ui.ViewModel
                 dispatcher.BeginInvoke(() => { CameraOutput = image; });
             };
             MachineName = MachineController.Machine.Name;
-            foreach(var c in MachineController.Machine.Camera.Channels)
+            foreach (var c in MachineController.Machine.Camera.Channels)
             {
-                CameraChannelEntries.Add(new CameraChannelEntry(MachineController.Machine.Camera,c));
+                CameraChannelEntries.Add(new CameraChannelEntry(MachineController.Machine.Camera, c));
             }
             periodicTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
             periodicTimer.Tick += HighRatePeriodicWork;
@@ -137,7 +139,7 @@ namespace Wimm.Ui.ViewModel
             }
             if (MachineController is MachineController controller)
             {
-                if (controller.IsMacroRunning) { 
+                if (controller.IsMacroRunning) {
                     ControlStatus = ControlStatus.Macro;
                     MacroProgress = controller.MacroRunningSecond;
                 }
@@ -171,7 +173,7 @@ namespace Wimm.Ui.ViewModel
             public event EventHandler? CanExecuteChanged;
             public void OnMachineSet() { CanExecuteChanged?.Invoke(null, new EventArgs()); }
             public bool CanExecute(object? parameter) => model.MachineController is not null;
-            public void Execute(object? parameter){ if (parameter is MacroInfo info) model.StartMacro(info); }
+            public void Execute(object? parameter) { if (parameter is MacroInfo info) model.StartMacro(info); }
         }
         private record MacroStopCommand(MachineControlViewModel model) : ICommand
         {
@@ -203,20 +205,23 @@ namespace Wimm.Ui.ViewModel
         public ICommand CommandMacroStop { get; }
         public ICommand CommandStartQRDetect { get; }
         public ICommand CommandStopQRDetect { get; }
+        public ImmutableArray<Filter> Filters { get; } = new Filter[] {
+            new BinarizationFilter()
+        }.ToImmutableArray();
         public TerminalController TerminalController { get; }
-        public MachineController? MachineController { get { return controller; } private set { controller = value;OnMachineSet(); } }
+        public MachineController? MachineController { get { return controller; } private set { controller = value; OnMachineSet(); } }
         private VideoProcessor? VideoProcessor { get; set; }
         public ICommand TerminalExecuteCommand => TerminalController.ExecuteCommand;
         public IEnumerable TerminalLines => TerminalController.LinesView;
         public readonly static DependencyProperty IsControlRunningProperty
             = DependencyProperty.Register(
                 "IsControlRunning", typeof(bool), typeof(MachineControlViewModel),
-                new PropertyMetadata((DependencyObject property,DependencyPropertyChangedEventArgs args) => {
-                    if(property is MachineControlViewModel model && args.NewValue is bool value)
+                new PropertyMetadata((DependencyObject property, DependencyPropertyChangedEventArgs args) => {
+                    if (property is MachineControlViewModel model && args.NewValue is bool value)
                     {
-                        if (value){
+                        if (value) {
                             model.MachineController?.StartControlLoop();
-                        }else{
+                        } else {
                             model.MachineController?.StopControlLoop();
                         }
                     }
@@ -225,10 +230,20 @@ namespace Wimm.Ui.ViewModel
         public readonly static DependencyProperty MachineSpeedModifierProperty
             = DependencyProperty.Register(
                 "MachineSpeedModifier", typeof(double), typeof(MachineControlViewModel),
-                new PropertyMetadata((property, args) => { 
-                    if(property is MachineControlViewModel model && model.MachineController?.Machine is Machine machine && args.NewValue is double value)
+                new PropertyMetadata((property, args) => {
+                    if (property is MachineControlViewModel model && model.MachineController?.Machine is Machine machine && args.NewValue is double value)
                     {
                         machine.SpeedModifier = value;
+                    }
+                })
+            );
+        public readonly static DependencyProperty SelectedVideoFilterProperty
+            = DependencyProperty.Register(
+                "SelectedVideoFilter", typeof(Filter), typeof(MachineControlViewModel),
+                new PropertyMetadata((obj, args) =>{
+                    if(obj is MachineControlViewModel model && model?.VideoProcessor is VideoProcessor processor && args.NewValue is Filter filter)
+                    {
+                        processor.VideoFilter = filter;
                     }
                 })
             );
@@ -255,6 +270,11 @@ namespace Wimm.Ui.ViewModel
         public readonly static DependencyProperty ControlStateProperty
             = DependencyProperty.Register("ControlStatus", typeof(ControlStatus), typeof(MachineControlViewModel));
 
+        public Filter SelectedVideoFilter
+        {
+            get { return (Filter)GetValue(SelectedVideoFilterProperty); }
+            set { SetValue(SelectedVideoFilterProperty, value); }
+        }
         public ControlStatus ControlStatus
         {
             get { return (ControlStatus)GetValue(ControlStateProperty); }

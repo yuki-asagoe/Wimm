@@ -30,6 +30,8 @@ namespace Wimm.Model.Video
             camera.SetListener(this);
         }
         public System.Drawing.Size ImageSize { get; set; }
+        //コレクションにして複数のフィルタを組み合わせられるようにしたかったが制御と利用が煩雑化することを懸念して断念する
+        public Filter? VideoFilter { private get; set; } = null;
         Camera Camera { get; init; }
         /// <summary>
         /// 画像が更新された時に呼び出されます。
@@ -49,7 +51,9 @@ namespace Wimm.Model.Video
         /// </summary>
         private BitmapSource Draw(FrameData[] frames)
         {
-            var image = frames[0].Frame.ToBitmapSource();
+            var frame=frames[0].Frame;
+            VideoFilter?.Apply(frame);
+            var image = frame.ToBitmapSource();
             image.Freeze();
             return image;
         }
