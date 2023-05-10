@@ -158,7 +158,7 @@ namespace Wimm.Model.Control
                 if (machineType.IsSubclassOf(typeof(TpipForRasberryPiMachine)))
                 {
                     var constructor = machineType.GetConstructor(new Type[] { typeof(string), typeof(HwndSource) });
-                    return constructor?.Invoke(new object[] { args.TpipIpAddress, args.Hwnd }) as Tpip3Machine;
+                    return constructor?.Invoke(new object[] { args.TpipIpAddress, args.Hwnd }) as TpipForRasberryPiMachine;
                 }
                 return null;
             }
