@@ -58,7 +58,7 @@ namespace Wimm.Ui.ViewModel
         }
         private DirectoryInfo MachineDirectory { get; init; }
         private WimmFeatureProvider WimmFeatureProvider { get; init; }
-        public async Task<Exception?> OnLoad(HwndSource hwnd, FrameworkElement sizeObservedElement, Dispatcher dispatcher)
+        public async Task<Exception?> OnLoad(HwndSource hwnd, Dispatcher dispatcher)
         //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
         {
             (var e, var controller) = await Task.Run<(Exception?, MachineController?)>(
@@ -100,7 +100,6 @@ namespace Wimm.Ui.ViewModel
                 return new InvalidDataException("制御モデルの構築に失敗しました。");
             }
             MachineController = controller;
-            var size = sizeObservedElement.RenderSize;
             VideoProcessor = new VideoProcessor(
                 new System.Drawing.Size(600, 800),
                 MachineController.Machine.Camera

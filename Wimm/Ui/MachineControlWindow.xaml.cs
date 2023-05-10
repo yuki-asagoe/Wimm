@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using MahApps.Metro.Controls;
@@ -24,6 +20,7 @@ namespace Wimm.Ui
             DataContext = viewModel;
             Loaded += OnLoaded;
             Closing += Window_Closing;
+            MainFrame.Navigate(new GeneralControlPage(viewModel));
         }
 
         private void Window_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -34,7 +31,7 @@ namespace Wimm.Ui
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
             var hwnd=HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
-            var task= ViewModel.OnLoad(hwnd, Screen, Dispatcher);
+            var task= ViewModel.OnLoad(hwnd, Dispatcher);
             var controller= await this.ShowProgressAsync("Please Wait...", "ロボット構築中", isCancelable: true);
             controller.SetIndeterminate();
             var result=await task;
