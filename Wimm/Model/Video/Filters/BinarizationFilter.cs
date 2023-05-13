@@ -1,4 +1,5 @@
-﻿using OpenCvSharp;
+﻿using MahApps.Metro.IconPacks;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -16,6 +17,10 @@ namespace Wimm.Model.Video.Filters
         }.ToImmutableArray();
 
         public override ImmutableArray<BooleanParameter> BooleanParameters => ImmutableArray<BooleanParameter>.Empty;
+
+        public override PackIconModernKind Icon => PackIconModernKind.TypeBit;
+
+        public override string Name => "二値化";
 
         public override void Apply(Mat frame)
         {

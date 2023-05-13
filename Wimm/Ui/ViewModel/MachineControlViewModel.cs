@@ -54,6 +54,13 @@ namespace Wimm.Ui.ViewModel
             },
             () => { return VideoProcessor is not null && QRDetectionRunning is true; }
             );
+            CommandRemoveFilter = new DelegateCommand(() =>
+            {
+                SelectedVideoFilter = null;
+            },
+                ()=>SelectedVideoFilter is not null
+            );
+
             WimmFeatureProvider = new WimmFeatureProvider(this);
         }
         private DirectoryInfo MachineDirectory { get; init; }
@@ -204,6 +211,7 @@ namespace Wimm.Ui.ViewModel
         public ICommand CommandMacroStop { get; }
         public ICommand CommandStartQRDetect { get; }
         public ICommand CommandStopQRDetect { get; }
+        public ICommand CommandRemoveFilter { get; }
         public ImmutableArray<Filter> Filters { get; } = new Filter[] {
             new BinarizationFilter()
         }.ToImmutableArray();
@@ -269,7 +277,7 @@ namespace Wimm.Ui.ViewModel
         public readonly static DependencyProperty ControlStateProperty
             = DependencyProperty.Register("ControlStatus", typeof(ControlStatus), typeof(MachineControlViewModel));
 
-        public Filter SelectedVideoFilter
+        public Filter? SelectedVideoFilter
         {
             get { return (Filter)GetValue(SelectedVideoFilterProperty); }
             set { SetValue(SelectedVideoFilterProperty, value); }

@@ -1,4 +1,5 @@
-﻿using OpenCvSharp;
+﻿using MahApps.Metro.IconPacks;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -13,6 +14,8 @@ namespace Wimm.Model.Video
         public abstract void Apply(Mat frame);
         public abstract ImmutableArray<DoubleParameter> DoubleParameters { get; }
         public abstract ImmutableArray<BooleanParameter> BooleanParameters { get; }
+        public abstract PackIconModernKind Icon { get; }
+        public abstract String Name { get; }
     }
     public record DoubleParameter(string Name,double Min,double Max)
     {

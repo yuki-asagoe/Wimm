@@ -9,10 +9,10 @@
       xmlns:t="clr-namespace:Simple.Wpf.Terminal;assembly=Simple.Wpf.Terminal"
       xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
       xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
       xmlns:Machines="clr-namespace:Wimm.Machines;assembly=Wimm.Machines"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      mc:Ignorable="d"
       d:DataContext="{d:DesignInstance ViewModels:MachineControlViewModel}"
       Title="GeneralControlPage">
     <Page.Resources>
@@ -25,8 +25,8 @@
         </Style>
     </Page.Resources>
     <DockPanel LastChildFill="True">
-        <Border DockPanel.Dock="Right" Name="InformationField" Width="300" Margin="{StaticResource Wimm.Margin.Small}">
-            <StackPanel CanVerticallyScroll="True">
+        <ScrollViewer DockPanel.Dock="Right" Name="InformationField" Width="300">
+            <StackPanel CanVerticallyScroll="True"  Margin="{StaticResource Wimm.Margin.Small}">
                 <Expander Style="{StaticResource InfomationTile}" Header="Camera" IsExpanded="True">
                     <StackPanel>
                         <DataGrid HeadersVisibility="None" Margin="{StaticResource Wimm.Margin.Small.Horizontal}" SelectionMode="Single" GridLinesVisibility="Horizontal" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" ItemsSource="{Binding CameraChannelEntries}">
@@ -42,6 +42,39 @@
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+                        <DockPanel LastChildFill="False" Margin="{StaticResource Wimm.Margin.Small.Vertical}">
+                            <TextBlock Text="Filters" VerticalAlignment="Center" DockPanel.Dock="Left"/>
+                            <Button Command="{Binding CommandRemoveFilter}" Style="{StaticResource MahApps.Styles.Button.Chromeless}" Content="Remove" DockPanel.Dock="Right"/>
+                        </DockPanel>
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                            <ListView Background="Transparent" SelectionMode="Single" ItemsSource="{Binding Filters}" SelectedItem="{Binding SelectedVideoFilter, Mode=OneWayToSource}">
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel/>
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <icon:PackIconModern ToolTip="{Binding Name}" Background="{StaticResource MahApps.Brushes.Accent3}" Width="30" Height="30" Padding="8" Kind="{Binding Icon}">
+                                            <icon:PackIconModern.Style>
+                                                <Style TargetType="icon:PackIconModern">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver}" Value="true">
+                                                            <Setter Property="RenderTransform">
+                                                                <Setter.Value>
+                                                                    <ScaleTransform ScaleX="0.97" ScaleY="0.97"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </icon:PackIconModern.Style>
+                                        </icon:PackIconModern>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </ScrollViewer>
                     </StackPanel>
                 </Expander>
                 <Expander Style="{StaticResource InfomationTile}" Header="Control" IsExpanded="True">
@@ -141,7 +174,7 @@
                     </StackPanel>
                 </Expander>
             </StackPanel>
-        </Border>
+        </ScrollViewer>
         <ContentControl DockPanel.Dock="Bottom" Height="150" Margin="10 0 0 10">
             <t:Terminal
                     Name="InteractionTerminal"
