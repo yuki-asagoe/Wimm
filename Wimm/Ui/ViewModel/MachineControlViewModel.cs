@@ -127,11 +127,11 @@ namespace Wimm.Ui.ViewModel
             {
                 CameraChannelEntries.Add(new CameraChannelEntry(MachineController.Machine.Camera, c));
             }
+            MacroList = controller.MacroList;
             periodicTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
             periodicTimer.Tick += HighRatePeriodicWork;
             periodicTimer.Interval += new TimeSpan(0, 0, 0, 0, 500);
             periodicTimer.Start();
-            IsControlRunning = true;
             MachineSpeedModifier = 1;
             TerminalController.Post($"ロボットの初期化が完了しました。ロボット名 : {MachineController.Machine.Name}");
             return null;
@@ -276,6 +276,8 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("MacroProgress", typeof(double), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ControlStateProperty
             = DependencyProperty.Register("ControlStatus", typeof(ControlStatus), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty MacroListProperty
+            = DependencyProperty.Register("MacroList", typeof(ImmutableArray<MacroInfo>), typeof(MachineControlViewModel));
 
         public Filter? SelectedVideoFilter
         {
@@ -346,6 +348,11 @@ namespace Wimm.Ui.ViewModel
         {
             get { return (bool)GetValue(IsControlRunningProperty); }
             set { SetValue(IsControlRunningProperty, value); }
+        }
+        public ImmutableArray<MacroInfo> MacroList
+        {
+            get { return (ImmutableArray<MacroInfo>)GetValue(MacroListProperty); }
+            set { SetValue(MacroListProperty,value); }
         }
 
         private CommandNode[] GetDefaultCommands()

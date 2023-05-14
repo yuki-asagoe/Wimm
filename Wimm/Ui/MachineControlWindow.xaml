@@ -4,9 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:t="clr-namespace:Simple.Wpf.Terminal;assembly=Simple.Wpf.Terminal"
-        xmlns:local="clr-namespace:Wimm.Ui"
-        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
         xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
         xmlns:Machines="clr-namespace:Wimm.Machines;assembly=Wimm.Machines"
@@ -24,7 +21,12 @@
     </Metro:MetroWindow.Resources>
     <Grid>
         <DockPanel LastChildFill="True" Background="{StaticResource MahApps.Brushes.Gray9}">
-            <StatusBar DockPanel.Dock="Bottom">
+            <StatusBar DockPanel.Dock="Bottom" Padding="2">
+                <StatusBarItem HorizontalAlignment="Left">
+                    <TextBlock>
+                        Robot Name : <Run Text="{Binding MachineName}"/>
+                    </TextBlock>
+                </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
                     <TextBlock>
                         <TextBlock.Style>
