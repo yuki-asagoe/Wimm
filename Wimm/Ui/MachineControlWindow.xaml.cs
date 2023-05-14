@@ -44,10 +44,7 @@ namespace Wimm.Ui
         }
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if(e.Key is Key.LeftShift or Key.RightShift)
-            {
-                ViewModel.IsControlRunning = !ViewModel.IsControlRunning;
-            }
+
         }
     }
 }

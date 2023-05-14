@@ -7,18 +7,23 @@
         xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
         xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
         xmlns:Machines="clr-namespace:Wimm.Machines;assembly=Wimm.Machines"
+        xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance ViewModels:MachineControlViewModel}"
         Title="{Binding MachineName}" Height="650" Width="900">
     <Metro:MetroWindow.Resources>
         <Converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
-        <Style x:Key="InfomationTile" TargetType="Expander" BasedOn="{StaticResource MahApps.Styles.Expander}">
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.IdealForeground}"/>
-            <Setter Property="Margin" Value="{StaticResource Wimm.Margin.Small}"/>
-            <Setter Property="Padding" Value="{StaticResource Wimm.Margin.Small}"/>
-        </Style>
     </Metro:MetroWindow.Resources>
+    <Metro:MetroWindow.RightWindowCommands>
+        <Metro:WindowCommands>
+            <Button ToolTip="Immersive Mode">
+                <icon:PackIconModern Width="20" Height="20" Kind="MedicalPulse"/>
+            </Button>
+            <Button ToolTip="Normal Mode">
+                <icon:PackIconModern Width="20" Height="20" Kind="Notification"/>
+            </Button>
+        </Metro:WindowCommands>
+    </Metro:MetroWindow.RightWindowCommands>
     <Grid>
         <DockPanel LastChildFill="True" Background="{StaticResource MahApps.Brushes.Gray9}">
             <StatusBar DockPanel.Dock="Bottom" Padding="2">

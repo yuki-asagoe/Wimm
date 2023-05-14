@@ -1,0 +1,99 @@
+﻿<Page x:Class="Wimm.Ui.ImmersiveControlPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Wimm.Ui"
+      xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      xmlns:t="clr-namespace:Simple.Wpf.Terminal;assembly=Simple.Wpf.Terminal"
+      xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
+      xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:Machines="clr-namespace:Wimm.Machines;assembly=Wimm.Machines"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance ViewModels:MachineControlViewModel}"
+      Title="GeneralControlPage">
+    <Page.Resources>
+        <Converters:CameraKindConverter x:Key="CameraKind"/>
+        <Converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
+        <Style x:Key="InformationText" TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}"/>
+        </Style>
+        <Style x:Key="InformationTextSub" TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}"/>
+        </Style>
+        <Style x:Key="InformationIcon" TargetType="icon:PackIconModern">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}"/>
+        </Style>
+    </Page.Resources>
+
+    <DockPanel>
+        <t:Terminal Width="250" DockPanel.Dock="Right" IsReadOnly="True" ItemsSource="{Binding TerminalLines, Mode=OneWay}" BorderThickness="4 0 0 0" BorderBrush="{StaticResource MahApps.Brushes.Accent}"/>
+        <Grid Background="{StaticResource MahApps.Brushes.Gray1}">
+            <Image Stretch="Uniform" Source="{Binding CameraOutput}"/>
+            <StackPanel Margin="{StaticResource Wimm.Margin.Small}"  Visibility="{Binding IsControlRunning, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <BulletDecorator>
+                    <BulletDecorator.Bullet>
+                        <icon:PackIconModern Kind="ControlPlay" Style="{StaticResource InformationIcon}"/>
+                    </BulletDecorator.Bullet>
+                    <BulletDecorator.Child>
+                        <TextBlock Margin="4 0" Text="Control Running" Style="{StaticResource InformationText}"/>
+                    </BulletDecorator.Child>
+                </BulletDecorator>
+                <TextBlock Style="{StaticResource InformationTextSub}">
+                    Speed Modifier : <Run Text="{Binding MachineSpeedModifier, StringFormat={}{0.00}}"/>
+                </TextBlock>
+            </StackPanel>
+            
+            <StackPanel Margin="{StaticResource Wimm.Margin.Small}" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                <BulletDecorator>
+                    <BulletDecorator.Bullet>
+                        <icon:PackIconModern Kind="Camera" Style="{StaticResource InformationIcon}"/>
+                    </BulletDecorator.Bullet>
+                    <BulletDecorator.Child>
+                        <ListView ItemsSource="{Binding CameraChannelEntries}" Background="Transparent">
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Margin" Value="1"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <icon:PackIconModern Foreground="{StaticResource MahApps.Brushes.Accent}" Width="18" Height="18" Kind="{Binding IsActive,Converter={StaticResource CameraKind}, Mode=OneWay}"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </BulletDecorator.Child>
+                </BulletDecorator>
+                <StackPanel Orientation="Horizontal" Visibility="{Binding SelectedVideoFilter, Converter={StaticResource NotNullToVisibilityConverter}}">
+                    <TextBlock Text="Filter" Style="{StaticResource InformationText}"/>
+                    <TextBlock Text="{Binding SelectedVideoFilter.Name}" Margin="4 0" Style="{StaticResource InformationText}"/>
+                    <icon:PackIconModern Kind="{Binding SelectedVideoFilter.Icon}" Width="22" Height="22"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Margin="{StaticResource Wimm.Margin.Small}" Visibility="{Binding QRDetectionRunning}" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <BulletDecorator>
+                    <BulletDecorator.Bullet>
+                        <icon:PackIconModern Style="{StaticResource InformationIcon}" Kind="Qr"/>
+                    </BulletDecorator.Bullet>
+                    <BulletDecorator.Child>
+                        <TextBlock Margin="4 0" Text="QR Detection" Style="{StaticResource InformationText}"/>
+                    </BulletDecorator.Child>
+                </BulletDecorator>
+                <TextBlock HorizontalAlignment="Right" Text="Running..." Style="{StaticResource InformationTextSub}"/>
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</Page>
