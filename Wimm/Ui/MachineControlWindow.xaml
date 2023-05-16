@@ -16,10 +16,10 @@
     </Metro:MetroWindow.Resources>
     <Metro:MetroWindow.RightWindowCommands>
         <Metro:WindowCommands>
-            <Button ToolTip="Immersive Mode">
+            <Button ToolTip="Immersive Mode" Click="OnClickImmersiveButton">
                 <icon:PackIconModern Width="20" Height="20" Kind="MedicalPulse"/>
             </Button>
-            <Button ToolTip="Normal Mode">
+            <Button ToolTip="Normal Mode" Click="OnClickNormalButton">
                 <icon:PackIconModern Width="20" Height="20" Kind="Notification"/>
             </Button>
         </Metro:WindowCommands>

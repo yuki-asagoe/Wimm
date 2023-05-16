@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Wimm.Ui.ViewModel;
 
 namespace Wimm.Ui
 {
@@ -20,9 +21,10 @@ namespace Wimm.Ui
     /// </summary>
     public partial class ImmersiveControlPage : Page
     {
-        public ImmersiveControlPage()
+        public ImmersiveControlPage(MachineControlViewModel viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
         }
     }
 }

@@ -12,7 +12,9 @@ namespace Wimm.Ui
 {
     public partial class MachineControlWindow : MetroWindow
     {
+        private enum UiMode { Normal,Immersive }
         MachineControlViewModel ViewModel { get; init; }
+        private UiMode Mode { get; set; }
         public MachineControlWindow(MachineControlViewModel viewModel)
         {
             InitializeComponent();
@@ -20,7 +22,22 @@ namespace Wimm.Ui
             DataContext = viewModel;
             Loaded += OnLoaded;
             Closing += Window_Closing;
-            MainFrame.Navigate(new GeneralControlPage(viewModel));
+            NavigateToNormalMode();
+            
+        }
+        public void NavigateToImmersiveMode()
+        {
+            if (Mode is UiMode.Immersive) return;
+            Mode = UiMode.Immersive;
+            MainFrame.Navigate(new ImmersiveControlPage(ViewModel));
+            ViewModel.TerminalController.Post("Immersive モードに切り替えました。");
+        }
+        public void NavigateToNormalMode()
+        {
+            if (Mode is UiMode.Normal) return;
+            Mode = UiMode.Normal;
+            MainFrame.Navigate(new GeneralControlPage(ViewModel));
+            ViewModel.TerminalController.Post("Normal モードに切り替えました。");
         }
 
         private void Window_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -45,6 +62,16 @@ namespace Wimm.Ui
         protected override void OnKeyDown(KeyEventArgs e)
         {
 
+        }
+
+        private void OnClickImmersiveButton(object sender, RoutedEventArgs e)
+        {
+            NavigateToImmersiveMode();
+        }
+
+        private void OnClickNormalButton(object sender, RoutedEventArgs e)
+        {
+            NavigateToNormalMode();
         }
     }
 }
