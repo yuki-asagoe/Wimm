@@ -23,12 +23,11 @@ namespace Wimm.Model.Console
         public ObservableFixedSizeRingBuffer<string> Lines { get; } = new ObservableFixedSizeRingBuffer<string>(LineSize);
         private ISynchronizedView<string,string> View { get; }
         public INotifyCollectionChangedSynchronizedView<string,string> LinesView { get; }
-        public Dispatcher UIDispatcher { get; init; }
-        public TerminalController(Dispatcher dispatcher,IEnumerable<CommandNode> commands)
+        public TerminalController(IEnumerable<CommandNode> commands)
         {
             View = Lines.CreateView(x => x);
             LinesView= View.WithINotifyCollectionChanged();
-            UIDispatcher = dispatcher;
+            BindingOperations.EnableCollectionSynchronization(LinesView, new object());
 
             LogFile = GetLogFile();
             if(LogFile is not null)
@@ -85,13 +84,12 @@ namespace Wimm.Model.Console
         {
             var message = level is MessageLevel.Input?$"> {text}":$"[{level}]{text}";
             LogOutput?.WriteLine($"[{DateTime.Now}]{message}");
-            UIDispatcher.BeginInvoke(() => {
-                if (Lines.Count == LineSize)
-                {
-                    Lines.RemoveFirst();
-                }
-                Lines.AddLast(message);
-            });
+
+            if (Lines.Count == LineSize)
+            {
+                 Lines.RemoveFirst();
+             }
+            Lines.AddLast(message);
         }
         public static FileInfo? GetLogFile()
         {

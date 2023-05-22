@@ -34,10 +34,29 @@
     </Page.Resources>
 
     <DockPanel>
-        <t:Terminal Width="250" DockPanel.Dock="Right" IsReadOnly="True" ItemsSource="{Binding TerminalLines, Mode=OneWay}" BorderThickness="4 0 0 0" BorderBrush="{StaticResource MahApps.Brushes.Accent}"/>
-        <Grid Background="{StaticResource MahApps.Brushes.Gray1}">
+        <t:Terminal Width="250" Focusable="False" DockPanel.Dock="Right" IsReadOnly="True" ItemsSource="{Binding TerminalLines, Mode=OneWay}" BorderThickness="4 0 0 0" BorderBrush="{StaticResource MahApps.Brushes.Accent}"/>
+        <Grid Name="ScreenGrid" Focusable="True" PreviewMouseDown="ScreenGrid_PreviewMouseDown" PreviewKeyDown="ScreenGrid_KeyDown" Background="{StaticResource MahApps.Brushes.Gray1}">
+            <Grid.InputBindings>
+                <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding CommandSwitchQRDetect}"/>
+                <KeyBinding Key="R" Command="{Binding CommandSwitchControl}"/>
+                <KeyBinding Key="Backspace" Command="{Binding CommandCloseImmersiveSelection}"/>
+                <MouseBinding MouseAction="LeftClick" Command="{Binding CommandCloseImmersiveSelection}"/>
+                <KeyBinding Key="F" Command="{Binding CommandOpenImmersiveSelection}" CommandParameter="{x:Static ViewModels:ImmersiveSelectionUIMode.VideoFilter}"/>
+                <KeyBinding Key="C" Command="{Binding CommandOpenImmersiveSelection}" CommandParameter="{x:Static ViewModels:ImmersiveSelectionUIMode.Camera}"/>
+                <KeyBinding Key="M" Command="{Binding CommandOpenImmersiveSelection}" CommandParameter="{x:Static ViewModels:ImmersiveSelectionUIMode.Macro}"/>
+            </Grid.InputBindings>
             <Image Stretch="Uniform" Source="{Binding CameraOutput}"/>
-            <StackPanel Margin="{StaticResource Wimm.Margin.Small}"  Visibility="{Binding IsControlRunning, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <StackPanel Margin="{StaticResource Wimm.Margin.Small}" Visibility="{Binding IsFocused, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <BulletDecorator>
+                    <BulletDecorator.Bullet>
+                        <icon:PackIconModern Style="{StaticResource InformationIcon}" Kind="InputKeyboard"/>
+                    </BulletDecorator.Bullet>
+                    <BulletDecorator.Child>
+                        <TextBlock Margin="4 0" Text="Keyboard Focused" Style="{StaticResource InformationTextSub}"/>
+                    </BulletDecorator.Child>
+                </BulletDecorator>
+            </StackPanel>
+            <StackPanel Margin="{StaticResource Wimm.Margin.Small}" Visibility="{Binding IsControlRunning, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                 <BulletDecorator>
                     <BulletDecorator.Bullet>
                         <icon:PackIconModern Kind="ControlPlay" Style="{StaticResource InformationIcon}"/>
@@ -47,31 +66,36 @@
                     </BulletDecorator.Child>
                 </BulletDecorator>
                 <TextBlock Style="{StaticResource InformationTextSub}">
-                    Speed Modifier : <Run Text="{Binding MachineSpeedModifier, StringFormat={}{0.00}}"/>
+                    Speed Modifier : <Run Text="{Binding MachineSpeedModifier, StringFormat={}{0:0.00}}"/>
                 </TextBlock>
             </StackPanel>
             
             <StackPanel Margin="{StaticResource Wimm.Margin.Small}" HorizontalAlignment="Left" VerticalAlignment="Bottom">
                 <BulletDecorator>
                     <BulletDecorator.Bullet>
-                        <icon:PackIconModern Kind="Camera" Style="{StaticResource InformationIcon}"/>
+                        <icon:PackIconModern  Kind="Camera" Style="{StaticResource InformationIcon}"/>
                     </BulletDecorator.Bullet>
                     <BulletDecorator.Child>
                         <ListView ItemsSource="{Binding CameraChannelEntries}" Background="Transparent">
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
+                                    <StackPanel Margin="4 0 0 0" Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
+                                    <Setter Property="Focusable" Value="False"/>
                                     <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="Margin" Value="1"/>
+                                    <Setter Property="Padding" Value="3"/>
                                 </Style>
                             </ListView.ItemContainerStyle>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <icon:PackIconModern Foreground="{StaticResource MahApps.Brushes.Accent}" Width="18" Height="18" Kind="{Binding IsActive,Converter={StaticResource CameraKind}, Mode=OneWay}"/>
+                                    <icon:PackIconModern 
+                                        Foreground="{StaticResource MahApps.Brushes.Accent}" 
+                                        Width="18" Height="18" 
+                                        Kind="{Binding IsActive,Converter={StaticResource CameraKind}, Mode=OneWay}"
+                                        />
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
@@ -83,7 +107,7 @@
                     <icon:PackIconModern Kind="{Binding SelectedVideoFilter.Icon}" Width="22" Height="22"/>
                 </StackPanel>
             </StackPanel>
-            <StackPanel Margin="{StaticResource Wimm.Margin.Small}" Visibility="{Binding QRDetectionRunning}" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <StackPanel Margin="{StaticResource Wimm.Margin.Small}" Visibility="{Binding QRDetectionRunning,Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Top">
                 <BulletDecorator>
                     <BulletDecorator.Bullet>
                         <icon:PackIconModern Style="{StaticResource InformationIcon}" Kind="Qr"/>
@@ -94,6 +118,92 @@
                 </BulletDecorator>
                 <TextBlock HorizontalAlignment="Right" Text="Running..." Style="{StaticResource InformationTextSub}"/>
             </StackPanel>
+            <Grid VerticalAlignment="Bottom" Height="120">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ImmersiveSelectionMode}" Value="{x:Static ViewModels:ImmersiveSelectionUIMode.None}">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.Background>
+                    <SolidColorBrush Color="White" Opacity="0.3"/>
+                </Grid.Background>
+                <!--カメラ Immersive UI-->
+                <ScrollViewer Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                    <ScrollViewer.Style>
+                        <Style TargetType="ScrollViewer">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ImmersiveSelectionMode}" Value="{x:Static ViewModels:ImmersiveSelectionUIMode.Camera}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ScrollViewer.Style>
+                    <ListView ItemsSource="{Binding CameraChannelEntries}" SelectionMode="Extended" Background="Transparent" VerticalContentAlignment="Center">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Margin" Value="10"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <icon:PackIconModern Width="100" Height="100" Kind="CameraFlash" Foreground="White" Padding="0 20" Background="{StaticResource MahApps.Brushes.Accent}">
+                                    <icon:PackIconModern.Style>
+                                        <Style TargetType="icon:PackIconModern">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                    <Setter Property="Opacity" Value="0.5"/>
+                                                    <Setter Property="Kind" Value="CameraFlashOff"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </icon:PackIconModern.Style>
+                                </icon:PackIconModern>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollViewer>
+                <!--フィルタ Immersive UI-->
+                <ScrollViewer Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                    <ScrollViewer.Style>
+                        <Style TargetType="ScrollViewer">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ImmersiveSelectionMode}" Value="{x:Static ViewModels:ImmersiveSelectionUIMode.VideoFilter}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ScrollViewer.Style>
+                    <ListView Background="Transparent">
+
+                    </ListView>
+                </ScrollViewer>
+                <!--マクロ Immersive UI-->
+                <ScrollViewer Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                    <ScrollViewer.Style>
+                        <Style TargetType="ScrollViewer">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ImmersiveSelectionMode}" Value="{x:Static ViewModels:ImmersiveSelectionUIMode.Macro}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ScrollViewer.Style>
+                    <ListView Background="Transparent">
+
+                    </ListView>
+                </ScrollViewer>
+            </Grid>
         </Grid>
     </DockPanel>
 </Page>

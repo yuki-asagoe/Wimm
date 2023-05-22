@@ -12,7 +12,7 @@ namespace Wimm.Ui
 {
     public partial class MachineControlWindow : MetroWindow
     {
-        private enum UiMode { Normal,Immersive }
+        private enum UiMode { None,Normal,Immersive }
         MachineControlViewModel ViewModel { get; init; }
         private UiMode Mode { get; set; }
         public MachineControlWindow(MachineControlViewModel viewModel)
@@ -22,8 +22,6 @@ namespace Wimm.Ui
             DataContext = viewModel;
             Loaded += OnLoaded;
             Closing += Window_Closing;
-            NavigateToNormalMode();
-            
         }
         public void NavigateToImmersiveMode()
         {
@@ -49,7 +47,7 @@ namespace Wimm.Ui
         {
             var hwnd=HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
             var task= ViewModel.OnLoad(hwnd, Dispatcher);
-            var controller= await this.ShowProgressAsync("Please Wait...", "ロボット構築中", isCancelable: true);
+            var controller= await this.ShowProgressAsync("Please Wait...", "ロボット制御モデル構築中", isCancelable: true);
             controller.SetIndeterminate();
             var result=await task;
             await controller.CloseAsync();
@@ -57,6 +55,10 @@ namespace Wimm.Ui
             {
                 await this.ShowMessageAsync("エラーが発生しました。", $"{result.GetType().Name}:{result.Message}");
                 Close();
+            }
+            else
+            {
+                NavigateToNormalMode();
             }
         }
         protected override void OnKeyDown(KeyEventArgs e)

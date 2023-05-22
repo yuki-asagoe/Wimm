@@ -27,6 +27,7 @@ using System.Windows.Media.Imaging;
 using Wimm.Model.Control.Script;
 using System.Collections.Immutable;
 using Wimm.Model.Video.Filters;
+using OpenCvSharp;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -34,10 +35,44 @@ namespace Wimm.Ui.ViewModel
     {
         public MachineControlViewModel(DirectoryInfo machineDirectory)
         {
-            TerminalController = new TerminalController(Dispatcher, GetDefaultCommands());
+            TerminalController = new TerminalController(GetDefaultCommands());
             MachineDirectory = machineDirectory;
             CommandMacroStart = new MacroStartCommand(this);
             CommandMacroStop = new MacroStopCommand(this);
+            CommandOpenImmersiveSelection = new ParamsDelegateCommand((arg) =>
+            {
+                if(arg is ImmersiveSelectionUIMode mode)
+                {
+                    if(ImmersiveSelectionMode is ImmersiveSelectionUIMode.None)
+                    {
+                        ImmersiveSelectionMode = mode;
+                    }
+                    else
+                    {
+                        ImmersiveSelectionMode = ImmersiveSelectionUIMode.None;
+                    }
+                }
+            },
+            (arg) => { return MachineController is not null & arg is ImmersiveSelectionUIMode; }
+            );
+            CommandCloseImmersiveSelection = new DelegateCommand(() =>
+            {
+                ImmersiveSelectionMode = ImmersiveSelectionUIMode.None;
+            },
+            () => { return MachineController is not null & ImmersiveSelectionMode is not ImmersiveSelectionUIMode.None; }
+            );
+            CommandSwitchControl = new DelegateCommand(() =>
+            {
+                IsControlRunning = !IsControlRunning;
+            },
+            () => { return MachineController is not null; }
+            );
+            CommandSwitchQRDetect = new DelegateCommand(() =>
+            {
+                QRDetectionRunning=!QRDetectionRunning;
+            },
+            () => { return MachineController is not null; }
+            );
             CommandStartQRDetect = new DelegateCommand(() =>
             {
                 if (VideoProcessor is not null) VideoProcessor.QRDetecting = true;
@@ -204,6 +239,49 @@ namespace Wimm.Ui.ViewModel
             if (!disposed) Dispose();
         }
 
+        //Immersive Modeで要素をキーボードから選択したときの処理
+        //WPFのMVVM機能だけで実装することが困難でありかえって
+        //可読性を落としかねないと判断したため大人しくイベントハンドラから処理する
+
+        /// <param name="selected_key">選択されたキー、入力されたキー0~9までをそのまま数値に変換したものでなければならない</param>
+        public void OnImmersiveSelectionItemSelected(int selected_key)
+        {
+            if(ImmersiveSelectionMode is ImmersiveSelectionUIMode.None) { return; }
+            switch (ImmersiveSelectionMode)
+            {
+                case ImmersiveSelectionUIMode.Camera:
+                    {
+                        if(selected_key is 0)
+                        {
+                            foreach(var camera in CameraChannelEntries) { camera.IsActive = false; }
+                            TerminalController.Post("全てのカメラを停止しました。");
+                        }
+                        else if ((selected_key-1) >= 0 && (selected_key-1)<CameraChannelEntries.Count)
+                        {
+                            var camera = CameraChannelEntries[selected_key - 1];
+                            camera.IsActive = !camera.IsActive;
+                            TerminalController.Post($"Immersive UI キー入力 {selected_key} : {selected_key-1}番カメラの起動状態を反転");
+                        }
+                        break;
+                    }
+                case ImmersiveSelectionUIMode.Macro:
+                    {
+                        TerminalController.Post("Immersive UI キー入力 : マクロ起動は未対応です");
+                        break;
+                    }
+                case ImmersiveSelectionUIMode.VideoFilter:
+                    {
+                        if((selected_key-1) >=0 && (selected_key-1) < Filters.Length)
+                        {
+                            SelectedVideoFilter = Filters[selected_key-1];
+                            TerminalController.Post($"Immersive UI キー入力 {selected_key} : フィルタ[{Filters[selected_key - 1].Name}]を適用");
+                        }
+                        break;
+                    }
+            }
+            ImmersiveSelectionMode = ImmersiveSelectionUIMode.None;
+        }
+
         private MachineController? controller = null;
         private DispatcherTimer? periodicTimer = null;
         public ObservableCollection<CameraChannelEntry> CameraChannelEntries { get; } = new();
@@ -212,6 +290,10 @@ namespace Wimm.Ui.ViewModel
         public ICommand CommandStartQRDetect { get; }
         public ICommand CommandStopQRDetect { get; }
         public ICommand CommandRemoveFilter { get; }
+        public ICommand CommandSwitchControl { get; }
+        public ICommand CommandSwitchQRDetect { get; }
+        public ICommand CommandOpenImmersiveSelection { get; }
+        public ICommand CommandCloseImmersiveSelection { get; }
         public ImmutableArray<Filter> Filters { get; } = new Filter[] {
             new BinarizationFilter()
         }.ToImmutableArray();
@@ -278,6 +360,8 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("ControlStatus", typeof(ControlStatus), typeof(MachineControlViewModel));
         public readonly static DependencyProperty MacroListProperty
             = DependencyProperty.Register("MacroList", typeof(ImmutableArray<MacroInfo>), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty ImmersiveSelectionModeProperty
+            = DependencyProperty.Register("ImmersiveSelectionMode", typeof(ImmersiveSelectionUIMode), typeof(MachineControlViewModel));
 
         public Filter? SelectedVideoFilter
         {
@@ -353,6 +437,11 @@ namespace Wimm.Ui.ViewModel
         {
             get { return (ImmutableArray<MacroInfo>)GetValue(MacroListProperty); }
             set { SetValue(MacroListProperty,value); }
+        }
+        public ImmersiveSelectionUIMode ImmersiveSelectionMode
+        {
+            get { return (ImmersiveSelectionUIMode)GetValue(ImmersiveSelectionModeProperty); }
+            set { SetValue(ImmersiveSelectionModeProperty, value); }
         }
 
         private CommandNode[] GetDefaultCommands()
@@ -431,5 +520,9 @@ namespace Wimm.Ui.ViewModel
                 )
             };
         }
+    }
+    public enum ImmersiveSelectionUIMode
+    {
+        None,Camera,Macro,VideoFilter
     }
 }

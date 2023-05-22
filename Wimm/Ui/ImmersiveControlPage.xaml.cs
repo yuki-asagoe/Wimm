@@ -21,10 +21,26 @@ namespace Wimm.Ui
     /// </summary>
     public partial class ImmersiveControlPage : Page
     {
+        MachineControlViewModel ViewModel { get; }
         public ImmersiveControlPage(MachineControlViewModel viewModel)
         {
+            ViewModel = viewModel;
             InitializeComponent();
             DataContext = viewModel;
+            Loaded += (_, _) => { Keyboard.Focus(ScreenGrid); };
+        }
+
+        private void ScreenGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key is >= Key.D0 and <= Key.D9)
+            {
+                ViewModel.OnImmersiveSelectionItemSelected(e.Key - Key.D0);
+            }
+        }
+
+        private void ScreenGrid_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Keyboard.Focus(ScreenGrid);
         }
     }
 }

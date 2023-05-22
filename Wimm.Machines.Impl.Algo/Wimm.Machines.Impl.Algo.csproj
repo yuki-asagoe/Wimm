@@ -9,12 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Wimm.Machines">
-      <HintPath>..\Wimm.Machines\bin\Debug\net6.0\Wimm.Machines.dll</HintPath>
-    </Reference>
-    <Reference Include="Wimm.Machines.Tpip3">
-      <HintPath>..\Wimm.Machines.Tpip3\bin\Debug\net6.0-windows\Wimm.Machines.Tpip3.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\Wimm.Machines.Tpip3\Wimm.Machines.Tpip3.csproj" />
+    <ProjectReference Include="..\Wimm.Machines\Wimm.Machines.csproj" />
   </ItemGroup>
 
 </Project>
