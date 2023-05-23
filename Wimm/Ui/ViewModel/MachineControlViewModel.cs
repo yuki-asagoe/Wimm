@@ -301,7 +301,7 @@ namespace Wimm.Ui.ViewModel
         public MachineController? MachineController { get { return controller; } private set { controller = value; OnMachineSet(); } }
         private VideoProcessor? VideoProcessor { get; set; }
         public ICommand TerminalExecuteCommand => TerminalController.ExecuteCommand;
-        public IEnumerable TerminalLines => TerminalController.LinesView;
+        public IEnumerable TerminalLines => TerminalController.Output;
         public readonly static DependencyProperty IsControlRunningProperty
             = DependencyProperty.Register(
                 "IsControlRunning", typeof(bool), typeof(MachineControlViewModel),

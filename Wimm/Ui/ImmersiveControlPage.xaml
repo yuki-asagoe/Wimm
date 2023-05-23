@@ -34,7 +34,15 @@
     </Page.Resources>
 
     <DockPanel>
-        <t:Terminal Width="250" Focusable="False" DockPanel.Dock="Right" IsReadOnly="True" ItemsSource="{Binding TerminalLines, Mode=OneWay}" BorderThickness="4 0 0 0" BorderBrush="{StaticResource MahApps.Brushes.Accent}"/>
+        <t:Terminal 
+            Width="400" 
+            Focusable="False"
+            DockPanel.Dock="Right"
+            IsReadOnly="True"
+            ItemsSource="{Binding TerminalLines, Mode=OneWay}"
+            BorderThickness="4 0 0 0"
+            BorderBrush="{StaticResource MahApps.Brushes.Accent}"
+        />
         <Grid Name="ScreenGrid" Focusable="True" PreviewMouseDown="ScreenGrid_PreviewMouseDown" PreviewKeyDown="ScreenGrid_KeyDown" Background="{StaticResource MahApps.Brushes.Gray1}">
             <Grid.InputBindings>
                 <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding CommandSwitchQRDetect}"/>

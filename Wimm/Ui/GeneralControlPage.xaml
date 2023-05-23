@@ -145,12 +145,12 @@
         </ScrollViewer>
         <ContentControl DockPanel.Dock="Bottom" Height="150" Margin="10 0 0 10">
             <t:Terminal
-                    Name="InteractionTerminal"
-                    ItemsSource="{Binding TerminalLines, Mode=OneWay}"
-                    IsReadOnly="False"
-                    BorderThickness="1"
-                    VerticalScrollBarVisibility="Visible"
-                    >
+                Name="InteractionTerminal"
+                ItemsSource="{Binding TerminalLines, Mode=OneWay}"
+                IsReadOnly="False"
+                BorderThickness="1"
+                VerticalScrollBarVisibility="Visible"
+            >
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="LineEntered">
                         <b:InvokeCommandAction 

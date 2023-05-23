@@ -1,6 +1,8 @@
 ﻿using ObservableCollections;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +17,50 @@ namespace Wimm.Model.Console
 {
     public class TerminalController:IDisposable
     {
+        private class OutputFormatter : IEnumerable<string>, INotifyCollectionChanged
+        {
+            #region OutputFormatter
+            INotifyCollectionChangedSynchronizedView<string, string> Lines;
+            public OutputFormatter(INotifyCollectionChangedSynchronizedView<string, string> output)
+            {
+                Lines = output;
+                output.CollectionChanged += (_, args) => { this.CollectionChanged?.Invoke(this, args); };
+            }
+            public event NotifyCollectionChangedEventHandler? CollectionChanged;
+            private class Enumerator : IEnumerator<string>
+            {
+                IEnumerator<(string, string)> InEnumerator;
+                public Enumerator(IEnumerator<(string,string)> enumerator)
+                {
+                    InEnumerator = enumerator;
+                }
+                public string Current => InEnumerator.Current.Item2;
+
+                object IEnumerator.Current => Current;
+
+                public void Dispose()
+                {
+                    InEnumerator.Dispose();
+                }
+
+                public bool MoveNext()
+                {
+                    return InEnumerator.MoveNext();
+                }
+
+                public void Reset()
+                {
+                    InEnumerator.Reset();
+                }
+            }
+            public IEnumerator<string> GetEnumerator()
+            {
+                return new Enumerator(Lines.GetEnumerator());
+            }
+
+            IEnumerator IEnumerable.GetEnumerator(){ return GetEnumerator(); }
+            #endregion
+        }
         private StreamWriter? LogOutput { get; }
         private FileInfo? LogFile { get; }
         private const int LineSize = 50;
@@ -22,12 +68,13 @@ namespace Wimm.Model.Console
         public TerminalExecuteCommand ExecuteCommand { get; }
         public ObservableFixedSizeRingBuffer<string> Lines { get; } = new ObservableFixedSizeRingBuffer<string>(LineSize);
         private ISynchronizedView<string,string> View { get; }
-        public INotifyCollectionChangedSynchronizedView<string,string> LinesView { get; }
+        public IEnumerable Output { get; }
         public TerminalController(IEnumerable<CommandNode> commands)
         {
             View = Lines.CreateView(x => x);
-            LinesView= View.WithINotifyCollectionChanged();
-            BindingOperations.EnableCollectionSynchronization(LinesView, new object());
+            var output= View.WithINotifyCollectionChanged();
+            BindingOperations.EnableCollectionSynchronization(output, new object());
+            Output = new OutputFormatter(output);
 
             LogFile = GetLogFile();
             if(LogFile is not null)
