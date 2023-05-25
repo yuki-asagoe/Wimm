@@ -13,7 +13,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using Wimm.Machines.Audio;
 using Wimm.Machines.Video;
 
 namespace Wimm.Model.Video

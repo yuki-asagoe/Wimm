@@ -1,6 +1,4 @@
 ﻿using System.Windows.Interop;
-using Wimm.Machines.Audio;
-using Wimm.Machines.Impl.Algo.Audio;
 using Wimm.Machines.Tpip3;
 using Wimm.Machines.Video;
 using Wimm.Machines.Impl.Algo.Component;
@@ -17,10 +15,6 @@ namespace Wimm.Machines.Impl.Algo
         public ModuleGroup Arm { get; }
             
         public override string Name => "アルゴ";
-
-        public override Speaker Speaker { get; }
-
-        public override Microphone Microphone { get; }
 
         public override Camera Camera { get; }
         public AlgoControlProcess? ControlProcess{ get; set; }
@@ -93,8 +87,6 @@ namespace Wimm.Machines.Impl.Algo
         }
         public Algo():base()
         {
-            Microphone = new AlgoMicrophone();
-            Speaker = new AlgoSpeaker();
             Camera = new Tpip3Camera(
                 "フロント", "アーム", "バック", "トップ"
             );
@@ -112,8 +104,6 @@ namespace Wimm.Machines.Impl.Algo
         }
         public Algo(string tpipIpAddress,HwndSource hwnd) : base(tpipIpAddress, hwnd)
         {
-            Microphone = new AlgoMicrophone();
-            Speaker = new AlgoSpeaker();
             Camera = new Tpip3Camera(
                 "フロント", "バック", "アーム","トップ"
             );

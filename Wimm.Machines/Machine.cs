@@ -1,5 +1,4 @@
-﻿using Wimm.Machines.Audio;
-using Wimm.Machines.Component;
+﻿using Wimm.Machines.Component;
 using Wimm.Machines.Video;
 using System.Collections.Immutable;
 
@@ -26,8 +25,6 @@ namespace Wimm.Machines
         public abstract string Name { get; }
         public abstract string ControlBoard { get; }
         public abstract ConnectionState ConnectionStatus { get; }
-        public abstract Speaker Speaker { get; }
-        public abstract Microphone Microphone { get; }
         public abstract Camera Camera { get; }
         /// <summary>
         /// 構造化された、つまり意味のある単位にグループ化されたModuleGroup
