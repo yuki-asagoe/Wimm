@@ -28,6 +28,7 @@ using Wimm.Model.Control.Script;
 using System.Collections.Immutable;
 using Wimm.Model.Video.Filters;
 using OpenCvSharp;
+using Wimm.Machines.Extension;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -372,6 +373,10 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("MacroList", typeof(ImmutableArray<MacroInfo>), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ImmersiveSelectionModeProperty
             = DependencyProperty.Register("ImmersiveSelectionMode", typeof(ImmersiveSelectionUIMode), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty BatteryLevelProviderProperty
+            = DependencyProperty.Register("BatteryLevelProvider", typeof(IBatteryLevelProvidable), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty PowerVoltageProviderProperty
+            = DependencyProperty.Register("PowerVoltageProvider", typeof(IPowerVoltageProvidable), typeof(MachineControlViewModel));
 
         public Filter? SelectedVideoFilter
         {
@@ -452,6 +457,16 @@ namespace Wimm.Ui.ViewModel
         {
             get { return (ImmersiveSelectionUIMode)GetValue(ImmersiveSelectionModeProperty); }
             set { SetValue(ImmersiveSelectionModeProperty, value); }
+        }
+        public IBatteryLevelProvidable? BatteryLevelProvider
+        {
+            get { return (IBatteryLevelProvidable?)GetValue(BatteryLevelProviderProperty); }
+            set { SetValue(BatteryLevelProviderProperty, value); }
+        }
+        public IPowerVoltageProvidable? PowerVoltageProvider
+        {
+            get { return (IPowerVoltageProvidable?)GetValue(PowerVoltageProviderProperty); }
+            set { SetValue(PowerVoltageProviderProperty, value); }
         }
 
         private CommandNode[] GetDefaultCommands()
