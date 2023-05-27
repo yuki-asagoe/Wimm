@@ -86,21 +86,32 @@ namespace Wimm.Model.Video
                 {
                     return null;
                 }
-                //ゴリ押しこそ正義
-                int minX = (int)area.Select(x => x.X).Min();
-                int minY = (int)area.Select(x => x.Y).Min();
-                int maxX = (int)area.Select(x => x.X).Max();
-                int maxY = (int)area.Select(x => x.Y).Max();
-                using var clippedImage = image.Clone(new OpenCvSharp.Rect(
-                    minX,minY,maxX-minX,maxY-minX
-                ));
-                if (clippedImage is null)
+                try
                 {
-                    return null;
+                    //ゴリ押しこそ正義
+                    int minX = (int)area.Select(x => x.X).Min();
+                    int minY = (int)area.Select(x => x.Y).Min();
+                    int maxX = (int)area.Select(x => x.X).Max();
+                    int maxY = (int)area.Select(x => x.Y).Max();
+                    using var clippedImage = image.Clone(new OpenCvSharp.Rect(
+                        minX, minY, maxX - minX, maxY - minX
+                    ));
+                    if (clippedImage is null)
+                    {
+                        return null;
+                    }
+                    var clippedImageSource = clippedImage.ToWriteableBitmap();
+                    clippedImageSource.Freeze();
+                    return new QRDetectionResult(result, clippedImageSource);
                 }
-                var clippedImageSource = clippedImage.ToWriteableBitmap();
-                clippedImageSource.Freeze();
-                return new QRDetectionResult(result, clippedImageSource);
+                catch (OpenCVException _)
+                {
+                    return new QRDetectionResult(result,null);
+                }
+                catch(OpenCvSharpException _)
+                {
+                    return new QRDetectionResult(result, null);
+                }
             });
         }
         private Task<QRDetectionResult?>? qrDetectionTask = null;
