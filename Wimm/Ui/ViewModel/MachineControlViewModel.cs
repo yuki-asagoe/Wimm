@@ -208,6 +208,7 @@ namespace Wimm.Ui.ViewModel
         public void StopMacro()
         {
             MachineController?.StopMacro();
+            RunningMacro = null;
         }
         private record MacroStartCommand(MachineControlViewModel model) : ICommand
         {
@@ -295,7 +296,9 @@ namespace Wimm.Ui.ViewModel
         public ICommand CommandOpenImmersiveSelection { get; }
         public ICommand CommandCloseImmersiveSelection { get; }
         public ImmutableArray<Filter> Filters { get; } = new Filter[] {
-            new BinarizationFilter()
+            new BinarizationFilter(),
+            new GrayScaleFilter(),
+            new CannyEdgeFilter()
         }.ToImmutableArray();
         public TerminalController TerminalController { get; }
         public MachineController? MachineController { get { return controller; } private set { controller = value; OnMachineSet(); } }
@@ -330,9 +333,16 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register(
                 "SelectedVideoFilter", typeof(Filter), typeof(MachineControlViewModel),
                 new PropertyMetadata((obj, args) =>{
-                    if(obj is MachineControlViewModel model && model?.VideoProcessor is VideoProcessor processor && args.NewValue is Filter filter)
+                    if(obj is MachineControlViewModel model && model?.VideoProcessor is VideoProcessor processor)
                     {
-                        processor.VideoFilter = filter;
+                        if(args.NewValue is Filter filter)
+                        {
+                            processor.VideoFilter = filter;
+                        }else
+                        if(args.NewValue is null)
+                        {
+                            processor.VideoFilter = null;
+                        }
                     }
                 })
             );
@@ -378,9 +388,9 @@ namespace Wimm.Ui.ViewModel
             get { return (double)GetValue(MachineSpeedModifierProperty); }
             set { SetValue(MachineSpeedModifierProperty, value); }
         }
-        public MacroInfo RunningMacro
+        public MacroInfo? RunningMacro
         {
-            get { return (MacroInfo)GetValue(RunningMacroProperty); }
+            get { return (MacroInfo?)GetValue(RunningMacroProperty); }
             set { SetValue(RunningMacroProperty, value); }
         }
         public double MacroProgress

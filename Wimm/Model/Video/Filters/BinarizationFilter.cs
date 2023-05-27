@@ -16,7 +16,10 @@ namespace Wimm.Model.Video.Filters
             new DoubleParameter("閾値",0,1)
         }.ToImmutableArray();
 
-        public override ImmutableArray<BooleanParameter> BooleanParameters => ImmutableArray<BooleanParameter>.Empty;
+        public override ImmutableArray<BooleanParameter> BooleanParameters => new[]
+        {
+            new BooleanParameter("大津の二値化")
+        }.ToImmutableArray();
 
         public override PackIconModernKind Icon => PackIconModernKind.TypeBit;
 
@@ -25,7 +28,14 @@ namespace Wimm.Model.Video.Filters
         public override void Apply(Mat frame)
         {
             Cv2.CvtColor(frame, frame, ColorConversionCodes.BGR2GRAY);
-            Cv2.Threshold(frame, frame, 255 * DoubleParameters[0].Value, 255,ThresholdTypes.Binary);
+            if (BooleanParameters[0].Value)//大津の二値化
+            {
+                Cv2.Threshold(frame, frame, 255 * DoubleParameters[0].Value, 255, ThresholdTypes.Binary | ThresholdTypes.Otsu);
+            }
+            else
+            {
+                Cv2.Threshold(frame, frame, 255 * DoubleParameters[0].Value, 255, ThresholdTypes.Binary);
+            }
         }
     }
 }

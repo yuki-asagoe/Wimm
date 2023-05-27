@@ -53,6 +53,12 @@
                                         <StackPanel Orientation="Horizontal"/>
                                     </ItemsPanelTemplate>
                                 </ListView.ItemsPanel>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListBoxItem}">
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="4 0"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <icon:PackIconModern ToolTip="{Binding Name}" Background="{StaticResource MahApps.Brushes.Accent3}" Width="30" Height="30" Padding="8" Kind="{Binding Icon}"/>
@@ -60,6 +66,26 @@
                                 </ListView.ItemTemplate>
                             </ListView>
                         </ScrollViewer>
+                        <StackPanel Orientation="Vertical" Visibility="{Binding SelectedVideoFilter, Converter={StaticResource NotNullToVisibilityConverter}}">
+                            <DataGrid AutoGenerateColumns="False" HeadersVisibility="None" ItemsSource="{Binding SelectedVideoFilter.DoubleParameters}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Width="*" Binding="{Binding Name}"/>
+                                    <DataGridTemplateColumn Width="2*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Slider Minimum="{Binding Min, Mode=OneWayToSource}" Maximum="{Binding Max, Mode=OneWayToSource}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <DataGrid AutoGenerateColumns="False" HeadersVisibility="None" ItemsSource="{Binding SelectedVideoFilter.BooleanParameters}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Width="*" Binding="{Binding Name}"/>
+                                    <DataGridCheckBoxColumn Binding="{Binding Value, Mode=OneWayToSource}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
                     </StackPanel>
                 </Expander>
                 <Expander Style="{StaticResource InformationTile}" Header="Control" IsExpanded="True">
@@ -91,7 +117,7 @@
                                     <Metro:MetroProgressBar Grid.Column="1" Minimum="0" Maximum="{Binding MacroMaxProgress}" Value="{Binding MacroProgress}"/>
                                 </Grid>
                             </Border>
-                            <DataGrid Margin="{StaticResource Wimm.Margin.Small.Vertical}" ItemsSource="{Binding MacroList}" SelectionMode="Single">
+                            <DataGrid AutoGenerateColumns="False" BorderThickness="1" ItemsSource="{Binding MacroList}" SelectionMode="Single">
                                 <b:Interaction.Triggers>
                                     <b:EventTrigger EventName="SelectionChanged">
                                         <b:InvokeCommandAction Command="{Binding CommandMacroStart}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>

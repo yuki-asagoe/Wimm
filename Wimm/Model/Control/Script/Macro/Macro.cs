@@ -9,8 +9,14 @@ using System.Threading.Tasks;
 
 namespace Wimm.Model.Control.Script.Macro
 {
+    
     public record MacroInfo(string Name, double LifeTimeSeconds, LuaChunk Chunk)
     {
+        public static readonly KeyValuePair<string, Type>[] LuaChunkParams = new[]
+        {
+            new KeyValuePair<string,Type>("time",typeof(double)),
+            new KeyValuePair<string,Type>("timein",typeof(Func<double,double,bool>)),
+        };
         public RunningMacro StartMacro() => new RunningMacro(this);
     }
     public class RunningMacro : IDisposable
@@ -34,10 +40,8 @@ namespace Wimm.Model.Control.Script.Macro
             }
             environment.DoChunk(
                 Info.Chunk,
-                new KeyValuePair<string, object>("time", milisecond),
-                new KeyValuePair<string, object>("timein",
-                    (double start, double until) => start <= milisecond && milisecond < until
-                )
+                milisecond,
+                (double start, double until) => start <= milisecond && milisecond < until
             );
         }
         public bool IsRunning

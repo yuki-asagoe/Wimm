@@ -35,7 +35,11 @@ namespace Wimm.Model.Control.Script.Macro
                 var nameObj = macroObj["name"] as JsonValue;
                 var lifetimeObj = macroObj["lifetime"] as JsonValue;
                 if(nameObj is null || lifetimeObj is null || !macroFile.Exists) { break; }
-                var chunk=lua.CompileChunk(macroFile.FullName,new LuaCompileOptions());
+                var chunk=lua.CompileChunk(
+                    macroFile.FullName,
+                    new LuaCompileOptions(),
+                    MacroInfo.LuaChunkParams
+                );
                 if (chunk is null) { break; }
                 if(nameObj.TryGetValue<string>(out var name)&&lifetimeObj.TryGetValue<double>(out var lifetime))
                 {
