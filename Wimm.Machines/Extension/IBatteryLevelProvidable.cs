@@ -16,5 +16,6 @@ namespace Wimm.Machines.Extension
         /// </summary>
         /// <value>現在のバッテリ残量 単位は[%]</value>
         public double BatteryPercentage { get; }
+        public bool Charging { get; }
     }
 }

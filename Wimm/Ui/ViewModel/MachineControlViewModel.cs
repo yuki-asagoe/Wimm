@@ -147,6 +147,16 @@ namespace Wimm.Ui.ViewModel
                 new System.Drawing.Size(600, 800),
                 MachineController.Machine.Camera
             );
+            if(MachineController.Machine is IBatteryLevelProvidable battery)
+            {
+                BatteryProvidable = battery;
+                BatteryLevelProvider = new BatteryLevelProvider();
+            }
+            if(MachineController.Machine is IPowerVoltageProvidable power)
+            {
+                PowerProvidable = power;
+                PowerVoltageProvider = new PowerVoltageProvider();
+            }
             VideoProcessor.QRUpdated += (result) =>
                 dispatcher.BeginInvoke(() => {
                     QRDetectionRunning = false;
@@ -175,6 +185,16 @@ namespace Wimm.Ui.ViewModel
         private void HighRatePeriodicWork(object? sender, EventArgs args)
         {
             ConnectionStatus = MachineController?.Machine?.ConnectionStatus ?? ConnectionState.Offline;
+            if(BatteryProvidable is not null && BatteryLevelProvider is not null)
+            {
+                BatteryLevelProvider.Percentage = BatteryProvidable.BatteryPercentage;
+            }
+            if(PowerProvidable is not null && PowerVoltageProvider is not null)
+            {
+                PowerVoltageProvider.MaxVoltage = PowerProvidable.MaxVoltage;
+                PowerVoltageProvider.MinVoltage = PowerProvidable.MinVoltage;
+                PowerVoltageProvider.CurrentVoltage = PowerProvidable.Voltage;
+            }
             if (MachineController is not null && XInput.GetState(MachineController.ObservedGamepadIndex, out var state))
             {
                 ObservedGamepad = state.Gamepad;
@@ -304,6 +324,8 @@ namespace Wimm.Ui.ViewModel
         public TerminalController TerminalController { get; }
         public MachineController? MachineController { get { return controller; } private set { controller = value; OnMachineSet(); } }
         private VideoProcessor? VideoProcessor { get; set; }
+        private IBatteryLevelProvidable? BatteryProvidable { get; set; }
+        private IPowerVoltageProvidable? PowerProvidable { get; set; }
         public ICommand TerminalExecuteCommand => TerminalController.ExecuteCommand;
         public IEnumerable TerminalLines => TerminalController.Output;
         public readonly static DependencyProperty IsControlRunningProperty
@@ -374,9 +396,9 @@ namespace Wimm.Ui.ViewModel
         public readonly static DependencyProperty ImmersiveSelectionModeProperty
             = DependencyProperty.Register("ImmersiveSelectionMode", typeof(ImmersiveSelectionUIMode), typeof(MachineControlViewModel));
         public readonly static DependencyProperty BatteryLevelProviderProperty
-            = DependencyProperty.Register("BatteryLevelProvider", typeof(IBatteryLevelProvidable), typeof(MachineControlViewModel));
+            = DependencyProperty.Register("BatteryLevelProvider", typeof(BatteryLevelProvider), typeof(MachineControlViewModel));
         public readonly static DependencyProperty PowerVoltageProviderProperty
-            = DependencyProperty.Register("PowerVoltageProvider", typeof(IPowerVoltageProvidable), typeof(MachineControlViewModel));
+            = DependencyProperty.Register("PowerVoltageProvider", typeof(PowerVoltageProvider), typeof(MachineControlViewModel));
 
         public Filter? SelectedVideoFilter
         {
@@ -458,14 +480,14 @@ namespace Wimm.Ui.ViewModel
             get { return (ImmersiveSelectionUIMode)GetValue(ImmersiveSelectionModeProperty); }
             set { SetValue(ImmersiveSelectionModeProperty, value); }
         }
-        public IBatteryLevelProvidable? BatteryLevelProvider
+        public BatteryLevelProvider? BatteryLevelProvider
         {
-            get { return (IBatteryLevelProvidable?)GetValue(BatteryLevelProviderProperty); }
+            get { return (BatteryLevelProvider?)GetValue(BatteryLevelProviderProperty); }
             set { SetValue(BatteryLevelProviderProperty, value); }
         }
-        public IPowerVoltageProvidable? PowerVoltageProvider
+        public PowerVoltageProvider? PowerVoltageProvider
         {
-            get { return (IPowerVoltageProvidable?)GetValue(PowerVoltageProviderProperty); }
+            get { return (PowerVoltageProvider?)GetValue(PowerVoltageProviderProperty); }
             set { SetValue(PowerVoltageProviderProperty, value); }
         }
 
