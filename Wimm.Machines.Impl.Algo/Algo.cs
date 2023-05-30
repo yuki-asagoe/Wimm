@@ -68,7 +68,7 @@ namespace Wimm.Machines.Impl.Algo
                     ),
                     new AlgoArmServo(
                         "grip_servo", "アームのつかみを扱うサーボ",
-                        ArmDataIndex.Grip, 55, -55, algo
+                        ArmDataIndex.Grip, 0, -55, algo
                     ),
                     new AlgoArmServo(
                         "top_camera_servo", "上部のカメラの回転を扱うサーボ",
