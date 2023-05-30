@@ -167,7 +167,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="70"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -176,11 +176,17 @@
                         </Grid.RowDefinitions>
                         <icon:PackIconModern Visibility="{Binding BatteryLevelProvider, Converter={StaticResource NotNullToVisibilityConverter}}" Width="70" Height="70" Grid.RowSpan="2" Kind="{Binding BatteryLevelProvider.Percentage, Converter={StaticResource BatteryIconConverter}}"/>
                         <TextBlock Margin="4 0" Grid.Column="1" Text="{Binding BatteryLevelProvider.Percentage,StringFormat={}{0:0.00}%}"/>
-                        <ProgressBar Height="20" Grid.Column="2" Maximum="100" Minimum="0" Value="{Binding BatteryLevelProvider.Percentage}"/>
+                        <ProgressBar Height="20" 
+                                     Grid.Column="2" 
+                                     Maximum="100" 
+                                     Minimum="0"
+                                     Visibility="{Binding BatteryLevelProvider, Converter={StaticResource NotNullToVisibilityConverter}}"
+                                     Value="{Binding BatteryLevelProvider.Percentage}"/>
                         <TextBlock Margin="4 0" Grid.Column="1" Grid.Row="1" Text="{Binding PowerVoltageProvider.CurrentVoltage,StringFormat={}{0:0.00}V}"/>
                         <ProgressBar Height="20" Grid.Row="1" Grid.Column="2"
                                      Maximum="{Binding PowerVoltageProvider.MaxVoltage}" 
                                      Minimum="{Binding PowerVoltageProvider.MinVoltage}"
+                                     Visibility="{Binding PowerVoltageProvider, Converter={StaticResource NotNullToVisibilityConverter}}"
                                      Value="{Binding PowerVoltageProvider.CurrentVoltage}"/>
                     </Grid>
                 </Expander>

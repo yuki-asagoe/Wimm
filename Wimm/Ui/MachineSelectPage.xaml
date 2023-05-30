@@ -16,6 +16,7 @@
         <CommandBinding Command="{x:Static ApplicationCommands.Find}" CanExecute="CanStartControl" Executed="OpenMachineFolderExecuted"/>
     </Page.CommandBindings>
     <Page.Resources>
+        <Converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <Converters:MultiplyConverter x:Key="MultiplyConverter"/>
     </Page.Resources>
     <DockPanel LastChildFill="True" Background="{StaticResource MahApps.Brushes.Window.Background}">
@@ -24,7 +25,14 @@
                 <Button Command="{x:Static ApplicationCommands.Open}" DockPanel.Dock="Bottom" Style="{DynamicResource MahApps.Styles.Button.Square.Accent}">起動</Button>
                 <Button Command="{x:Static ApplicationCommands.Find}" DockPanel.Dock="Bottom" Style="{DynamicResource MahApps.Styles.Button.Flat}">フォルダを開く</Button>
                 <StackPanel DataContext="{Binding SelectedMachine}">
-                    <Image Width="120" Height="120" Source="{Binding Icon}" Margin="{StaticResource Wimm.Margin.Middle}"/>
+                    <Grid Width="120" Height="120" Margin="{StaticResource Wimm.Margin.Middle}">
+                        <Image Source="{Binding Icon}"/>
+                        <TextBlock 
+                            VerticalAlignment="Center" 
+                            HorizontalAlignment="Center"
+                            Text="No Image" FontSize="25"
+                            Visibility="{Binding Icon,Converter={StaticResource NullToVisibilityConverter}}"/>
+                    </Grid>
                     <TextBlock Text="{Binding Name}" FontSize="20" HorizontalAlignment="Center"/>
                     <Separator Margin="10 5"/>
                     <Grid Margin="10 0">
@@ -75,10 +83,11 @@
                                 >
                                 <TextBlock Foreground="{StaticResource MahApps.Brushes.IdealForeground}" FontSize="20" Text="{Binding Name}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="7"/>
                                 <Image MaxWidth="170" Stretch="Uniform" Margin="40" Source="{Binding Icon}" HorizontalAlignment="Center"/>
+                                <TextBlock Visibility="{Binding Icon,Converter={StaticResource NullToVisibilityConverter}}" Foreground="{StaticResource MahApps.Brushes.IdealForeground}" Text="No Image" FontSize="35" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 <Grid.Style>
                                     <Style TargetType="Grid">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Grid}}" Value="true">
+                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}" Value="true">
                                                 <Setter Property="RenderTransform">
                                                     <Setter.Value>
                                                         <ScaleTransform ScaleX="0.97" ScaleY="0.97"/>
