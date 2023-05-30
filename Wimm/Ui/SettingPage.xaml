@@ -13,11 +13,12 @@
     <DockPanel LastChildFill="True">
         <DockPanel DockPanel.Dock="Bottom" LastChildFill="False" Background="{StaticResource MahApps.Brushes.Gray7}">
             <Button Click="SaveButton_Click" DockPanel.Dock="Right" Content="保存" Style="{DynamicResource MahApps.Styles.Button.Dialogs.Accent}" Margin="{StaticResource Wimm.Margin.Small}"/>
+            <Button Click="ResetButton_Click" DockPanel.Dock="Right" Content="初期化" Style="{StaticResource MahApps.Styles.Button}" Margin="{StaticResource Wimm.Margin.Small}"/>
             <TextBlock Name="FeedBackText" DockPanel.Dock="Left" Margin="10 0" FontSize="16" VerticalAlignment="Center"/>
         </DockPanel>
         <StackPanel CanVerticallyScroll="True" Margin="30 0">
             <TextBlock FontSize="16" Margin="0 5">Tpip IPアドレス</TextBlock>
-            <TextBox Text="{Binding Tpip3_IP_Address, Mode=TwoWay,UpdateSourceTrigger=LostFocus}"/>
+            <TextBox Text="{Binding Tpip_IP_Address, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
     </DockPanel>
 </Page>

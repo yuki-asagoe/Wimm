@@ -33,5 +33,11 @@ namespace Wimm.Ui
             Setting.Save();
             FeedBackText.Text = "変更を保存しました。";
         }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            Setting.Reset();
+            FeedBackText.Text = "初期値に設定しました。";
+        }
     }
 }
