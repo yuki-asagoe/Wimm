@@ -22,6 +22,7 @@ namespace Wimm.Machines.Impl.Algo
         internal event Action<WheelControlCanData>? SetWheelDefault;
         internal event Action<ContainerControlCanData>? SetContainerDefault;
         internal event Action<LiftControlCanData>? SetLiftDefault;
+        internal event Action<TopCameraCanData>? SetTopCameraDefault;
         public override ControlProcess StartControlProcess()
         {
             ControlProcess = new AlgoControlProcess(this,() => { this.ControlProcess = null; });
@@ -133,11 +134,13 @@ namespace Wimm.Machines.Impl.Algo
                 parent.SetWheelDefault?.Invoke(WheelControlData);
                 parent.SetContainerDefault?.Invoke(ContainerData);
                 parent.SetLiftDefault?.Invoke(LiftControlCanData);
+                parent.SetTopCameraDefault?.Invoke(TopCameraCanData);
             }
             public ContainerControlCanData ContainerData { get; } = new ContainerControlCanData();
             public ArmControlCanData ArmControlData { get; } = new ArmControlCanData();
             public WheelControlCanData WheelControlData { get; } = new WheelControlCanData();
             public LiftControlCanData LiftControlCanData { get; } = new LiftControlCanData();
+            public TopCameraCanData TopCameraCanData { get; } = new TopCameraCanData();
             public override void Dispose()
             {
                 ArmControlData.Send();

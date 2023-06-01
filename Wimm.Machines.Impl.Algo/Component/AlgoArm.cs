@@ -71,7 +71,7 @@ namespace Wimm.Machines.Impl.Algo.Component
             if (Parent.ControlProcess is AlgoControlProcess process)
             {
                 Angle = Math.Clamp(angleDegree, AngleMin, AngleMax);
-                process.LiftControlCanData.CanData[1] = (byte)Angle;
+                process.LiftControlCanData.CanData[(int)LiftDataIndex.Arm] = (byte)Angle;
             }
         }
         public override Feature<Action<double>> RotationFeature
@@ -85,7 +85,7 @@ namespace Wimm.Machines.Impl.Algo.Component
             {
                 speed = Math.Clamp(speed, -1, 1);
                 Angle += MaxSpeed * speed * Parent.SpeedModifier;
-                process.LiftControlCanData.CanData[1] = (byte)Angle;
+                process.LiftControlCanData.CanData[(int)LiftDataIndex.Arm] = (byte)Angle;
             }
         }
 
@@ -97,7 +97,7 @@ namespace Wimm.Machines.Impl.Algo.Component
         }
         public void SetDefaultCanData(LiftControlCanData data)
         {
-            data.CanData[1] = (byte)Angle;
+            data.CanData[(int)LiftDataIndex.Arm] = (byte)Angle;
         }
         public override string ModuleName => "アルゴ アーム根本 モーター";
 
@@ -118,7 +118,6 @@ namespace Wimm.Machines.Impl.Algo.Component
             MotorBoardSupporter.Send(ID, CanData);
         }
     }
-
     public class LiftControlCanData
     {
         CanID ID { get; } = new CanID()
@@ -133,6 +132,11 @@ namespace Wimm.Machines.Impl.Algo.Component
             MotorBoardSupporter.Send(ID, CanData);
         }
     }
+    public enum LiftDataIndex
+    {
+        Lift = 0, Arm
+    }
+
     public enum ArmDataIndex
     {
         Roll=0,Pitch,Grip,Camera,Reboot

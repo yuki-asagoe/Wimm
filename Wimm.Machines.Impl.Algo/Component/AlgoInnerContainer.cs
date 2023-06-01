@@ -23,6 +23,10 @@ namespace Wimm.Machines.Impl.Algo.Component
                 new Feature<Delegate>(
                     "lift_updown", "コンテナを上下させます。引数が正の値なら持ち上げ、負の値ならおろす",
                     LiftContainer
+                ),
+                new Feature<Delegate>(
+                    "move_container","コンテナを出し入れします、引数が正の値なら出す、負の値なら収納",
+                    MoveContainer
                 )
             );
         }
@@ -45,12 +49,24 @@ namespace Wimm.Machines.Impl.Algo.Component
         {
             if (Parent.ControlProcess is AlgoControlProcess process)
             {
-                process.ContainerData.CanData[(int)ContainerDataIndex.Bed] = (byte)(Math.Sign(liftDirection));
+                process.LiftControlCanData.CanData[(int)LiftDataIndex.Lift] = (byte)(Math.Sign(liftDirection));
+            }
+        }
+        /// <summary>
+        /// コンテナの出し入れ
+        /// </summary>
+        /// <param name="liftDirection">正の値なら出し、負の値なら収納</param>
+        public void MoveContainer(int moveDirection)
+        {
+            if (Parent.ControlProcess is AlgoControlProcess process)
+            {
+                process.ContainerData.CanData[(int)ContainerDataIndex.Bed] = (byte)(Math.Sign(moveDirection));
             }
         }
         private const string CommonDescription = "アルゴ内部の救助対象格納用スペース";
         public override string ModuleName => "アルゴ 内部コンテナ";
         public override string ModuleDescription => CommonDescription;
+
     }
     public class ContainerControlCanData
     {
@@ -66,6 +82,7 @@ namespace Wimm.Machines.Impl.Algo.Component
             MotorBoardSupporter.Send(ID, CanData);
         }
     }
+    
     public enum ContainerDataIndex
     {
         Bed=0,Belt
