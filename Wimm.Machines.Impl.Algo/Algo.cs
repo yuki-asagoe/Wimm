@@ -103,14 +103,14 @@ namespace Wimm.Machines.Impl.Algo
                     )
                 );
         }
-        public Algo(string tpipIpAddress,HwndSource hwnd) : base(tpipIpAddress, hwnd)
+        public Algo(MachineConstructorArgs args) : base(args)
         {
             Camera = new Tpip3Camera(
                 "フロント", "バック", "アーム","トップ"
             );
             if(Camera is Tpip3Camera camera)
             {
-                hwnd.AddHook(camera.WndProc);
+                Hwnd?.AddHook(camera.WndProc);
             }
             Wheels = CreateWheels(this);
             Arm = CreateArm(this);

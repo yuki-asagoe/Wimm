@@ -45,7 +45,7 @@ namespace Wimm.Ui
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            var hwnd=HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            var hwnd=new WindowInteropHelper(this).Handle;
             var task= ViewModel.OnLoad(hwnd, Dispatcher);
             var controller= await this.ShowProgressAsync("Please Wait...", "ロボット制御モデル構築中", isCancelable: true);
             controller.SetIndeterminate();

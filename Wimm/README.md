@@ -17,6 +17,7 @@
     - Machine1.dll : Machineクラスを定義したdll
     - description.txt : ロボットの説明を記述できます。Wimmからは使用しない(はず)
     - meta_info.json : ロボットの名前と制御ボードの名前などを定義
+    - config.json : ロボットに与える情報のうちユーザーが書き換えられ、単純な文字列として与えられるデータ。詳しくはMachineConfigクラス参照
     - script
       - initialize.neo.lua : 初期化時に一回呼び出されます(definitionの後)。初期化処理が必要ならここで
       - definition.neo.lua : 初期化時に一回呼び出されます。関数やグローバル変数定義を行う

@@ -27,20 +27,37 @@ namespace Wimm.Machines.Tpip3
                 };
             } 
         }
-        private HwndSource? Hwnd { get; init; }
-        protected Tpip3Machine(string machineIpAddress,HwndSource hwnd)
+        protected HwndSource? Hwnd { get; init; }
+        protected string MachineIPAddress { get; init; }=string.Empty;
+        protected Tpip3Machine(MachineConstructorArgs args):base(args)
         {
-            Hwnd = hwnd;
+            Hwnd = HwndSource.FromHwnd(args.HostingWindowHandle);
+            MachineConfig.AddRegistries();
             TpipInitialized = true;
-            TPJT3.NativeMethods.init(machineIpAddress, hwnd.Handle);
+            AddRegistries();
+            if(MachineConfig.GetValueOrDefault("TPIP3_IP_Address") is string ipAddress)
+            {
+                args.Logger.Info($"接続先IPアドレス:{ipAddress}");
+                MachineIPAddress = ipAddress;
+            }
+            TPJT3.NativeMethods.init(MachineIPAddress, Hwnd.Handle);
         }
         protected Tpip3Machine()
         {
             TpipInitialized = false;
+            AddRegistries();
         }
         public override void Dispose()
         {
+            GC.SuppressFinalize(this);
             TPJT3.NativeMethods.close();
+            Hwnd?.Dispose();
+        }
+        private void AddRegistries()
+        {
+            MachineConfig.AddRegistries(
+                new ConfigItemRegistry("TPIP3_IP_Address","192.168.0.200")
+            );
         }
     }
 }

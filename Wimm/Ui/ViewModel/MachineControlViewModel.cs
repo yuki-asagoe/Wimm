@@ -29,6 +29,7 @@ using System.Collections.Immutable;
 using Wimm.Model.Video.Filters;
 using OpenCvSharp;
 using Wimm.Machines.Extension;
+using Wimm.Machines.Logging;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -101,7 +102,18 @@ namespace Wimm.Ui.ViewModel
         }
         private DirectoryInfo MachineDirectory { get; init; }
         private WimmFeatureProvider WimmFeatureProvider { get; init; }
-        public async Task<Exception?> OnLoad(HwndSource hwnd, Dispatcher dispatcher)
+        private class MachineToTerminalLogger : IMachineLogger
+        {
+            TerminalController Controller { get; }
+            public MachineToTerminalLogger(TerminalController controller)
+            {
+                Controller = controller;
+            }
+            public void Error(string message){ Controller.Post("[Machine]" + message,MessageLevel.Error); }
+            public void Info(string message){ Controller.Post("[Machine]" + message); }
+            public void Warn(string message){ Controller.Post("[Machine]" + message,MessageLevel.Warning); }
+        }
+        public async Task<Exception?> OnLoad(IntPtr hwnd, Dispatcher dispatcher)
         //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
         {
             (var e, var controller) = await Task.Run<(Exception?, MachineController?)>(
@@ -114,7 +126,7 @@ namespace Wimm.Ui.ViewModel
                             .Builder
                             .Build(
                                 MachineDirectory,
-                                new TpipConstructorArgs(hwnd, GeneralSetting.Default.Tpip_IP_Address),
+                                new MachineConstructorArgs(hwnd,new MachineToTerminalLogger(TerminalController),MachineDirectory),
                                 WimmFeatureProvider,
                                 TerminalController.GetLogger()
                             );

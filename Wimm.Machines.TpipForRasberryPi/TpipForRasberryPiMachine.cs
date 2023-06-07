@@ -30,15 +30,35 @@ namespace Wimm.Machines.TpipForRasberryPi
             }
         }
         protected HwndSource? Hwnd { get; init; }
-        protected TpipForRasberryPiMachine(string machineIpAddress, HwndSource hwnd)
+        protected string MachineIPAddress { get; init; } = string.Empty;
+        protected TpipForRasberryPiMachine(MachineConstructorArgs args):base(args)
         {
-            Hwnd = hwnd;
+            Hwnd = HwndSource.FromHwnd(args.HostingWindowHandle);
             TpipInitialized = true;
-            TPJT4.NativeMethods.init(machineIpAddress, hwnd.Handle);
+            AddRegistries();
+            if (MachineConfig.GetValueOrDefault("TPIP4RP_IP_Address") is string ipAddress)
+            {
+                args.Logger.Info($"接続先IPアドレス:{ipAddress}");
+                MachineIPAddress = ipAddress;
+            }
+            TPJT4.NativeMethods.init(MachineIPAddress, Hwnd.Handle);
         }
-        protected TpipForRasberryPiMachine()
+        protected TpipForRasberryPiMachine():base()
         {
+            AddRegistries();
             TpipInitialized = false;
+        }
+        public override void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            TPJT4.NativeMethods.close();
+            Hwnd?.Dispose();
+        }
+        private void AddRegistries()
+        {
+            MachineConfig.AddRegistries(
+                new ConfigItemRegistry("TPIP4RP_IP_Address", "192.168.0.200")
+            );
         }
     }
 }

@@ -40,8 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Wimm.Machines.Tpip3\Wimm.Machines.Tpip3.csproj" />
-    <ProjectReference Include="..\Wimm.Machines.TpipForRasberryPi\Wimm.Machines.TpipForRasberryPi.csproj" />
     <ProjectReference Include="..\Wimm.Machines\Wimm.Machines.csproj" />
   </ItemGroup>
 
