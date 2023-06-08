@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Wimm.Machines\Wimm.Machines.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Resources\Image\" />
+  </ItemGroup>
+
 </Project>

@@ -1,20 +1,10 @@
 ﻿using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Wimm.Ui.Records;
 using Wimm.Ui.ViewModel;
 
@@ -81,6 +71,13 @@ namespace Wimm.Ui
         private void OpenMachineFolderExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             System.Diagnostics.Process.Start("explorer.exe", ViewModel.SelectedMachine.MachineDirectory.FullName);
+        }
+
+        private void OpenMachineConfigExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            var window = new MachineConfigEditWindow();
+            window.DataContext = new MachineConfigEditViewModel(ViewModel.SelectedMachine.Name,new FileInfo(ViewModel.SelectedMachine.MachineDirectory.FullName+"/config.json"));
+            window.ShowDialog();
         }
     }
 }

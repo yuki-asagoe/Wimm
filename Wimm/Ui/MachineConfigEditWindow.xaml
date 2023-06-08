@@ -1,0 +1,27 @@
+﻿<Metro:MetroWindow x:Class="Wimm.Ui.MachineConfigEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:local="clr-namespace:Wimm.Ui"
+        xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance ViewModels:MachineConfigEditViewModel}"
+        ShowMinButton="False" ShowMaxRestoreButton="False"
+        Title="{Binding MachineName, StringFormat={}{0}のコンフィグ}" Height="450" Width="800">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Bottom" Background="{StaticResource MahApps.Brushes.Gray7}">
+            <Button Content="保存" Command="{Binding SaveCommand}" Margin="{StaticResource Wimm.Margin.Small}" DockPanel.Dock="Right" Style="{StaticResource MahApps.Styles.Button.Dialogs.Accent}"/>
+            <Button Content="初期値に設定" Command="{Binding ResetCommand}" Margin="{StaticResource Wimm.Margin.Small}" DockPanel.Dock="Right"/>
+            <TextBlock Text="{Binding Feedback}" Margin="{StaticResource Wimm.Margin.Small}" VerticalAlignment="Center"/>
+        </DockPanel>
+        <DataGrid ItemsSource="{Binding ConfigEntries}" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Name}" Width="*" Header="Key" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Value, Mode=TwoWay}" Width="3*" Header="Value"/>
+                <DataGridTextColumn Binding="{Binding Default}" Width="2*" Header="Default Value" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</Metro:MetroWindow>

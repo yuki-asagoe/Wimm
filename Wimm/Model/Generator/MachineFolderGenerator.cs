@@ -52,6 +52,10 @@ namespace Wimm.Model.Generator
                 ));
                 json.WriteTo(metainfo);
             };
+            using (var config=new Utf8JsonWriter(File.Create(machineDirectory.FullName + "./config.json")))
+            {
+                machine.MachineConfig.WriteRegistriesTo(config);
+            }
             GenerateScriptFolder(machine, scriptDirectory, docsDirectory);
             return machineDirectory;
         }

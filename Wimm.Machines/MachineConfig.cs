@@ -94,6 +94,10 @@ namespace Wimm.Machines
             }
             json.WriteTo(jsonWriter);
         }
+        public void WriteRegistriesTo(Utf8JsonWriter jsonWriter)
+        {
+            WriteConfigJson(jsonWriter, Registries.Select(it => new KeyValuePair<string, (string, string?)>(it.Value.Name, (it.Value.Default, it.Value.Default))).ToArray());
+        }
     }
     public record ConfigItemRegistry(string Name,string Default);
 }
