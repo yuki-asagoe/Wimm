@@ -232,7 +232,7 @@ namespace Wimm.Machines.Tpip3.Import
             ///buf: void*
             ///buf_sz: int
             [DllImport("TPJT3.dll", EntryPoint = "TPJT_get_sens", CallingConvention = CallingConvention.StdCall)]
-            public static extern void get_sens(System.IntPtr buf, int buf_sz);
+            public static extern void get_sens(INP_DT_STR[] buf, int buf_sz);
 
 
             /// Return Type: void

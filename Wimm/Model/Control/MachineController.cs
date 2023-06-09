@@ -159,7 +159,7 @@ namespace Wimm.Model.Control
                 if (machineType.IsSubclassOf(typeof(Machine)))
                 {
                     var constructor = machineType.GetConstructor(new Type[] {typeof(MachineConstructorArgs)});
-                    return constructor?.Invoke(null) as Machine;
+                    return constructor?.Invoke(new[] {args}) as Machine;
                 }
                 return null;
             }

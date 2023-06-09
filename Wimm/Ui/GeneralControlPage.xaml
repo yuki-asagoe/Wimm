@@ -28,7 +28,10 @@
     <DockPanel LastChildFill="True">
         <ScrollViewer DockPanel.Dock="Right" Name="InformationField" Width="300">
             <StackPanel CanVerticallyScroll="True"  Margin="{StaticResource Wimm.Margin.Small}">
-                <Expander Style="{StaticResource InformationTile}" Header="Camera" IsExpanded="True">
+                <StackPanel.Resources>
+                    <Style TargetType="Expander" BasedOn="{StaticResource InformationTile}"/>
+                </StackPanel.Resources>
+                <Expander Header="Camera" IsExpanded="True">
                     <StackPanel>
                         <DataGrid HeadersVisibility="None" Margin="{StaticResource Wimm.Margin.Small.Horizontal}" SelectionMode="Single" GridLinesVisibility="Horizontal" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" ItemsSource="{Binding CameraChannelEntries}">
                             <DataGrid.Columns>
@@ -89,7 +92,7 @@
                         </StackPanel>
                     </StackPanel>
                 </Expander>
-                <Expander Style="{StaticResource InformationTile}" Header="Control" IsExpanded="True">
+                <Expander Header="Control" IsExpanded="True">
                     <StackPanel>
                         <DockPanel LastChildFill="True" Margin="0 0 0 4">
                             <Metro:ToggleSwitch DockPanel.Dock="Left" MinWidth="0" Width="100" IsOn="{Binding IsControlRunning, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -132,7 +135,7 @@
                         </StackPanel>
                     </StackPanel>
                 </Expander>
-                <Expander Header="QR Code Detection" Style="{StaticResource InformationTile}" IsExpanded="True">
+                <Expander Header="QR Code Detection" IsExpanded="True">
                     <StackPanel>
                         <Metro:ProgressRing Margin="{StaticResource Wimm.Margin.Small.Vertical}" Visibility="{Binding QRDetectionRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <Separator Visibility="{Binding DetectedQRCodeValue, Converter={StaticResource NotNullToVisibilityConverter}}"/>
@@ -163,33 +166,18 @@
                                 Visibility="{Binding QRDetectionRunning, Converter={StaticResource BooleanToVisibilityConverter}}">キャンセル</Button>
                     </StackPanel>
                 </Expander>
-                <Expander Header="Power Supply" Style="{StaticResource InformationTile}" IsExpanded="True">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="70"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <icon:PackIconModern Visibility="{Binding BatteryLevelProvider, Converter={StaticResource NotNullToVisibilityConverter}}" Width="70" Height="70" Grid.RowSpan="2" Kind="{Binding BatteryLevelProvider.Percentage, Converter={StaticResource BatteryIconConverter}}"/>
-                        <TextBlock Margin="4 0" Grid.Column="1" Text="{Binding BatteryLevelProvider.Percentage,StringFormat={}{0:0.00}%}"/>
-                        <ProgressBar Height="20" 
-                                     Grid.Column="2" 
-                                     Maximum="100" 
-                                     Minimum="0"
-                                     Visibility="{Binding BatteryLevelProvider, Converter={StaticResource NotNullToVisibilityConverter}}"
-                                     Value="{Binding BatteryLevelProvider.Percentage}"/>
-                        <TextBlock Margin="4 0" Grid.Column="1" Grid.Row="1" Text="{Binding PowerVoltageProvider.CurrentVoltage,StringFormat={}{0:0.00}V}"/>
-                        <ProgressBar Height="20" Grid.Row="1" Grid.Column="2"
-                                     Maximum="{Binding PowerVoltageProvider.MaxVoltage}" 
-                                     Minimum="{Binding PowerVoltageProvider.MinVoltage}"
-                                     Visibility="{Binding PowerVoltageProvider, Converter={StaticResource NotNullToVisibilityConverter}}"
-                                     Value="{Binding PowerVoltageProvider.CurrentVoltage}"/>
-                    </Grid>
-                </Expander>
+                <ItemsControl ItemsSource="{Binding ExtensionProviders}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Expander IsExpanded="True" Header="{Binding Name}" Content="{Binding View}" Padding="0"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </ScrollViewer>
         <ContentControl DockPanel.Dock="Bottom" Height="150" Margin="10 0 0 10">

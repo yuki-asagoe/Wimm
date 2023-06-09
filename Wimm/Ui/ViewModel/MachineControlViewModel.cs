@@ -30,6 +30,7 @@ using Wimm.Model.Video.Filters;
 using OpenCvSharp;
 using Wimm.Machines.Extension;
 using Wimm.Machines.Logging;
+using Wimm.Ui.Extension;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -159,16 +160,6 @@ namespace Wimm.Ui.ViewModel
                 new System.Drawing.Size(600, 800),
                 MachineController.Machine.Camera
             );
-            if(MachineController.Machine is IBatteryLevelProvidable battery)
-            {
-                BatteryProvidable = battery;
-                BatteryLevelProvider = new BatteryLevelProvider();
-            }
-            if(MachineController.Machine is IPowerVoltageProvidable power)
-            {
-                PowerProvidable = power;
-                PowerVoltageProvider = new PowerVoltageProvider();
-            }
             VideoProcessor.QRUpdated += (result) =>
                 dispatcher.BeginInvoke(() => {
                     QRDetectionRunning = false;
@@ -185,6 +176,7 @@ namespace Wimm.Ui.ViewModel
             {
                 CameraChannelEntries.Add(new CameraChannelEntry(MachineController.Machine.Camera, c));
             }
+            ExtensionProviders = ExtensionsBuilder.Instance.Build(MachineController.Machine);
             MacroList = controller.MacroList;
             periodicTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
             periodicTimer.Tick += HighRatePeriodicWork;
@@ -197,16 +189,6 @@ namespace Wimm.Ui.ViewModel
         private void HighRatePeriodicWork(object? sender, EventArgs args)
         {
             ConnectionStatus = MachineController?.Machine?.ConnectionStatus ?? ConnectionState.Offline;
-            if(BatteryProvidable is not null && BatteryLevelProvider is not null)
-            {
-                BatteryLevelProvider.Percentage = BatteryProvidable.BatteryPercentage;
-            }
-            if(PowerProvidable is not null && PowerVoltageProvider is not null)
-            {
-                PowerVoltageProvider.MaxVoltage = PowerProvidable.MaxVoltage;
-                PowerVoltageProvider.MinVoltage = PowerProvidable.MinVoltage;
-                PowerVoltageProvider.CurrentVoltage = PowerProvidable.Voltage;
-            }
             if (MachineController is not null && XInput.GetState(MachineController.ObservedGamepadIndex, out var state))
             {
                 ObservedGamepad = state.Gamepad;
@@ -221,6 +203,10 @@ namespace Wimm.Ui.ViewModel
                 else { ControlStatus = ControlStatus.Running; }
             }
             else ControlStatus = ControlStatus.Idle;
+            foreach(var extension in ExtensionProviders)
+            {
+                extension.OnPeriodicTimer();
+            }
         }
         private void OnMachineSet()
         {
@@ -407,10 +393,8 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("MacroList", typeof(ImmutableArray<MacroInfo>), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ImmersiveSelectionModeProperty
             = DependencyProperty.Register("ImmersiveSelectionMode", typeof(ImmersiveSelectionUIMode), typeof(MachineControlViewModel));
-        public readonly static DependencyProperty BatteryLevelProviderProperty
-            = DependencyProperty.Register("BatteryLevelProvider", typeof(BatteryLevelProvider), typeof(MachineControlViewModel));
-        public readonly static DependencyProperty PowerVoltageProviderProperty
-            = DependencyProperty.Register("PowerVoltageProvider", typeof(PowerVoltageProvider), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty ExtensionProvidersProperty
+            = DependencyProperty.Register("ExtensionProviders", typeof(ImmutableArray<ExtensionViewProvider>), typeof(MachineControlViewModel));
 
         public Filter? SelectedVideoFilter
         {
@@ -492,15 +476,10 @@ namespace Wimm.Ui.ViewModel
             get { return (ImmersiveSelectionUIMode)GetValue(ImmersiveSelectionModeProperty); }
             set { SetValue(ImmersiveSelectionModeProperty, value); }
         }
-        public BatteryLevelProvider? BatteryLevelProvider
+        public ImmutableArray<ExtensionViewProvider> ExtensionProviders
         {
-            get { return (BatteryLevelProvider?)GetValue(BatteryLevelProviderProperty); }
-            set { SetValue(BatteryLevelProviderProperty, value); }
-        }
-        public PowerVoltageProvider? PowerVoltageProvider
-        {
-            get { return (PowerVoltageProvider?)GetValue(PowerVoltageProviderProperty); }
-            set { SetValue(PowerVoltageProviderProperty, value); }
+            get { return (ImmutableArray<ExtensionViewProvider>)GetValue(ExtensionProvidersProperty); }
+            set { SetValue(ExtensionProvidersProperty, value); }
         }
 
         private CommandNode[] GetDefaultCommands()
