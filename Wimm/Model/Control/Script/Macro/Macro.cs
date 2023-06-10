@@ -19,16 +19,17 @@ namespace Wimm.Model.Control.Script.Macro
         };
         public RunningMacro StartMacro() => new RunningMacro(this);
     }
-    public class RunningMacro : IDisposable
+    public sealed class RunningMacro : IDisposable
     {
         MacroInfo Info { get; init; }
         Stopwatch Timer { get; } = new Stopwatch();
-        public double RunningSecond => Timer.ElapsedMilliseconds / 1000;
+        public double RunningSecond => Timer.ElapsedMilliseconds / 1000d;
         public double MaxRunningSecond => Info.LifeTimeSeconds;
         public double Progress => RunningSecond / MaxRunningSecond;
         public RunningMacro(MacroInfo info)
         {
             Info = info;
+            Timer.Start();
         }
         public void Process(LuaGlobal environment)
         {

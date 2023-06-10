@@ -126,7 +126,7 @@
                 </BulletDecorator>
                 <TextBlock HorizontalAlignment="Right" Text="Running..." Style="{StaticResource InformationTextSub}"/>
             </StackPanel>
-            <Grid VerticalAlignment="Bottom" Height="120">
+            <Grid VerticalAlignment="Bottom">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Style.Triggers>
@@ -137,12 +137,18 @@
                     </Style>
                 </Grid.Style>
                 <Grid.Background>
-                    <SolidColorBrush Color="White" Opacity="0.3"/>
+                    <SolidColorBrush Color="{StaticResource MahApps.Colors.IdealForeground}" Opacity="0.3"/>
                 </Grid.Background>
                 <!--カメラ Immersive UI-->
-                <ScrollViewer Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                    <ScrollViewer.Resources>
+                        <Style TargetType="ScrollBar">
+                            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.IdealForeground}"/>
+                        </Style>
+                    </ScrollViewer.Resources>
                     <ScrollViewer.Style>
                         <Style TargetType="ScrollViewer">
+                            <Setter Property="Visibility" Value="Hidden"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ImmersiveSelectionMode}" Value="{x:Static ViewModels:ImmersiveSelectionUIMode.Camera}">
                                     <Setter Property="Visibility" Value="Visible"/>
@@ -150,41 +156,66 @@
                             </Style.Triggers>
                         </Style>
                     </ScrollViewer.Style>
-                    <ListView ItemsSource="{Binding CameraChannelEntries}" SelectionMode="Extended" Background="Transparent" VerticalContentAlignment="Center">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Focusable" Value="False"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="Margin" Value="10"/>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.ItemsPanel>
+                    <ItemsControl ItemsSource="{Binding CameraChannelEntries}" Background="Transparent" VerticalContentAlignment="Center">
+                        <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
+                                <StackPanel CanHorizontallyScroll="True" Orientation="Horizontal"/>
                             </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <icon:PackIconModern Width="100" Height="100" Kind="CameraFlash" Foreground="White" Padding="0 20" Background="{StaticResource MahApps.Brushes.Accent}">
-                                    <icon:PackIconModern.Style>
-                                        <Style TargetType="icon:PackIconModern">
+                                <Grid 
+                                    Width="100" Height="100" 
+                                    Background="{StaticResource MahApps.Brushes.AccentBase}"
+                                    Margin="8 12">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                    <Setter Property="Opacity" Value="0.5"/>
-                                                    <Setter Property="Kind" Value="CameraFlashOff"/>
+                                                    <Setter Property="Opacity" Value="0.4"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </icon:PackIconModern.Style>
-                                </icon:PackIconModern>
+                                    </Grid.Style>
+                                    <icon:PackIconModern
+                                        Foreground="{StaticResource MahApps.Brushes.IdealForeground}" 
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Width="40" Height="40">
+                                        <icon:PackIconModern.Style>
+                                            <Style TargetType="icon:PackIconModern">
+                                                <Setter Property="Kind" Value="CameraFlash"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                        <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Control.Validation}"/>
+                                                        <Setter Property="Kind" Value="CameraFlashOff"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </icon:PackIconModern.Style>
+                                    </icon:PackIconModern>
+                                    <TextBlock 
+                                        Foreground="{StaticResource MahApps.Brushes.IdealForeground}" 
+                                        Margin="{StaticResource Wimm.Margin.Small}" 
+                                        Text="{Binding Index}" 
+                                        HorizontalAlignment="Left" 
+                                        VerticalAlignment="Top"/>
+                                    <TextBlock
+                                        Foreground="{StaticResource MahApps.Brushes.IdealForeground}" 
+                                        Margin="{StaticResource Wimm.Margin.Small}"
+                                        Text="{Binding Name}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"/>
+                                </Grid>
                             </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
                 <!--フィルタ Immersive UI-->
-                <ScrollViewer Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
                     <ScrollViewer.Style>
                         <Style TargetType="ScrollViewer">
+                            <Setter Property="Visibility" Value="Hidden"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ImmersiveSelectionMode}" Value="{x:Static ViewModels:ImmersiveSelectionUIMode.VideoFilter}">
                                     <Setter Property="Visibility" Value="Visible"/>
@@ -197,9 +228,10 @@
                     </ListView>
                 </ScrollViewer>
                 <!--マクロ Immersive UI-->
-                <ScrollViewer Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
                     <ScrollViewer.Style>
                         <Style TargetType="ScrollViewer">
+                            <Setter Property="Visibility" Value="Hidden"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ImmersiveSelectionMode}" Value="{x:Static ViewModels:ImmersiveSelectionUIMode.Macro}">
                                     <Setter Property="Visibility" Value="Visible"/>

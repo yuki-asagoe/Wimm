@@ -40,8 +40,17 @@ namespace Wimm.Ui.ViewModel
         {
             TerminalController = new TerminalController(GetDefaultCommands());
             MachineDirectory = machineDirectory;
-            CommandMacroStart = new MacroStartCommand(this);
-            CommandMacroStop = new MacroStopCommand(this);
+            CommandMacroStart = new ParamsDelegateCommand(
+                (arg) =>
+                {
+                    if (arg is MacroInfo info) StartMacro(info);
+                },
+                (arg) => { return arg is MacroInfo && MachineController is not null; }
+            );
+            CommandMacroStop = new DelegateCommand(
+                () => { StopMacro(); },
+                () => { return  MachineController is not null; }
+            );
             CommandOpenImmersiveSelection = new ParamsDelegateCommand((arg) =>
             {
                 if(arg is ImmersiveSelectionUIMode mode)
@@ -176,6 +185,7 @@ namespace Wimm.Ui.ViewModel
             {
                 CameraChannelEntries.Add(new CameraChannelEntry(MachineController.Machine.Camera, c));
             }
+            MachineController.OnStopMacro += OnStopMacroNotificated;
             ExtensionProviders = ExtensionsBuilder.Instance.Build(MachineController.Machine);
             MacroList = controller.MacroList;
             periodicTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
@@ -186,6 +196,15 @@ namespace Wimm.Ui.ViewModel
             TerminalController.Post($"ロボットの初期化が完了しました。ロボット名 : {MachineController.Machine.Name}");
             return null;
         }
+
+        private void OnStopMacroNotificated()
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                RunningMacro = null;
+            });
+        }
+
         private void HighRatePeriodicWork(object? sender, EventArgs args)
         {
             ConnectionStatus = MachineController?.Machine?.ConnectionStatus ?? ConnectionState.Offline;
@@ -210,8 +229,6 @@ namespace Wimm.Ui.ViewModel
         }
         private void OnMachineSet()
         {
-            (CommandMacroStart as MacroStartCommand)?.OnMachineSet();
-            (CommandMacroStop as MacroStopCommand)?.OnMachineSet();
         }
         public void StartMacro(MacroInfo macro)
         {
@@ -228,20 +245,6 @@ namespace Wimm.Ui.ViewModel
         {
             MachineController?.StopMacro();
             RunningMacro = null;
-        }
-        private record MacroStartCommand(MachineControlViewModel model) : ICommand
-        {
-            public event EventHandler? CanExecuteChanged;
-            public void OnMachineSet() { CanExecuteChanged?.Invoke(null, new EventArgs()); }
-            public bool CanExecute(object? parameter) => model.MachineController is not null;
-            public void Execute(object? parameter) { if (parameter is MacroInfo info) model.StartMacro(info); }
-        }
-        private record MacroStopCommand(MachineControlViewModel model) : ICommand
-        {
-            public event EventHandler? CanExecuteChanged;
-            public void OnMachineSet() { CanExecuteChanged?.Invoke(null, new EventArgs()); }
-            public bool CanExecute(object? parameter) => model.MachineController is not null;
-            public void Execute(object? parameter) { model.StopMacro(); }
         }
 
         private bool disposed;

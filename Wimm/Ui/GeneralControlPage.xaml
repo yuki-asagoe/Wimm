@@ -35,9 +35,9 @@
                     <StackPanel>
                         <DataGrid HeadersVisibility="None" Margin="{StaticResource Wimm.Margin.Small.Horizontal}" SelectionMode="Single" GridLinesVisibility="Horizontal" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" ItemsSource="{Binding CameraChannelEntries}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Width="SizeToCells" Header="Index" Binding="{Binding Index}"/>
-                                <DataGridTextColumn Width="*" Header="Name" Binding="{Binding Name}"/>
-                                <DataGridTemplateColumn Header="Activation">
+                                <DataGridTextColumn Width="SizeToCells" Header="Index" Binding="{Binding Index}" IsReadOnly="True"/>
+                                <DataGridTextColumn Width="*" Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                                <DataGridTemplateColumn Header="Activation" IsReadOnly="True">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Metro:ToggleSwitch IsOn="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -85,8 +85,8 @@
                             </DataGrid>
                             <DataGrid AutoGenerateColumns="False" HeadersVisibility="None" ItemsSource="{Binding SelectedVideoFilter.BooleanParameters}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Width="*" Binding="{Binding Name}"/>
-                                    <DataGridCheckBoxColumn Binding="{Binding Value, Mode=OneWayToSource}"/>
+                                    <DataGridTextColumn Width="*" Binding="{Binding Name}" IsReadOnly="True"/>
+                                    <DataGridCheckBoxColumn Binding="{Binding Value, Mode=OneWayToSource}" IsReadOnly="True"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
@@ -123,13 +123,13 @@
                             </Border>
                             <DataGrid AutoGenerateColumns="False" BorderThickness="1" ItemsSource="{Binding MacroList}" SelectionMode="Single">
                                 <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="SelectionChanged">
+                                    <b:EventTrigger EventName="MouseDoubleClick">
                                         <b:InvokeCommandAction Command="{Binding CommandMacroStart}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                                     </b:EventTrigger>
                                 </b:Interaction.Triggers>
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Name" Width="*" Binding="{Binding Name}"/>
-                                    <DataGridTextColumn Header="Life Time" Width="*" Binding="{Binding LifeTimeSeconds, StringFormat='{}{0:0.0} s'}"/>
+                                    <DataGridTextColumn Header="Name" Width="*" Binding="{Binding Name}" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Life Time" Width="*" Binding="{Binding LifeTimeSeconds, StringFormat='{}{0:0.0} s'}" IsReadOnly="True"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
