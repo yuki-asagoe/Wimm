@@ -60,9 +60,21 @@ namespace Wimm.Model.Control
             {
                 throw new FileNotFoundException("初期化に必要なスクリプトファイルが見つかりません。ファイル名を確認してください。");
             }
-            ControlEnvironment.DoChunk(initializeFile.FullName);
+            ControlEnvironment.DoChunk(
+                initializeFile.FullName,
+                new KeyValuePair<string, object>(
+                    RootModuleName,
+                    ModuleTable
+                )
+            );
             logger?.Info("initializeファイルの実行が完了しました");
-            ControlEnvironment.DoChunk(definitionFile.FullName);
+            ControlEnvironment.DoChunk(
+                definitionFile.FullName,
+                new KeyValuePair<string, object>(
+                    RootModuleName,
+                    ModuleTable
+                )
+            );
             logger?.Info("definitionファイルの実行が完了しました");
             ControlEnvironment.DoChunk(
                 control_mapFile.FullName,
