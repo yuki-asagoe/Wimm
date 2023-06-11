@@ -223,9 +223,34 @@
                             </Style.Triggers>
                         </Style>
                     </ScrollViewer.Style>
-                    <ListView Background="Transparent">
-
-                    </ListView>
+                    <ItemsControl ItemsSource="{Binding Filters}" Background="Transparent">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel CanHorizontallyScroll="True" Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel 
+                                    Width="100" Height="100" 
+                                    Background="{StaticResource MahApps.Brushes.AccentBase}"
+                                    Margin="8 12">
+                                    <TextBlock
+                                        Foreground="{StaticResource MahApps.Brushes.IdealForeground}" 
+                                        Margin="4 0 4 4"
+                                        Text="{Binding Name}"
+                                        HorizontalAlignment="Center"
+                                        DockPanel.Dock="Bottom"/>
+                                    <icon:PackIconModern
+                                        Foreground="{StaticResource MahApps.Brushes.IdealForeground}" 
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Width="40" Height="40"
+                                        Kind="{Binding Icon}"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
                 <!--マクロ Immersive UI-->
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
@@ -239,9 +264,18 @@
                             </Style.Triggers>
                         </Style>
                     </ScrollViewer.Style>
-                    <ListView Background="Transparent">
+                    <ItemsControl ItemsSource="{Binding MacroList}" Background="Transparent">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel CanHorizontallyScroll="True" Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
 
-                    </ListView>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
             </Grid>
         </Grid>
