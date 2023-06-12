@@ -407,7 +407,7 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
             ///slave_id: int
             ///size: int
             [DllImport("TPJTwr_42.dll", EntryPoint = "TPJT_Send_I2Cdata", CallingConvention = CallingConvention.StdCall)]
-            public static extern int Send_I2Cdata(int no, System.IntPtr buf, int slave_id, int size);
+            public static extern int Send_I2Cdata(int no, byte[] buf, int slave_id, int size);
 
 
             /// Return Type: int
@@ -424,7 +424,7 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
             ///slave_id: int*
             ///recv_size: int*
             [DllImport("TPJTwr_42.dll", EntryPoint = "TPJT_Recv_I2Cdata", CallingConvention = CallingConvention.StdCall)]
-            public static extern int Recv_I2Cdata(int no, System.IntPtr buf, ref int slave_id, ref int recv_size);
+            public static extern int Recv_I2Cdata(int no, byte[] buf, ref int slave_id, ref int recv_size);
 
 
             /// Return Type: int
