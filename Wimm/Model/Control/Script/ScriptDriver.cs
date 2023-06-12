@@ -142,7 +142,7 @@ namespace Wimm.Model.Control
         }
         public void StartControlProcess()
         {
-            ControlProcess= Machine.StartControlProcess();
+            ControlProcess= Machine.StartControl();
         }
         public void DoControl()
         {

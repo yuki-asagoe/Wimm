@@ -82,11 +82,13 @@ namespace Wimm.Model.Control
         public void StartControlLoop()
         {
             ControlTimer.Change(0, ControlPeriod);
+            Machine.Status = MachineState.Active;
             IsControlStopping = false;
         }
         public void StopControlLoop()
         {
             ControlTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            Machine.Status = MachineState.Idle;
             IsControlStopping = true;
         }
         public bool IsMacroRunning => MachineBridge.RunningMacro is not null;

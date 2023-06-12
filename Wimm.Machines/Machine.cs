@@ -55,11 +55,29 @@ namespace Wimm.Machines
         public ImmutableArray<ToggleableModule> ToggleableModules { get; protected init; } = ImmutableArray<ToggleableModule>.Empty;
         public virtual void Reset() {}
         public virtual void Dispose(){ }
+        private MachineState state=MachineState.Idle;
+        public MachineState Status
+        {
+            get { return state; }
+            set {
+                state = value;
+                OnStatusChanged(value);
+            }
+        }
+        protected virtual void OnStatusChanged(MachineState newState) {}
+        public ControlProcess? StartControl()
+        {
+            if(Status is MachineState.Active)
+            {
+                return StartControlProcess();
+            }
+            return null;
+        }
         /// <summary>
         /// 制御処理を開始する際に呼び出されます。
         /// </summary>
         /// <returns>その処理単位を表現するControlProcess</returns>
-        public virtual ControlProcess StartControlProcess() => new ControlProcess();
+        protected virtual ControlProcess StartControlProcess() => new ControlProcess();
     }
     public enum ConnectionState
     {
