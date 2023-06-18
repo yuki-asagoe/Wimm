@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Wimm.Ui"
+      xmlns:wimm="clr-namespace:Wimm"
       xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:t="clr-namespace:Simple.Wpf.Terminal;assembly=Simple.Wpf.Terminal"
@@ -135,7 +136,8 @@
                         </StackPanel>
                     </StackPanel>
                 </Expander>
-                <Expander Header="QR Code Detection" IsExpanded="True">
+                <Expander Header="QR Code Detection" IsExpanded="True"
+                          Visibility="{Binding Setting.EnableQRDetection,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel>
                         <Metro:ProgressRing Margin="{StaticResource Wimm.Margin.Small.Vertical}" Visibility="{Binding QRDetectionRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <Separator Visibility="{Binding DetectedQRCodeValue, Converter={StaticResource NotNullToVisibilityConverter}}"/>

@@ -34,5 +34,17 @@ namespace Wimm {
                 this["SelectedControllerIndex"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableQRDetection {
+            get {
+                return ((bool)(this["EnableQRDetection"]));
+            }
+            set {
+                this["EnableQRDetection"] = value;
+            }
+        }
     }
 }

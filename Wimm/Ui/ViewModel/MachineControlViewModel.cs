@@ -484,6 +484,10 @@ namespace Wimm.Ui.ViewModel
             get { return (ImmutableArray<ExtensionViewProvider>)GetValue(ExtensionProvidersProperty); }
             set { SetValue(ExtensionProvidersProperty, value); }
         }
+        public GeneralSetting Setting
+        {
+            get { return GeneralSetting.Default; }
+        }
 
         private CommandNode[] GetDefaultCommands()
         {

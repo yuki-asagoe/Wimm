@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Wimm.Ui"
       xmlns:wimm="clr-namespace:Wimm"
+      xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
       mc:Ignorable="d" 
       d:DataContext="{d:DesignInstance wimm:GeneralSetting}"
       d:DesignHeight="450" d:DesignWidth="800"
@@ -17,6 +18,16 @@
             <TextBlock Name="FeedBackText" DockPanel.Dock="Left" Margin="10 0" FontSize="16" VerticalAlignment="Center"/>
         </DockPanel>
         <StackPanel CanVerticallyScroll="True" Margin="30 0">
+            <StackPanel.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontSize" Value="16"/>
+                </Style>
+            </StackPanel.Resources>
+            <DockPanel>
+                <Metro:ToggleSwitch DockPanel.Dock="Right" IsOn="{Binding EnableQRDetection, Mode=TwoWay}"/>
+                <TextBlock VerticalAlignment="Center" Text="QRコード検出を使用する"/>
+            </DockPanel>
+            <Separator/>
         </StackPanel>
     </DockPanel>
 </Page>

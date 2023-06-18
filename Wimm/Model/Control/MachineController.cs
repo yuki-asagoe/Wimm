@@ -58,7 +58,7 @@ namespace Wimm.Model.Control
             Machine = machine;
             MachineBridge = binder;
             ObservedGamepadIndex = controllerIndex;
-            ControlTimer = new Timer(OnTimer, null, 0, controlPeriod);
+            ControlTimer = new Timer(OnTimer, null, Timeout.Infinite, Timeout.Infinite);
             ControlPeriod = controlPeriod;
             StopControlLoop();
         }
