@@ -4,11 +4,65 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Wimm.Ui"
+      xmlns:interop="clr-namespace:System.Runtime.InteropServices;assembly=System.Runtime"
+      xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+      xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance ViewModels:InformationViewModel}"
       Title="InformationPage">
-
-    <Grid>
-        
-    </Grid>
+    <Page.DataContext>
+        <ViewModels:InformationViewModel/>
+    </Page.DataContext>
+    <Page.Resources>
+        <Style TargetType="TextBlock" x:Key="Header">
+            <Setter Property="FontSize" Value="20"/>
+        </Style>
+    </Page.Resources>
+    <StackPanel Margin="{StaticResource Wimm.Margin.Large.Horizontal}">
+        <Grid Margin="{StaticResource Wimm.Margin.Middle.Vertical}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+            <Image Margin="{StaticResource Wimm.Margin.Small}" Source="/Resources/Image/wimm_logo.png"/>
+            <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                <StackPanel.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="VerticalAlignment" Value="Bottom"/>
+                        <Setter Property="FontSize" Value="15"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Version"/>
+                    <TextBlock Grid.Column="1" Text="{Binding AssemblyName.Version}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                </Grid>
+                <Separator/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Architecture"/>
+                    <TextBlock Grid.Column="1" Text="{Binding ProcessorArchitecture}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                </Grid>
+                <Separator/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Margin="4" Command="{Binding OpenURLCommand}" CommandParameter="https://github.com/yuki-asagoe/Wimm">
+                        <Icon:PackIconModern Kind="SocialGithubOctocat"/>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        <Separator/>
+        <TextBlock Text="ビルド情報" Style="{StaticResource Header}"/>
+        <Separator/>
+        <TextBlock Text="ライブラリとライセンス" Style="{StaticResource Header}"/>
+    </StackPanel>
 </Page>

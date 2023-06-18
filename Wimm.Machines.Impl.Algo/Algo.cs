@@ -38,7 +38,7 @@ namespace Wimm.Machines.Impl.Algo
         internal event Action<ContainerControlCanData>? SetContainerDefault;
         internal event Action<LiftControlCanData>? SetLiftDefault;
         internal event Action<TopCameraCanData>? SetTopCameraDefault;
-        public override ControlProcess StartControlProcess()
+        protected override ControlProcess StartControlProcess()
         {
             ControlProcess = new AlgoControlProcess(this,() => { this.ControlProcess = null; });
             return ControlProcess;
