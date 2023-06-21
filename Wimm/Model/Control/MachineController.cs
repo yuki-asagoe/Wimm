@@ -66,6 +66,7 @@ namespace Wimm.Model.Control
         private void OnTimer(object? state)
         {
             Control();
+            if (!IsControlStopping) ControlTimer.Change(ControlPeriod, Timeout.Infinite);
         }
         private void Control()
         {
@@ -81,15 +82,15 @@ namespace Wimm.Model.Control
         }
         public void StartControlLoop()
         {
-            ControlTimer.Change(0, ControlPeriod);
-            Machine.Status = MachineState.Active;
             IsControlStopping = false;
+            ControlTimer.Change(ControlPeriod,Timeout.Infinite);
+            Machine.Status = MachineState.Active;
         }
         public void StopControlLoop()
         {
+            IsControlStopping = true;
             ControlTimer.Change(Timeout.Infinite, Timeout.Infinite);
             Machine.Status = MachineState.Idle;
-            IsControlStopping = true;
         }
         public bool IsMacroRunning => MachineBridge.RunningMacro is not null;
         public ImmutableArray<MacroInfo> MacroList => MachineBridge.MacroList;
