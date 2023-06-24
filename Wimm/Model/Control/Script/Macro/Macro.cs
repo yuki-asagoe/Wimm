@@ -34,7 +34,7 @@ namespace Wimm.Model.Control.Script.Macro
         public void Process(LuaGlobal environment)
         {
             double milisecond = Timer.ElapsedMilliseconds;
-            if (Info.LifeTimeSeconds < milisecond)
+            if (Info.LifeTimeSeconds*1000 < milisecond)
             {
                 Timer.Stop();
                 return;

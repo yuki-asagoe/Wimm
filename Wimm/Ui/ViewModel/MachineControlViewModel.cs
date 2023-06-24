@@ -283,13 +283,18 @@ namespace Wimm.Ui.ViewModel
                         {
                             var camera = CameraChannelEntries[selected_key - 1];
                             camera.IsActive = !camera.IsActive;
-                            TerminalController.Post($"Immersive UI キー入力 {selected_key} : {selected_key-1}番カメラの起動状態を反転");
+                            TerminalController.Post($"キー入力 {selected_key} : {selected_key-1}番カメラの起動状態を反転");
                         }
                         break;
                     }
                 case ImmersiveSelectionUIMode.Macro:
                     {
-                        TerminalController.Post("Immersive UI キー入力 : マクロ起動は未対応です");
+                        var index=selected_key-1
+                        if(0<=index && index < MacroList.Length)
+                        {
+                            StartMacro(MacroList[index]);
+                            TerminalController.Post($"キー入力 {selected_key} : マクロ[{MacroList[index].Name}]を起動");
+                        }
                         break;
                     }
                 case ImmersiveSelectionUIMode.VideoFilter:
@@ -297,7 +302,7 @@ namespace Wimm.Ui.ViewModel
                         if((selected_key-1) >=0 && (selected_key-1) < Filters.Length)
                         {
                             SelectedVideoFilter = Filters[selected_key-1];
-                            TerminalController.Post($"Immersive UI キー入力 {selected_key} : フィルタ[{Filters[selected_key - 1].Name}]を適用");
+                            TerminalController.Post($"キー入力 {selected_key} : フィルタ[{Filters[selected_key - 1].Name}]を適用");
                         }
                         break;
                     }

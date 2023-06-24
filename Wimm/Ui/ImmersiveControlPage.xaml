@@ -272,7 +272,23 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-
+                                <Grid Width="100" Height="100"
+                                      Background="{StaticResource MahApps.Brushes.AccentBase}"
+                                      Margin="8 12">
+                                    <icon:PackIconModern
+                                        Foreground="{StaticResource MahApps.Brushes.IdealForeground}"
+                                        Width="40" Height="40"
+                                        VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                        Kind="TimerPlay"/>
+                                    <TextBlock
+                                        Foreground="{StaticResource MahApps.Brushes.IdealForeground}"
+                                        Text="{Binding Name}" Margin="{StaticResource Wimm.Margin.Small.Vertical}"
+                                        VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                                    <TextBlock
+                                        Foreground="{StaticResource MahApps.Brushes.IdealForeground}"
+                                        Text="{Binding LifeTimeSeconds, StringFormat={}{0:0.00}s}" Margin="{StaticResource Wimm.Margin.Small.Vertical}"
+                                        VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+                                </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

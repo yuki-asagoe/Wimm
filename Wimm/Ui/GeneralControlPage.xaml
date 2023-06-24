@@ -34,7 +34,15 @@
                 </StackPanel.Resources>
                 <Expander Header="Camera" IsExpanded="True">
                     <StackPanel>
-                        <DataGrid HeadersVisibility="None" Margin="{StaticResource Wimm.Margin.Small.Horizontal}" SelectionMode="Single" GridLinesVisibility="Horizontal" HorizontalScrollBarVisibility="Hidden" AutoGenerateColumns="False" ItemsSource="{Binding CameraChannelEntries}">
+                        <DataGrid 
+                            Visibility="{Binding ElementName=ShowCameraCheckBox, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            HeadersVisibility="None" 
+                            Margin="{StaticResource Wimm.Margin.Small.Horizontal}"
+                            SelectionMode="Single"
+                            GridLinesVisibility="Horizontal" 
+                            HorizontalScrollBarVisibility="Hidden"
+                            AutoGenerateColumns="False"
+                            ItemsSource="{Binding CameraChannelEntries}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Width="SizeToCells" Header="Index" Binding="{Binding Index}" IsReadOnly="True"/>
                                 <DataGridTextColumn Width="*" Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
@@ -47,6 +55,11 @@
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+                        <DockPanel LastChildFill="False" Margin="{StaticResource Wimm.Margin.Small.Vertical}">
+                            <CheckBox x:Name="ShowCameraCheckBox" IsChecked="True" DockPanel.Dock="Right"/>
+                            <TextBlock VerticalAlignment="Center" Text="Show Camera" DockPanel.Dock="Left"/>
+                        </DockPanel>
+                        <Separator/>
                         <DockPanel LastChildFill="False" Margin="{StaticResource Wimm.Margin.Small.Vertical}">
                             <TextBlock Text="Filters" VerticalAlignment="Center" DockPanel.Dock="Left"/>
                             <Button Command="{Binding CommandRemoveFilter}" Style="{StaticResource MahApps.Styles.Button.Chromeless}" Content="Remove" DockPanel.Dock="Right"/>
@@ -182,7 +195,17 @@
                 </ItemsControl>
             </StackPanel>
         </ScrollViewer>
-        <ContentControl DockPanel.Dock="Bottom" Height="150" Margin="10 0 0 10">
+        <ContentControl DockPanel.Dock="Bottom" Margin="10 0 0 10">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Height" Value="150"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=ShowCameraCheckBox, Path=IsChecked}" Value="False">
+                            <Setter Property="Height" Value="400"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
             <t:Terminal
                 Name="InteractionTerminal"
                 ItemsSource="{Binding TerminalLines, Mode=OneWay}"
@@ -199,7 +222,8 @@
                 </b:Interaction.Triggers>
             </t:Terminal>
         </ContentControl>
-        <Border Name="ScreenField" Margin="10 10 0 10" Background="{StaticResource MahApps.Brushes.Gray1}">
+        <Border Visibility="{Binding ElementName=ShowCameraCheckBox, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Name="ScreenField" Margin="10 10 0 10" Background="{StaticResource MahApps.Brushes.Gray1}">
             <Image Name="Screen" Source="{Binding CameraOutput}" Stretch="Uniform"/>
         </Border>
     </DockPanel>
