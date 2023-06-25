@@ -289,7 +289,7 @@ namespace Wimm.Ui.ViewModel
                     }
                 case ImmersiveSelectionUIMode.Macro:
                     {
-                        var index=selected_key-1
+                        var index = selected_key - 1;
                         if(0<=index && index < MacroList.Length)
                         {
                             StartMacro(MacroList[index]);

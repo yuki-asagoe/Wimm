@@ -19,50 +19,95 @@
         <Style TargetType="TextBlock" x:Key="Header">
             <Setter Property="FontSize" Value="20"/>
         </Style>
+        <Style TargetType="TextBlock" x:Key="HeaderSub">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Gray1}"/>
+        </Style>
     </Page.Resources>
-    <StackPanel Margin="{StaticResource Wimm.Margin.Large.Horizontal}">
-        <Grid Margin="{StaticResource Wimm.Margin.Middle.Vertical}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="300"/>
-            </Grid.ColumnDefinitions>
-            <Image Margin="{StaticResource Wimm.Margin.Small}" Source="/Resources/Image/wimm_logo.png"/>
-            <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+    <ScrollViewer>
+        <StackPanel Margin="{StaticResource Wimm.Margin.Large.Horizontal}" CanVerticallyScroll="True">
+            <Grid Margin="{StaticResource Wimm.Margin.Middle.Vertical}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+                <Image Margin="{StaticResource Wimm.Margin.Small}" Source="/Resources/Image/wimm_logo.png"/>
+                <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Bottom"/>
+                            <Setter Property="FontSize" Value="15"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Version"/>
+                        <TextBlock Grid.Column="1" Text="{Binding AssemblyName.Version}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                    </Grid>
+                    <Separator/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Architecture"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ProcessorArchitecture}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                    </Grid>
+                    <Separator/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Margin="4" Command="{Binding OpenURLCommand}" CommandParameter="https://github.com/yuki-asagoe/Wimm">
+                            <Icon:PackIconModern Kind="SocialGithubOctocat"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            <Separator/>
+            <TextBlock Text="ビルド情報" Style="{StaticResource Header}"/>
+            <Separator/>
+            <TextBlock Text="ライブラリとライセンス" Style="{StaticResource Header}"/>
+            <StackPanel Margin="{StaticResource Wimm.Margin.Middle.Horizontal}">
                 <StackPanel.Resources>
                     <Style TargetType="TextBlock">
-                        <Setter Property="VerticalAlignment" Value="Bottom"/>
-                        <Setter Property="FontSize" Value="15"/>
+                        <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Gray2}"/>
+                    </Style>
+                    <Style TargetType="Expander">
+                        <Setter Property="FontSize" Value="16"/>
                     </Style>
                 </StackPanel.Resources>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Version"/>
-                    <TextBlock Grid.Column="1" Text="{Binding AssemblyName.Version}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
-                </Grid>
+                <Expander Header="MahApps.Metro">
+                    <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
+                               Text="{Binding License.MahApps_Metro}"/>
+                </Expander>
                 <Separator/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Architecture"/>
-                    <TextBlock Grid.Column="1" Text="{Binding ProcessorArchitecture}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
-                </Grid>
+                <Expander Header="NeoLua">
+                    <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}"
+                               Text="{Binding License.NeoLua}"/>
+                </Expander>
                 <Separator/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Margin="4" Command="{Binding OpenURLCommand}" CommandParameter="https://github.com/yuki-asagoe/Wimm">
-                        <Icon:PackIconModern Kind="SocialGithubOctocat"/>
-                    </Button>
-                </StackPanel>
+                <Expander Header="ObservableCollections">
+                    <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
+                               Text="{Binding License.ObservableCollections}"/>
+                </Expander>
+                <Separator/>
+                <Expander Header="OpenCVSharp4">
+                    <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
+                               Text="{Binding License.OpenCVSharp4}"/>
+                </Expander>
+                <Separator/>
+                <Expander Header="Simple.Wpf.Terminal">
+                    <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}"
+                               Text="{Binding License.Simple_Wpf_Terminal}"/>
+                </Expander>
+                <Separator/>
+                <Expander Header="Vortice.XInput">
+                    <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
+                               Text="{Binding License.Vortice_XInput}"/>
+                </Expander>
             </StackPanel>
-        </Grid>
-        <Separator/>
-        <TextBlock Text="ビルド情報" Style="{StaticResource Header}"/>
-        <Separator/>
-        <TextBlock Text="ライブラリとライセンス" Style="{StaticResource Header}"/>
-    </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

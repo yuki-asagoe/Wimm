@@ -30,12 +30,24 @@
     <None Remove="Resources\Image\splash_screen.png" />
     <None Remove="Resources\Image\wimm_icon.png" />
     <None Remove="Resources\Image\wimm_logo.png" />
+    <None Remove="Resources\Text\MahApps.Metro.License.txt" />
+    <None Remove="Resources\Text\NeoLua.License.txt" />
+    <None Remove="Resources\Text\ObservableCollections.License.txt" />
+    <None Remove="Resources\Text\OpenCvSharp4.License.txt" />
+    <None Remove="Resources\Text\Simple.Wpf.Terminal.License.txt" />
+    <None Remove="Resources\Text\Vortice.XInput.License.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Resources\Image\rokkooroshi_icon.png" />
     <Resource Include="Resources\Image\wimm_icon.png" />
     <Resource Include="Resources\Image\wimm_logo.png" />
+    <Resource Include="Resources\Text\MahApps.Metro.License.txt" />
+    <Resource Include="Resources\Text\NeoLua.License.txt" />
+    <Resource Include="Resources\Text\ObservableCollections.License.txt" />
+    <Resource Include="Resources\Text\OpenCvSharp4.License.txt" />
+    <Resource Include="Resources\Text\Simple.Wpf.Terminal.License.txt" />
+    <Resource Include="Resources\Text\Vortice.XInput.License.txt" />
   </ItemGroup>
 
   <ItemGroup>

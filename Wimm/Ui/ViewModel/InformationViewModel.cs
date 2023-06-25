@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Wimm.Ui.Commands;
+using Wimm.Ui.Records;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -31,5 +32,6 @@ namespace Wimm.Ui.ViewModel
                 }
             }
         );
+        public LicenseSet License => LicenseSet.Instance;
     }
 }
