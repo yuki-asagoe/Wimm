@@ -8,5 +8,8 @@
     <Setting Name="EnableQRDetection" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="ControlPeriodicWorkInterval" Type="System.Int16" Scope="User">
+      <Value Profile="(Default)">500</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

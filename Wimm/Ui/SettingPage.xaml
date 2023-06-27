@@ -23,10 +23,23 @@
                     <Setter Property="FontSize" Value="16"/>
                 </Style>
             </StackPanel.Resources>
-            <DockPanel>
-                <Metro:ToggleSwitch DockPanel.Dock="Right" IsOn="{Binding EnableQRDetection, Mode=TwoWay}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="150"/>
+                </Grid.ColumnDefinitions>
+                <Metro:ToggleSwitch Grid.Column="1" IsOn="{Binding EnableQRDetection, Mode=TwoWay}"/>
                 <TextBlock VerticalAlignment="Center" Text="QRコード検出を使用する"/>
-            </DockPanel>
+            </Grid>
+            <Separator/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="150"/>
+                </Grid.ColumnDefinitions>
+                <Metro:NumericUpDown Grid.Column="1" HorizontalAlignment="Left" Width="100" Value="{Binding ControlPeriodicWorkInterval, Mode=TwoWay}" Minimum="100" Maximum="2000"/>
+                <TextBlock VerticalAlignment="Center" Text="制御中の定期情報更新処理の間隔(ms)"/>
+            </Grid>
             <Separator/>
         </StackPanel>
     </DockPanel>

@@ -46,5 +46,17 @@ namespace Wimm {
                 this["EnableQRDetection"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public short ControlPeriodicWorkInterval {
+            get {
+                return ((short)(this["ControlPeriodicWorkInterval"]));
+            }
+            set {
+                this["ControlPeriodicWorkInterval"] = value;
+            }
+        }
     }
 }
