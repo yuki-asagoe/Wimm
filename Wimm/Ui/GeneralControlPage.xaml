@@ -25,9 +25,27 @@
             <Setter Property="Margin" Value="{StaticResource Wimm.Margin.Small}"/>
             <Setter Property="Padding" Value="{StaticResource Wimm.Margin.Small}"/>
         </Style>
+        <Style x:Key="VerticalSplitter" TargetType="GridSplitter" BasedOn="{StaticResource MahApps.Styles.GridSplitter}">
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Gray6}"/>
+        </Style>
+        <Style x:Key="HorizontalSplitter" TargetType="GridSplitter" BasedOn="{StaticResource MahApps.Styles.GridSplitter}">
+            <Setter Property="Height" Value="6"/>
+            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Gray6}"/>
+        </Style>
     </Page.Resources>
-    <DockPanel LastChildFill="True">
-        <ScrollViewer DockPanel.Dock="Right" Name="InformationField" Width="300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" MinWidth="100"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="2*" MinWidth="300"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*" MinHeight="100"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="100"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Name="InformationField" VerticalScrollBarVisibility="Auto">
             <StackPanel CanVerticallyScroll="True"  Margin="{StaticResource Wimm.Margin.Small}">
                 <StackPanel.Resources>
                     <Style TargetType="Expander" BasedOn="{StaticResource InformationTile}"/>
@@ -46,7 +64,7 @@
                             <DataGrid.Columns>
                                 <DataGridTextColumn Width="SizeToCells" Header="Index" Binding="{Binding Index}" IsReadOnly="True"/>
                                 <DataGridTextColumn Width="*" Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                                <DataGridTemplateColumn Header="Activation" IsReadOnly="True">
+                                <DataGridTemplateColumn Width="*" Header="Activation" IsReadOnly="True">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Metro:ToggleSwitch IsOn="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -55,10 +73,6 @@
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
-                        <DockPanel LastChildFill="False" Margin="{StaticResource Wimm.Margin.Small.Vertical}">
-                            <CheckBox x:Name="ShowCameraCheckBox" IsChecked="True" DockPanel.Dock="Right"/>
-                            <TextBlock VerticalAlignment="Center" Text="Show Camera" DockPanel.Dock="Left"/>
-                        </DockPanel>
                         <Separator/>
                         <DockPanel LastChildFill="False" Margin="{StaticResource Wimm.Margin.Small.Vertical}">
                             <TextBlock Text="Filters" VerticalAlignment="Center" DockPanel.Dock="Left"/>
@@ -87,11 +101,11 @@
                         <StackPanel Orientation="Vertical" Visibility="{Binding SelectedVideoFilter, Converter={StaticResource NotNullToVisibilityConverter}}">
                             <DataGrid AutoGenerateColumns="False" HeadersVisibility="None" ItemsSource="{Binding SelectedVideoFilter.DoubleParameters}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Width="*" Binding="{Binding Name}"/>
+                                    <DataGridTextColumn Width="*" Binding="{Binding Name}" IsReadOnly="True"/>
                                     <DataGridTemplateColumn Width="2*">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Slider Minimum="{Binding Min, Mode=OneWayToSource}" Maximum="{Binding Max, Mode=OneWayToSource}"/>
+                                                <Slider Value="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="{Binding Min, Mode=OneTime}" Maximum="{Binding Max, Mode=OneTime}"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -100,7 +114,7 @@
                             <DataGrid AutoGenerateColumns="False" HeadersVisibility="None" ItemsSource="{Binding SelectedVideoFilter.BooleanParameters}">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="*" Binding="{Binding Name}" IsReadOnly="True"/>
-                                    <DataGridCheckBoxColumn Binding="{Binding Value, Mode=OneWayToSource}" IsReadOnly="True"/>
+                                    <DataGridCheckBoxColumn Binding="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
@@ -195,17 +209,7 @@
                 </ItemsControl>
             </StackPanel>
         </ScrollViewer>
-        <ContentControl DockPanel.Dock="Bottom" Margin="10 0 0 10">
-            <ContentControl.Style>
-                <Style TargetType="ContentControl">
-                    <Setter Property="Height" Value="150"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ElementName=ShowCameraCheckBox, Path=IsChecked}" Value="False">
-                            <Setter Property="Height" Value="400"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ContentControl.Style>
+        <ContentControl Grid.Column="0" Grid.Row="2" Margin="{StaticResource Wimm.Margin.Middle}">
             <t:Terminal
                 Name="InteractionTerminal"
                 ItemsSource="{Binding TerminalLines, Mode=OneWay}"
@@ -222,9 +226,10 @@
                 </b:Interaction.Triggers>
             </t:Terminal>
         </ContentControl>
-        <Border Visibility="{Binding ElementName=ShowCameraCheckBox, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"
-                Name="ScreenField" Margin="10 10 0 10" Background="{StaticResource MahApps.Brushes.Gray1}">
+        <Border Name="ScreenField" Margin="{StaticResource Wimm.Margin.Middle}" Background="{StaticResource MahApps.Brushes.Gray1}">
             <Image Name="Screen" Source="{Binding CameraOutput}" Stretch="Uniform"/>
         </Border>
-    </DockPanel>
+        <GridSplitter Style="{StaticResource VerticalSplitter}" Grid.Column="1" Grid.RowSpan="3"/>
+        <GridSplitter Style="{StaticResource HorizontalSplitter}" Grid.Column="0" Grid.Row="1"/>
+    </Grid>
 </Page>

@@ -213,6 +213,11 @@
                 </ScrollViewer>
                 <!--フィルタ Immersive UI-->
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                    <ScrollViewer.Resources>
+                        <Style TargetType="ScrollBar">
+                            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.IdealForeground}"/>
+                        </Style>
+                    </ScrollViewer.Resources>
                     <ScrollViewer.Style>
                         <Style TargetType="ScrollViewer">
                             <Setter Property="Visibility" Value="Hidden"/>
@@ -254,6 +259,11 @@
                 </ScrollViewer>
                 <!--マクロ Immersive UI-->
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
+                    <ScrollViewer.Resources>
+                        <Style TargetType="ScrollBar">
+                            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.IdealForeground}"/>
+                        </Style>
+                    </ScrollViewer.Resources>
                     <ScrollViewer.Style>
                         <Style TargetType="ScrollViewer">
                             <Setter Property="Visibility" Value="Hidden"/>

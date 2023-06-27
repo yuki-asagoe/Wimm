@@ -19,7 +19,7 @@ namespace Wimm.Model.Video
     }
     public record DoubleParameter(string Name,double Min,double Max)
     {
-        public double _value=Min;
+        private double _value=Min;
         public double Value
         {
             get { return _value; }
