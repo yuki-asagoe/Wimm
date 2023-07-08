@@ -82,27 +82,22 @@
                     <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
                                Text="{Binding License.MahApps_Metro}"/>
                 </Expander>
-                <Separator/>
                 <Expander Header="NeoLua">
                     <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}"
                                Text="{Binding License.NeoLua}"/>
                 </Expander>
-                <Separator/>
                 <Expander Header="ObservableCollections">
                     <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
                                Text="{Binding License.ObservableCollections}"/>
                 </Expander>
-                <Separator/>
                 <Expander Header="OpenCVSharp4">
                     <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
                                Text="{Binding License.OpenCVSharp4}"/>
                 </Expander>
-                <Separator/>
                 <Expander Header="Simple.Wpf.Terminal">
                     <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}"
                                Text="{Binding License.Simple_Wpf_Terminal}"/>
                 </Expander>
-                <Separator/>
                 <Expander Header="Vortice.XInput">
                     <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
                                Text="{Binding License.Vortice_XInput}"/>

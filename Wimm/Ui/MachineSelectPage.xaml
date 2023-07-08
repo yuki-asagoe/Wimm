@@ -6,6 +6,7 @@
       xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
       xmlns:local="clr-namespace:Wimm.Ui"
       xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
       mc:Ignorable="d" 
       xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
       d:DesignHeight="450" d:DesignWidth="800"
@@ -14,6 +15,7 @@
     <Page.CommandBindings>
         <CommandBinding Command="{x:Static ApplicationCommands.Open}" CanExecute="CanStartControl" Executed="StartControlExcuted"/>
         <CommandBinding Command="{x:Static ApplicationCommands.Find}" CanExecute="CanStartControl" Executed="OpenMachineFolderExecuted"/>
+        <CommandBinding Command="{x:Static ApplicationCommands.New}" CanExecute="CanStartControl" Executed="OpenFolderRegeneratorExcuted"/>
         <CommandBinding Command="{x:Static ApplicationCommands.Properties}" CanExecute="CanStartControl" Executed="OpenMachineConfigExecuted"/>
     </Page.CommandBindings>
     <Page.Resources>
@@ -24,17 +26,37 @@
         <Border Width="{Binding Path=ActualWidth,Converter={StaticResource MultiplyConverter},ConverterParameter=0.25, RelativeSource={RelativeSource AncestorType=DockPanel}}" DockPanel.Dock="Right">
             <DockPanel LastChildFill="True">
                 <Button Command="{x:Static ApplicationCommands.Open}" DockPanel.Dock="Bottom" Style="{DynamicResource MahApps.Styles.Button.Square.Accent}">起動</Button>
-                <Grid DockPanel.Dock="Bottom">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Command="{x:Static ApplicationCommands.Find}" Style="{DynamicResource MahApps.Styles.Button.Square}">フォルダを開く</Button>
-                    <Button Grid.Column="1" Command="{x:Static ApplicationCommands.Properties}" Style="{DynamicResource MahApps.Styles.Button.Square}">設定を開く</Button>
-                </Grid>
+                <DockPanel LastChildFill="False" DockPanel.Dock="Bottom">
+                    <Button DockPanel.Dock="Left"
+                            Command="{x:Static ApplicationCommands.Find}"
+                            Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                            Margin="{StaticResource Wimm.Margin.Small}">
+                        <Button.ToolTip>
+                            <TextBlock Text="フォルダを開く"/>
+                        </Button.ToolTip>
+                        <icon:PackIconModern Kind="Folder"/>
+                    </Button>
+                    <Button DockPanel.Dock="Left"
+                            Command="{x:Static ApplicationCommands.New}"
+                            Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                            Margin="{StaticResource Wimm.Margin.Small}">
+                        <Button.ToolTip>
+                            <TextBlock Text="フォルダの再生成と復元"/>
+                        </Button.ToolTip>
+                        <icon:PackIconModern Kind="Refresh"/>
+                    </Button>
+                    <Button 
+                            DockPanel.Dock="Right"
+                            Command="{x:Static ApplicationCommands.Properties}"
+                            Style="{DynamicResource MahApps.Styles.Button.Chromeless}"
+                            Margin="{StaticResource Wimm.Margin.Small}">
+                        <Button.ToolTip>
+                            <TextBlock Text="設定を開く"/>
+                        </Button.ToolTip>
+                        <icon:PackIconModern Kind="ListGear"/>
+                    </Button>
+                </DockPanel>
+                <Separator DockPanel.Dock="Bottom"/>
                 <StackPanel DataContext="{Binding SelectedMachine}">
                     <Grid Width="120" Height="120" Margin="{StaticResource Wimm.Margin.Middle}">
                         <Image Source="{Binding Icon}"/>
@@ -73,7 +95,7 @@
                     </LinearGradientBrush>
                 </Image.OpacityMask>
             </Image>
-            <ScrollViewer Panel.ZIndex="1">
+            <ScrollViewer Panel.ZIndex="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
                 <ListView Name="RobotEntryList" SelectionChanged="RobotEntryList_SelectionChanged" Background="Transparent" SelectionMode="Single" ItemsSource="{Binding MachineEntries}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>

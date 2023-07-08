@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -78,6 +79,30 @@ namespace Wimm.Ui
             var window = new MachineConfigEditWindow();
             window.DataContext = new MachineConfigEditViewModel(ViewModel.SelectedMachine.Name,new FileInfo(ViewModel.SelectedMachine.MachineDirectory.FullName+"/config.json"));
             window.ShowDialog();
+        }
+
+        private async void OpenFolderRegeneratorExcuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            try
+            {
+                var window = new MachineFolderRegenerateWindow(new RegenerateFolderViewModel(ViewModel.SelectedMachine.MachineDirectory));
+                window.ShowDialog();
+            }catch(Exception exception)
+            {
+                var root = Window.GetWindow(this);
+                if (root is MetroWindow metro)
+                {
+                    var result = await metro.ShowMessageAsync(
+                        "例外が発生しました。",
+                        $"[{exception.GetType().Name}]{exception.Message}",
+                        MessageDialogStyle.Affirmative
+                    );
+                    if (result is MessageDialogResult.Negative or MessageDialogResult.Canceled)
+                    {
+                        return;
+                    }
+                }
+            }
         }
     }
 }

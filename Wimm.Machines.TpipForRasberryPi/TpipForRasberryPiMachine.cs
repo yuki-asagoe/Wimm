@@ -51,7 +51,10 @@ namespace Wimm.Machines.TpipForRasberryPi
         public override void Dispose()
         {
             GC.SuppressFinalize(this);
-            TPJT4.NativeMethods.close();
+            if (TpipInitialized)
+            {
+                TPJT4.NativeMethods.close();
+            }
             Hwnd?.Dispose();
         }
         private void AddRegistries()

@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Wimm.Model.Control;
-using Wimm.Model.Generator;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -29,7 +28,8 @@ namespace Wimm.Ui.ViewModel
                     string? errorText=null;
                     try
                     {
-                        result=MachineFolderGenerator.CreateMachineDirectoryFrom(file);
+                        using var generator = new MachineFolder.Generator(file);
+                        result=generator.GenerateAll().MachineDirectory;
                     }
                     catch(Exception e)//お行儀が悪いのはわかってるけど
                     {

@@ -16,7 +16,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls.Dialogs;
 using Wimm.Ui.ViewModel;
-using Wimm.Model.Generator;
 
 namespace Wimm.Ui
 {

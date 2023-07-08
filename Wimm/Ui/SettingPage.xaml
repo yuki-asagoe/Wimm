@@ -23,7 +23,7 @@
                     <Setter Property="FontSize" Value="16"/>
                 </Style>
             </StackPanel.Resources>
-            <Grid>
+            <Grid Margin="{StaticResource Wimm.Margin.Middle.Vertical}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="150"/>
@@ -32,7 +32,7 @@
                 <TextBlock VerticalAlignment="Center" Text="QRコード検出を使用する"/>
             </Grid>
             <Separator/>
-            <Grid>
+            <Grid Margin="{StaticResource Wimm.Margin.Middle.Vertical}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="150"/>

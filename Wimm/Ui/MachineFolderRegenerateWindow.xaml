@@ -1,0 +1,33 @@
+﻿<Metro:MetroWindow
+        x:Class="Wimm.Ui.MachineFolderRegenerateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wimm.Ui"
+        xmlns:ViewModel="clr-namespace:Wimm.Ui.ViewModel"
+        xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        mc:Ignorable="d"
+        WindowStyle="ToolWindow"
+        d:DataContext="{d:DesignInstance ViewModel:RegenerateFolderViewModel}"
+        ResizeMode="NoResize"
+        SizeToContent="Height"
+        Title="ファイルの再生成・復元" Height="Auto" Width="250">
+    <Grid>
+        <DataGrid HeadersVisibility="None" 
+                  AutoGenerateColumns="False" 
+                  ItemsSource="{Binding GeneratorEntries}"
+                  SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="*" Binding="{Binding Name}" IsReadOnly="True"/>
+                <DataGridTemplateColumn Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="再生成" Style="{StaticResource MahApps.Styles.Button.Chromeless}" Command="{Binding GenerateCommand}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Metro:MetroWindow>

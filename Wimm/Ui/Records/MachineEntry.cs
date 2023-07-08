@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json.Nodes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Wimm.Model.Generator;
+using Wimm.Model.Control;
 
 namespace Wimm.Ui.Records
 {
@@ -13,7 +13,7 @@ namespace Wimm.Ui.Records
     {
         public static MachineEntry[]? LoadEntries()
         {
-            var dir = MachineFolderGenerator.GetMachineRootFolder();
+            var dir = MachineFolder.GetMachineRootFolder();
             if (dir is null) return null;
             var list = new LinkedList<MachineEntry>();
             foreach (var i in dir.GetDirectories())

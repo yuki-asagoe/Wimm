@@ -50,7 +50,10 @@ namespace Wimm.Machines.Tpip3
         public override void Dispose()
         {
             GC.SuppressFinalize(this);
-            TPJT3.NativeMethods.close();
+            if (TpipInitialized)
+            {
+                TPJT3.NativeMethods.close();
+            }
             Hwnd?.Dispose();
         }
         private void AddRegistries()
