@@ -18,7 +18,7 @@ namespace Wimm.Model.Video.Filters
 
         public override ImmutableArray<BooleanParameter> BooleanParameters { get; } =  new[]
         {
-            new BooleanParameter("大津の二値化")
+            new BooleanParameter("大津の二値化",true)
         }.ToImmutableArray();
 
         public override PackIconModernKind Icon => PackIconModernKind.TypeBit;
