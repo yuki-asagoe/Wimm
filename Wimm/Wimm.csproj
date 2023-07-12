@@ -26,6 +26,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Model\Launcher\**" />
+    <EmbeddedResource Remove="Model\Launcher\**" />
+    <None Remove="Model\Launcher\**" />
+    <Page Remove="Model\Launcher\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Resources\Image\rokkooroshi_icon.png" />
     <None Remove="Resources\Image\splash_screen.png" />
     <None Remove="Resources\Image\wimm_icon.png" />
@@ -84,10 +91,6 @@
       <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>GeneralSetting.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Model\Launcher\" />
   </ItemGroup>
 
   <ItemGroup>

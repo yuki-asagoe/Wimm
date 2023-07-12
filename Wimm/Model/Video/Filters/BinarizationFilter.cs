@@ -11,12 +11,12 @@ namespace Wimm.Model.Video.Filters
 {
     internal class BinarizationFilter : Filter
     {
-        public override ImmutableArray<DoubleParameter> DoubleParameters => new[]
+        public override ImmutableArray<DoubleParameter> DoubleParameters { get; } = new[]
         {
             new DoubleParameter("閾値",0,1)
         }.ToImmutableArray();
 
-        public override ImmutableArray<BooleanParameter> BooleanParameters => new[]
+        public override ImmutableArray<BooleanParameter> BooleanParameters { get; } =  new[]
         {
             new BooleanParameter("大津の二値化")
         }.ToImmutableArray();

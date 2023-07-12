@@ -52,8 +52,7 @@
                 </StackPanel.Resources>
                 <Expander Header="Camera" IsExpanded="True">
                     <StackPanel>
-                        <DataGrid 
-                            Visibility="{Binding ElementName=ShowCameraCheckBox, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        <DataGrid
                             HeadersVisibility="None" 
                             Margin="{StaticResource Wimm.Margin.Small.Horizontal}"
                             SelectionMode="Single"
