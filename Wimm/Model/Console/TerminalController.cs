@@ -146,7 +146,8 @@ namespace Wimm.Model.Console
             var entryDir = new DirectoryInfo(entryFile.FullName[..^entryFile.Name.Length]);
             var logDir = new DirectoryInfo(entryDir.FullName + "/log");
             if (!logDir.Exists) logDir.Create();
-            return new FileInfo(logDir.FullName + "/latest.log");
+            var date = DateTime.Now;
+            return new FileInfo(logDir.FullName + $"/{date.Year}-{date.Month}-{date.Day}_{date.Hour}-{date.Minute}-{date.Second}.log");
         }
         public ILogger GetLogger()
         {
