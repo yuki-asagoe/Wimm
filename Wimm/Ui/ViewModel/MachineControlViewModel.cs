@@ -24,6 +24,7 @@ using Wimm.Model.Video.Filters;
 using Wimm.Machines.Extension;
 using Wimm.Machines.Logging;
 using Wimm.Ui.Extension;
+using Neo.IronLua;
 
 namespace Wimm.Ui.ViewModel
 {

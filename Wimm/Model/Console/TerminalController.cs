@@ -140,13 +140,11 @@ namespace Wimm.Model.Console
         }
         public static FileInfo? GetLogFile()
         {
-            var entryLocation = Assembly.GetEntryAssembly()?.Location;
-            if (entryLocation is null) return null;
-            var entryFile = new FileInfo(entryLocation);
-            var entryDir = new DirectoryInfo(entryFile.FullName[..^entryFile.Name.Length]);
-            var logDir = new DirectoryInfo(entryDir.FullName + "/log");
-            if (!logDir.Exists) logDir.Create();
-            return new FileInfo(logDir.FullName + "/latest.log");
+            var logDir = ILogger.GetLogDirectory();
+            if (logDir is not null)
+                return new FileInfo(logDir.FullName + "/latest.log");
+            else
+                return null;
         }
         public ILogger GetLogger()
         {
