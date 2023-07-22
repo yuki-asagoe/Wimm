@@ -14,7 +14,25 @@ namespace Wimm.Ui
 {
     public partial class MachineControlWindow : MetroWindow
     {
-        private enum UiMode { None,Normal,Immersive }
+        private enum UiMode { None,Normal,Immersive,Operator }
+        private ImmersiveControlPage? immersiveUI = null;
+        private GeneralControlPage? normalUI = null;
+        private OperatorControlPage? operatorUI = null;
+        private ImmersiveControlPage GetImmersiveControlPage(MachineControlViewModel viewModel)
+        {
+            immersiveUI ??= new ImmersiveControlPage(ViewModel);
+            return immersiveUI;
+        }
+        private GeneralControlPage GetGeneralControlPage(MachineControlViewModel viewModel)
+        {
+            normalUI ??= new GeneralControlPage(viewModel);
+            return normalUI;
+        }
+        private OperatorControlPage GetOperatorControlPage(MachineControlViewModel viewModel)
+        {
+            operatorUI ??= new OperatorControlPage(viewModel);
+            return operatorUI;
+        }
         MachineControlViewModel ViewModel { get; init; }
         private UiMode Mode { get; set; }
         public MachineControlWindow(MachineControlViewModel viewModel)
@@ -29,15 +47,22 @@ namespace Wimm.Ui
         {
             if (Mode is UiMode.Immersive) return;
             Mode = UiMode.Immersive;
-            MainFrame.Navigate(new ImmersiveControlPage(ViewModel));
+            MainFrame.Navigate(GetImmersiveControlPage(ViewModel));
             ViewModel.TerminalController.Post("Immersive モードに切り替えました。");
         }
         public void NavigateToNormalMode()
         {
             if (Mode is UiMode.Normal) return;
             Mode = UiMode.Normal;
-            MainFrame.Navigate(new GeneralControlPage(ViewModel));
+            MainFrame.Navigate(GetGeneralControlPage(ViewModel));
             ViewModel.TerminalController.Post("Normal モードに切り替えました。");
+        }
+        public void NavigateToOperatorMode()
+        {
+            if (Mode is UiMode.Operator) return;
+            Mode = UiMode.Operator;
+            MainFrame.Navigate(GetOperatorControlPage(ViewModel));
+            ViewModel.TerminalController.Post("Operator モードに切り替えました。");
         }
 
         private void Window_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -76,6 +101,11 @@ namespace Wimm.Ui
         private void OnClickNormalButton(object sender, RoutedEventArgs e)
         {
             NavigateToNormalMode();
+        }
+
+        private void OnClickOperatorButton(object sender, RoutedEventArgs e)
+        {
+            NavigateToOperatorMode();
         }
     }
 }

@@ -25,6 +25,7 @@ using Wimm.Machines.Extension;
 using Wimm.Machines.Logging;
 using Wimm.Ui.Extension;
 using Neo.IronLua;
+using Wimm.Ui.Component;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -163,6 +164,7 @@ namespace Wimm.Ui.ViewModel
                 new System.Drawing.Size(600, 800),
                 MachineController.Machine.Camera
             );
+            FeatureExecutionManager.Controller = MachineController;
             VideoProcessor.QRUpdated += (result) =>
                 dispatcher.BeginInvoke(() => {
                     QRDetectionRunning = false;
@@ -326,6 +328,7 @@ namespace Wimm.Ui.ViewModel
         private VideoProcessor? VideoProcessor { get; set; }
         private IBatteryLevelProvidable? BatteryProvidable { get; set; }
         private IPowerVoltageProvidable? PowerProvidable { get; set; }
+        public FeatureExecutionManager FeatureExecutionManager { get; } = new FeatureExecutionManager();
         public ICommand TerminalExecuteCommand => TerminalController.ExecuteCommand;
         public IEnumerable TerminalLines => TerminalController.Output;
         public readonly static DependencyProperty IsControlRunningProperty
