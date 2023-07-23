@@ -262,7 +262,6 @@ namespace Wimm.Ui.ViewModel
         /// <param name="selected_key">選択されたキー、入力されたキー0~9までをそのまま数値に変換したものでなければならない</param>
         public void OnImmersiveSelectionItemSelected(int selected_key)
         {
-            if(ImmersiveSelectionMode is ImmersiveSelectionUIMode.None) { return; }
             switch (ImmersiveSelectionMode)
             {
                 case ImmersiveSelectionUIMode.None:

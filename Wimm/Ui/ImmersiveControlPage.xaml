@@ -33,16 +33,19 @@
         </Style>
     </Page.Resources>
 
-    <DockPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" MinWidth="300"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition MinWidth="300"/>
+        </Grid.ColumnDefinitions>
         <t:Terminal 
-            Width="400" 
+            Grid.Column="2"
             Focusable="False"
-            DockPanel.Dock="Right"
             IsReadOnly="True"
             ItemsSource="{Binding TerminalLines, Mode=OneWay}"
-            BorderThickness="4 0 0 0"
-            BorderBrush="{StaticResource MahApps.Brushes.Accent}"
         />
+        <GridSplitter Grid.Column="1"/>
         <Grid Name="ScreenGrid" Focusable="True" PreviewMouseDown="ScreenGrid_PreviewMouseDown" PreviewKeyDown="ScreenGrid_KeyDown" Background="{StaticResource MahApps.Brushes.Gray1}">
             <Grid.InputBindings>
                 <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding CommandSwitchQRDetect}"/>
@@ -305,5 +308,5 @@
                 </ScrollViewer>
             </Grid>
         </Grid>
-    </DockPanel>
+    </Grid>
 </Page>
