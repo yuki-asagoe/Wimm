@@ -17,14 +17,18 @@
         <Converters:BatteryKindConverter x:Key="BatteryC"/>
     </Page.Resources>
     <DockPanel LastChildFill="True">
-        <icon:PackIconModern
+        <Button
             DockPanel.Dock="Right"
-            Kind="InformationCircle"
             Margin="{StaticResource Wimm.Margin.Small}"
             ToolTip="Wimmはコントローラー入力にXInputのみを受け付けます。"
-            Width="25"
-            Height="25"
+            VerticalAlignment="Top"
+            Style="{StaticResource MahApps.Styles.Button.Chromeless}">
+            <icon:PackIconModern
+                Kind="InformationCircle"
+                Width="25"
+                Height="25"
             />
+        </Button>
         <ListView Name="ControllerList" SelectionChanged="ListView_SelectionChanged" SelectionMode="Single" Margin="30" Width="{Binding Path=ActualWidth, Converter={StaticResource MultiplyC}, ConverterParameter=0.7, RelativeSource={RelativeSource AncestorType=Page}}" HorizontalAlignment="Center" VerticalAlignment="Center" ItemsSource="{Binding Gamepads}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>

@@ -223,9 +223,6 @@ namespace Wimm.Ui.ViewModel
                 extension.OnPeriodicTimer();
             }
         }
-        private void OnMachineSet()
-        {
-        }
         public void StartMacro(MacroInfo macro)
         {
             if (MachineController is MachineController controller)
@@ -268,6 +265,7 @@ namespace Wimm.Ui.ViewModel
             if(ImmersiveSelectionMode is ImmersiveSelectionUIMode.None) { return; }
             switch (ImmersiveSelectionMode)
             {
+                case ImmersiveSelectionUIMode.None:
                 case ImmersiveSelectionUIMode.Camera:
                     {
                         if(selected_key is 0)
@@ -324,10 +322,8 @@ namespace Wimm.Ui.ViewModel
             new CannyEdgeFilter()
         }.ToImmutableArray();
         public TerminalController TerminalController { get; }
-        public MachineController? MachineController { get { return controller; } private set { controller = value; OnMachineSet(); } }
+        public MachineController? MachineController { get { return controller; } private set { controller = value; } }
         private VideoProcessor? VideoProcessor { get; set; }
-        private IBatteryLevelProvidable? BatteryProvidable { get; set; }
-        private IPowerVoltageProvidable? PowerProvidable { get; set; }
         public FeatureExecutionManager FeatureExecutionManager { get; } = new FeatureExecutionManager();
         public ICommand TerminalExecuteCommand => TerminalController.ExecuteCommand;
         public IEnumerable TerminalLines => TerminalController.Output;
@@ -486,10 +482,7 @@ namespace Wimm.Ui.ViewModel
             get { return (ImmutableArray<ExtensionViewProvider>)GetValue(ExtensionProvidersProperty); }
             set { SetValue(ExtensionProvidersProperty, value); }
         }
-        public GeneralSetting Setting
-        {
-            get { return GeneralSetting.Default; }
-        }
+        public GeneralSetting Setting { get; } = GeneralSetting.Default;
 
         private CommandNode[] GetDefaultCommands()
         {

@@ -137,7 +137,7 @@
                     </Style>
                 </Grid.Style>
                 <Grid.Background>
-                    <SolidColorBrush Color="{StaticResource MahApps.Colors.IdealForeground}" Opacity="0.3"/>
+                    <SolidColorBrush Color="{StaticResource MahApps.Colors.ThemeForeground}" Opacity="0.3"/>
                 </Grid.Background>
                 <!--カメラ Immersive UI-->
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
