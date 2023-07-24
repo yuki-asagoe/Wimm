@@ -118,7 +118,7 @@ namespace Wimm.Model.Console
             {
                 return null;
             }
-            else if(commandNodes.Length - index == parent.ParamsHint.Count)//引数の戸数が正しいことを確認
+            else if(commandNodes.Length - index == parent.ParamsHint.Count)//引数の個数が正しいことを確認
             {
                 return (parent, commandNodes.Length > index ? commandNodes[index..] : Array.Empty<string>());
             }
