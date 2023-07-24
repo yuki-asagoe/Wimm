@@ -24,6 +24,8 @@ using Wimm.Model.Video.Filters;
 using Wimm.Machines.Extension;
 using Wimm.Machines.Logging;
 using Wimm.Ui.Extension;
+using Neo.IronLua;
+using Wimm.Ui.Component;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -162,6 +164,7 @@ namespace Wimm.Ui.ViewModel
                 new System.Drawing.Size(600, 800),
                 MachineController.Machine.Camera
             );
+            FeatureExecutionManager.Controller = MachineController;
             VideoProcessor.QRUpdated += (result) =>
                 dispatcher.BeginInvoke(() => {
                     QRDetectionRunning = false;
@@ -220,9 +223,6 @@ namespace Wimm.Ui.ViewModel
                 extension.OnPeriodicTimer();
             }
         }
-        private void OnMachineSet()
-        {
-        }
         public void StartMacro(MacroInfo macro)
         {
             if (MachineController is MachineController controller)
@@ -262,9 +262,9 @@ namespace Wimm.Ui.ViewModel
         /// <param name="selected_key">選択されたキー、入力されたキー0~9までをそのまま数値に変換したものでなければならない</param>
         public void OnImmersiveSelectionItemSelected(int selected_key)
         {
-            if(ImmersiveSelectionMode is ImmersiveSelectionUIMode.None) { return; }
             switch (ImmersiveSelectionMode)
             {
+                case ImmersiveSelectionUIMode.None:
                 case ImmersiveSelectionUIMode.Camera:
                     {
                         if(selected_key is 0)
@@ -323,10 +323,9 @@ namespace Wimm.Ui.ViewModel
             new CannyEdgeFilter()
         }.ToImmutableArray();
         public TerminalController TerminalController { get; }
-        public MachineController? MachineController { get { return controller; } private set { controller = value; OnMachineSet(); } }
+        public MachineController? MachineController { get { return controller; } private set { controller = value; } }
         private VideoProcessor? VideoProcessor { get; set; }
-        private IBatteryLevelProvidable? BatteryProvidable { get; set; }
-        private IPowerVoltageProvidable? PowerProvidable { get; set; }
+        public FeatureExecutionManager FeatureExecutionManager { get; } = new FeatureExecutionManager();
         public ICommand TerminalExecuteCommand => TerminalController.ExecuteCommand;
         public IEnumerable TerminalLines => TerminalController.Output;
         public readonly static DependencyProperty IsControlRunningProperty
@@ -484,10 +483,7 @@ namespace Wimm.Ui.ViewModel
             get { return (ImmutableArray<ExtensionViewProvider>)GetValue(ExtensionProvidersProperty); }
             set { SetValue(ExtensionProvidersProperty, value); }
         }
-        public GeneralSetting Setting
-        {
-            get { return GeneralSetting.Default; }
-        }
+        public GeneralSetting Setting { get; } = GeneralSetting.Default;
 
         private CommandNode[] GetDefaultCommands()
         {

@@ -2,8 +2,11 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Wimm"
-             xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
-             StartupUri="Ui/LauncherWindow.xaml">
+             xmlns:converters="clr-namespace:Wimm.Ui.Converter"
+             xmlns:validation="clr-namespace:Wimm.Ui.Validation"
+             StartupUri="Ui/LauncherWindow.xaml"
+             Startup="Application_Startup"
+             DispatcherUnhandledException="Application_DispatcherUnhandledException">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

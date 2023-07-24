@@ -77,6 +77,11 @@ namespace Wimm.Ui
         private void OpenMachineConfigExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             var window = new MachineConfigEditWindow();
+            var parent = Window.GetWindow(this);
+            if (parent is not null)
+            {
+                window.Owner = parent;
+            }
             window.DataContext = new MachineConfigEditViewModel(ViewModel.SelectedMachine.Name,new FileInfo(ViewModel.SelectedMachine.MachineDirectory.FullName+"/config.json"));
             window.ShowDialog();
         }
@@ -86,6 +91,11 @@ namespace Wimm.Ui
             try
             {
                 var window = new MachineFolderRegenerateWindow(new RegenerateFolderViewModel(ViewModel.SelectedMachine.MachineDirectory));
+                var parent = Window.GetWindow(this);
+                if(parent is not null)
+                {
+                    window.Owner = parent;
+                }
                 window.ShowDialog();
             }catch(Exception exception)
             {

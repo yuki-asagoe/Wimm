@@ -47,61 +47,85 @@ namespace Wimm.Model.Control
             #region //Load Machine Folder
             var scriptFolder = new DirectoryInfo(machineFolder.FullName + "/script");
             var definitionFile = new FileInfo(scriptFolder.FullName + "/definition.neo.lua");
+            if (!definitionFile.Exists)
+            {
+                throw new FileNotFoundException("スクリプトファイル[definition.neo.lua]が見つかりません。ファイル名を確認してください。");
+            }
             var initializeFile = new FileInfo(scriptFolder.FullName + "/initialize.neo.lua");
+            if (!initializeFile.Exists){
+                throw new FileNotFoundException("スクリプトファイル[initialize.neo.lua]が見つかりません。ファイル名を確認してください。");
+            }
             var control_mapFile = new FileInfo(scriptFolder.FullName + "/control_map.neo.lua");
+            if (!control_mapFile.Exists)
+            {
+                throw new FileNotFoundException("スクリプトファイル[control_map.neo.lua]が見つかりません。ファイル名を確認してください。");
+            }
             //var logicalMovementFile = new FileInfo(scriptFolder + "/logical_movement.neo.lua");
             var on_controlFile = new FileInfo(scriptFolder.FullName + "/on_control.neo.lua");
-            var macroFolder = new DirectoryInfo(scriptFolder.FullName + "/macro");
-            if (!(
-                definitionFile.Exists &&
-                initializeFile.Exists &&
-                control_mapFile.Exists
-            ))
+            if (!on_controlFile.Exists)
             {
-                throw new FileNotFoundException("初期化に必要なスクリプトファイルが見つかりません。ファイル名を確認してください。");
+                throw new FileNotFoundException("スクリプトファイル[on_control.neo.lua]が見つかりません。ファイル名を確認してください。");
             }
-            ControlEnvironment.DoChunk(
-                initializeFile.FullName,
-                new KeyValuePair<string, object>(
-                    RootModuleName,
-                    ModuleTable
-                )
-            );
-            logger?.Info("initializeファイルの実行が完了しました");
-            ControlEnvironment.DoChunk(
-                definitionFile.FullName,
-                new KeyValuePair<string, object>(
-                    RootModuleName,
-                    ModuleTable
-                )
-            );
-            logger?.Info("definitionファイルの実行が完了しました");
-            ControlEnvironment.DoChunk(
-                control_mapFile.FullName,
-                new KeyValuePair<string, object>(
-                    "map",
-                    (Action<LuaTable, LuaTable, Func<LuaResult>>)MapControl
-                ),
-                new KeyValuePair<string, object>(
-                    "buttons",
-                    LuaKeysEnum.GamepadKeyEnum
-                ),
-                new KeyValuePair<string,object>(
-                    RootModuleName,
-                    ModuleTable
-                )
-            );
-            if (on_controlFile.Exists) ControlChunk = lua.CompileChunk(
-                on_controlFile.FullName,
-                new LuaCompileOptions(),
-                new KeyValuePair<string, Type>(RootModuleName,typeof(LuaTable)),
-                new KeyValuePair<string, Type>("buttons",typeof(LuaTable)),
-                new KeyValuePair<string, Type>("gamepad",typeof(Gamepad)),
-                new KeyValuePair<string, Type>("wimm",typeof(WimmFeatureProvider)),
-                new KeyValuePair<string, Type>("input", typeof(InputSupporter))
-            );
+            try
+            {
+                ControlEnvironment.DoChunk(
+                    initializeFile.FullName,
+                    new KeyValuePair<string, object>(
+                        RootModuleName,
+                        ModuleTable
+                    )
+                );
+                logger?.Info("initializeファイルの実行が完了しました");
+                ControlEnvironment.DoChunk(
+                    definitionFile.FullName,
+                    new KeyValuePair<string, object>(
+                        RootModuleName,
+                        ModuleTable
+                    )
+                );
+                logger?.Info("definitionファイルの実行が完了しました");
+                ControlEnvironment.DoChunk(
+                    control_mapFile.FullName,
+                    new KeyValuePair<string, object>(
+                        "map",
+                        (Action<LuaTable, LuaTable, Func<LuaResult>>)MapControl
+                    ),
+                    new KeyValuePair<string, object>(
+                        "buttons",
+                        LuaKeysEnum.GamepadKeyEnum
+                    ),
+                    new KeyValuePair<string, object>(
+                        RootModuleName,
+                        ModuleTable
+                    )
+                );
+                if (on_controlFile.Exists) ControlChunk = lua.CompileChunk(
+                    on_controlFile.FullName,
+                    new LuaCompileOptions(),
+                    new KeyValuePair<string, Type>(RootModuleName, typeof(LuaTable)),
+                    new KeyValuePair<string, Type>("buttons", typeof(LuaTable)),
+                    new KeyValuePair<string, Type>("gamepad", typeof(Gamepad)),
+                    new KeyValuePair<string, Type>("wimm", typeof(WimmFeatureProvider)),
+                    new KeyValuePair<string, Type>("input", typeof(InputSupporter))
+                );
+            }catch(LuaParseException e)
+            {
+                StringBuilder builder = new StringBuilder();
+                builder
+                    .Append(" LuaParseException - ")
+                    .AppendLine(e.Message)
+                    .AppendLine()
+                    .AppendLine($"ファイル名 : {e.FileName}")
+                    .AppendLine($"発生行 : {e.Line}");
+                FileFormatException newException = new FileFormatException(
+                    builder.ToString(),
+                    e
+                );
+                throw newException;
+            }
             logger?.Info("キーマッピングの配置が完了しました");
             logger?.Info("マクロの識別を開始します");
+            var macroFolder = new DirectoryInfo(scriptFolder.FullName + "/macro");
             if (macroFolder.Exists)
             {
                 var serializer = new MacroFolderLoader(macroFolder, lua);

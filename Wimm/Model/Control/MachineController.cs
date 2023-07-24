@@ -80,6 +80,34 @@ namespace Wimm.Model.Control
                     OnStopMacro?.Invoke();
             }
         }
+        public Task<(object? returnedValue, Exception? e)> RequestExcutionAsync(Feature<Delegate> feature,params object[]? args)
+        {
+            return Task.Run<(object?,Exception?)>(() =>
+            {
+                object? returned = null;
+                try
+                {
+                    lock (MachineBridge)
+                    {
+                        MachineBridge.StartControlProcess();
+                        returned = feature.Function.DynamicInvoke(args);
+                        MachineBridge.EndControlProcess();
+                    }
+                }
+                catch (TargetInvocationException e)
+                {
+                    return (null, e);
+                }
+                catch (ArgumentException e) {
+                    return (null, e);
+                }
+                catch (TargetParameterCountException e)
+                {
+                    return (null, e);
+                }
+                return (returned, null);
+            });
+        }
         public void StartControlLoop()
         {
             IsControlStopping = false;

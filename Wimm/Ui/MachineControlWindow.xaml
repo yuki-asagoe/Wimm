@@ -22,6 +22,9 @@
             <Button ToolTip="Normal Mode" Click="OnClickNormalButton">
                 <icon:PackIconModern Width="20" Height="20" Kind="Notification"/>
             </Button>
+            <Button ToolTip="Operator Mode" Click="OnClickOperatorButton">
+                <icon:PackIconModern Width="20" Height="20" Kind="PeopleProfile"/>
+            </Button>
         </Metro:WindowCommands>
     </Metro:MetroWindow.RightWindowCommands>
     <Grid>

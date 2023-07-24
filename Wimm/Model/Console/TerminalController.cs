@@ -140,14 +140,16 @@ namespace Wimm.Model.Console
         }
         public static FileInfo? GetLogFile()
         {
-            var entryLocation = Assembly.GetEntryAssembly()?.Location;
-            if (entryLocation is null) return null;
-            var entryFile = new FileInfo(entryLocation);
-            var entryDir = new DirectoryInfo(entryFile.FullName[..^entryFile.Name.Length]);
-            var logDir = new DirectoryInfo(entryDir.FullName + "/log");
-            if (!logDir.Exists) logDir.Create();
-            var date = DateTime.Now;
-            return new FileInfo(logDir.FullName + $"/{date.Year}-{date.Month}-{date.Day}_{date.Hour}-{date.Minute}-{date.Second}.log");
+            var logDir = ILogger.GetLogDirectory();
+            if(logDir is not null)
+            {
+                var date = DateTime.Now;
+                return new FileInfo(logDir.FullName + $"/{date.Year}-{date.Month}-{date.Day}_{date.Hour}-{date.Minute}-{date.Second}.log");
+            }
+            else
+            {
+                return null;
+            }
         }
         public ILogger GetLogger()
         {

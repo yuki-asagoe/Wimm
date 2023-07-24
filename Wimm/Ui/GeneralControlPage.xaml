@@ -52,7 +52,7 @@
                 </StackPanel.Resources>
                 <Expander Header="Camera" IsExpanded="True">
                     <StackPanel>
-                        <DataGrid
+                        <DataGrid 
                             HeadersVisibility="None" 
                             Margin="{StaticResource Wimm.Margin.Small.Horizontal}"
                             SelectionMode="Single"
@@ -78,7 +78,7 @@
                             <Button Command="{Binding CommandRemoveFilter}" Style="{StaticResource MahApps.Styles.Button.Chromeless}" Content="Remove" DockPanel.Dock="Right"/>
                         </DockPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Visible">
-                            <ListView Background="Transparent" SelectionMode="Single" ItemsSource="{Binding Filters}" SelectedItem="{Binding SelectedVideoFilter, Mode=OneWayToSource}">
+                            <ListView Background="Transparent" SelectionMode="Single" ItemsSource="{Binding Filters}" SelectedItem="{Binding SelectedVideoFilter, Mode=TwoWay}">
                                 <ListView.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel Orientation="Horizontal"/>
