@@ -316,6 +316,8 @@ namespace Wimm.Ui.ViewModel
         public ICommand CommandOpenImmersiveSelection { get; }
         public ICommand CommandCloseImmersiveSelection { get; }
         public ImmutableArray<Filter> Filters { get; } = new Filter[] {
+            new LinearBrightnessCorrectionFilter(),
+            new GammaBrightnessCorrectionFilter(),
             new BinarizationFilter(),
             new GrayScaleFilter(),
             new CannyEdgeFilter()

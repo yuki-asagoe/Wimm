@@ -1,5 +1,6 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
@@ -49,7 +50,7 @@ namespace Wimm.Model.Video
         public bool IsReadyToReceive => true;
         public async void OnReceiveData(FrameData[] frames)
         {
-            if(qrDetectionTask?.IsCompleted??true && QRDetecting)
+            if((qrDetectionTask?.IsCompleted??true) && QRDetecting)
             {
                 qrDetectionTask = DetectQR(frames[0].Frame.Clone());
                 ImageUpdated?.Invoke(Draw(frames));
@@ -79,12 +80,12 @@ namespace Wimm.Model.Video
                 try
                 {
                     //ゴリ押しこそ正義
-                    int minX = (int)area.Select(x => x.X).Min();
-                    int minY = (int)area.Select(x => x.Y).Min();
-                    int maxX = (int)area.Select(x => x.X).Max();
-                    int maxY = (int)area.Select(x => x.Y).Max();
+                    int minX = (int)Math.Clamp(area.Select(x => x.X).Min(),0,image.Cols);
+                    int minY = (int)Math.Clamp(area.Select(x => x.Y).Min(), 0, image.Rows);
+                    int width = (int)Math.Clamp(area.Select(x => x.X).Max()-minX, 0, image.Cols);
+                    int height = (int)Math.Clamp(area.Select(x => x.Y).Max()-minY,0,image.Rows);
                     using var clippedImage = image.Clone(new OpenCvSharp.Rect(
-                        minX, minY, maxX - minX, maxY - minX
+                        minX, minY, width, height
                     ));
                     if (clippedImage is null)
                     {
@@ -97,10 +98,6 @@ namespace Wimm.Model.Video
                 catch (OpenCVException _)
                 {
                     return new QRDetectionResult(result,null);
-                }
-                catch(OpenCvSharpException _)
-                {
-                    return new QRDetectionResult(result, null);
                 }
             });
         }

@@ -12,13 +12,13 @@ namespace Wimm.Model.Video.Filters
 {
     internal class CannyEdgeFilter : Filter
     {
-        public override ImmutableArray<DoubleParameter> DoubleParameters => new[]
+        public override ImmutableArray<DoubleParameter> DoubleParameters { get; } = new[]
         {
             new DoubleParameter("検出最大値",0,255),
             new DoubleParameter("検出最小値",0,255)
         }.ToImmutableArray();
 
-        public override ImmutableArray<BooleanParameter> BooleanParameters => new[]
+        public override ImmutableArray<BooleanParameter> BooleanParameters { get; } = new[]
         {
             new BooleanParameter("自動閾値選択(実験的)")
         }.ToImmutableArray();
@@ -55,6 +55,7 @@ namespace Wimm.Model.Video.Filters
             }
 
             Cv2.CvtColor(frame, frame, ColorConversionCodes.BGR2GRAY);
+            frame.ConvertTo(frame, MatType.CV_16SC3);
             Cv2.Canny(frame, frame, frame, minValue, maxValue);
         }
     }

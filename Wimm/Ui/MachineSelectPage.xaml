@@ -95,11 +95,11 @@
                     </LinearGradientBrush>
                 </Image.OpacityMask>
             </Image>
-            <ScrollViewer Panel.ZIndex="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible">
+            <ScrollViewer Panel.ZIndex="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Visible" Name="RobotEntryScroller">
                 <ListView Name="RobotEntryList" SelectionChanged="RobotEntryList_SelectionChanged" Background="Transparent" SelectionMode="Single" ItemsSource="{Binding MachineEntries}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel />
+                            <WrapPanel Width="{Binding ElementName=RobotEntryScroller, Path=ViewportWidth}"/>
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
                     <ListView.ItemContainerStyle>
