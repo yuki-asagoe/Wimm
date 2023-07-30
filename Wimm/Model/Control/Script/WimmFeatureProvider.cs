@@ -33,5 +33,13 @@ namespace Wimm.Model.Control.Script
                 ViewModel.Dispatcher.BeginInvoke(() => { ViewModel.StartMacro(list.GetValueOrDefault()[number]); });
             }
         }
+        public bool IsCameraActive(int number)
+        {
+            return ViewModel.Dispatcher.Invoke(() =>
+            {
+                if (number < 0 && number >= ViewModel.CameraChannelEntries.Count) return false;
+                return ViewModel.CameraChannelEntries[number].IsActive;
+            });
+        }
     }
 }
