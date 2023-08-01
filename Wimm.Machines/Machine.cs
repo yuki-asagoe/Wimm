@@ -50,9 +50,6 @@ namespace Wimm.Machines
         /// </summary>
         public ModuleGroup StructuredModules { get; protected init; }
             = new ModuleGroup("",ImmutableArray<ModuleGroup>.Empty, ImmutableArray<Module>.Empty);
-        public ImmutableArray<Motor> Motors { get; protected init; } = ImmutableArray<Motor>.Empty;
-        public ImmutableArray<ServoMotor> ServoMotors { get; protected init; } = ImmutableArray<ServoMotor>.Empty;
-        public ImmutableArray<ToggleableModule> ToggleableModules { get; protected init; } = ImmutableArray<ToggleableModule>.Empty;
         public virtual void Reset() {}
         public virtual void Dispose(){ }
         private MachineState state=MachineState.Idle;

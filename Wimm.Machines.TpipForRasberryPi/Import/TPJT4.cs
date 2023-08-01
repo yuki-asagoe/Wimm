@@ -290,6 +290,9 @@ namespace Wimm.Machines.TpipForRasberryPi.Import
             [DllImport("TPJTwr_42.dll", EntryPoint = "TPJT_get_sens", CallingConvention = CallingConvention.StdCall)]
             public static extern int get_sens(ref INP_DT_STR buf, int buf_size);
 
+            [DllImport("TPJTwr_42.dll", EntryPoint = "TPJT_get_sens", CallingConvention = CallingConvention.StdCall)]
+            public static extern int get_sens([Out]INP_DT_STR[] buf, int buf_size);
+
 
             /// Return Type: int
             ///speed: int
