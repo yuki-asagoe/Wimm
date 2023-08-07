@@ -33,7 +33,7 @@ namespace Wimm.Ui.ViewModel
     {
         public MachineControlViewModel(DirectoryInfo machineDirectory)
         {
-            TerminalController = new TerminalController(GetDefaultCommands());
+            TerminalController = new TerminalController(GetDefaultCommands(),Dispatcher);
             MachineDirectory = machineDirectory;
             CommandMacroStart = new ParamsDelegateCommand(
                 (arg) =>

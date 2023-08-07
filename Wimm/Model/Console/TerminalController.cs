@@ -21,10 +21,10 @@ namespace Wimm.Model.Console
         {
             #region OutputFormatter
             INotifyCollectionChangedSynchronizedView<string, string> Lines;
-            public OutputFormatter(INotifyCollectionChangedSynchronizedView<string, string> output)
+            public OutputFormatter(INotifyCollectionChangedSynchronizedView<string, string> output,Dispatcher dispatcher)
             {
                 Lines = output;
-                output.CollectionChanged += (_, args) => { this.CollectionChanged?.Invoke(this, args); };
+                output.CollectionChanged += (_, args) => { dispatcher.BeginInvoke(()=>this.CollectionChanged?.Invoke(this, args)); };
             }
             public event NotifyCollectionChangedEventHandler? CollectionChanged;
             private class Enumerator : IEnumerator<string>
@@ -69,12 +69,12 @@ namespace Wimm.Model.Console
         public ObservableFixedSizeRingBuffer<string> Lines { get; } = new ObservableFixedSizeRingBuffer<string>(LineSize);
         private ISynchronizedView<string,string> View { get; }
         public IEnumerable Output { get; }
-        public TerminalController(IEnumerable<CommandNode> commands)
+        public TerminalController(IEnumerable<CommandNode> commands,Dispatcher dispatcher)
         {
             View = Lines.CreateView(x => x);
             var output= View.WithINotifyCollectionChanged();
             BindingOperations.EnableCollectionSynchronization(output, new object());
-            Output = new OutputFormatter(output);
+            Output = new OutputFormatter(output,dispatcher);
 
             LogFile = GetLogFile();
             if(LogFile is not null)
