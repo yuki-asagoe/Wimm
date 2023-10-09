@@ -13,6 +13,10 @@ using Wimm.Model.Control.Script;
 using Wimm.Model.Control.Script.Macro;
 using Wimm.Logging;
 using System.Text;
+using Wimm.Common;
+using Wimm.Device;
+using Wimm.Model.Control.Script.Device;
+using Wimm.Model.Control.Device;
 
 namespace Wimm.Model.Control
 {
@@ -29,12 +33,19 @@ namespace Wimm.Model.Control
         ControlProcess? ControlProcess { get; set; }
         List<KeyBinding> KeyBindings { get; } = new List<KeyBinding>();
         WimmFeatureProvider WimmFeature { get; }
+        DeviceFolderLoader DeviceLoader { get; }
         public ImmutableArray<MacroInfo> MacroList { get; private set; }
         public RunningMacro? RunningMacro
         { get; private set; }
-        
-        public ScriptDriver(Machine machine,DirectoryInfo machineFolder,int controllerIndex,WimmFeatureProvider wimmFeature,ILogger? logger=null)
+
+        public ScriptDriver(Machine machine, DirectoryInfo machineFolder, int controllerIndex, WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
         {
+            var deviceDirectory = DeviceFolder.Generator.GetDeviceRootFolder();
+            if (deviceDirectory is null)
+            {
+                throw new IOException("拡張デバイスのフォルダを取得できませんでした。");
+            }
+            DeviceLoader = new DeviceFolderLoader(deviceDirectory,hwnd,logger.ToCommonLogger("Device"));
             WimmFeature = wimmFeature;
             ControllerIndex = controllerIndex;
             Machine = machine;
@@ -66,6 +77,7 @@ namespace Wimm.Model.Control
             {
                 throw new FileNotFoundException("スクリプトファイル[on_control.neo.lua]が見つかりません。ファイル名を確認してください。");
             }
+            ControlEnvironment.DefineFunction("getdevice", this.GetDevice);
             try
             {
                 ControlEnvironment.DoChunk(
@@ -151,6 +163,10 @@ namespace Wimm.Model.Control
                 action
                 ));
         }
+        private LuaTable? GetDevice(string id)
+        {
+            return DeviceLoader.GetDevice(id)?.Item2; 
+        }
         public void StartMacro(MacroInfo macro)
         {
             RunningMacro = macro.StartMacro();
@@ -216,21 +232,15 @@ namespace Wimm.Model.Control
         private static LuaTable ConstructTableFromGroup(ModuleGroup group)
         {
             var table = new LuaTable();
-            var motors = new LuaTable();
-            var servos = new LuaTable();
             foreach(var module in group.Modules)
             {
                 var value = ConstructTableFromModule(module);
                 table[module.Name] = value;
-                if(module is Motor) { motors[module.Name]=value; }
-                else if(module is ServoMotor) { servos[module.Name]=value; }
             }
             foreach (var child in group.Children)
             {
                 table[child.Name] = ConstructTableFromGroup(child);
             }
-            table["motor"] = motors;
-            table["servo"] = servos;
             return table;
         }
         private static LuaTable ConstructTableFromModule(Module module)
@@ -248,6 +258,7 @@ namespace Wimm.Model.Control
             if (!disposedValue)
             {
                 lua.Dispose();
+                DeviceLoader.Dispose();
                 GC.SuppressFinalize(this);
                 disposedValue = true;
             }

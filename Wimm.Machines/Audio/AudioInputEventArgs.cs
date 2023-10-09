@@ -13,7 +13,7 @@ namespace Wimm.Machines.Audio
         /// データへの参照を返します。
         /// 変数へのキャプチャを推奨します。
         /// </summary>
-        public Span<byte> Data
+        public ReadOnlySpan<byte> Data
         {
             get
             {

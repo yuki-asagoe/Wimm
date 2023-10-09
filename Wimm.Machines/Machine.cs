@@ -2,6 +2,8 @@
 using Wimm.Machines.Video;
 using System.Collections.Immutable;
 using System.Text.Json;
+using Wimm.Common;
+using Wimm.Common.Setting;
 
 namespace Wimm.Machines
 {
@@ -9,27 +11,23 @@ namespace Wimm.Machines
     /// ロボットを表現するクラス
     /// </summary>
     /// <remarks>
-    /// MachineConstructorArgsを受け取るコンストラクタと、引数無しのコンストラクタを提供する必要があります。
-    /// 特別のコンストラクタを提供するサブクラスを継承した上で、無引数コンストラクタが実際の操作に不十分であっても構いません。(ドキュメント生成用だから
+    /// MachineConstructorArgs?を受け取るコンストラクタを提供する必要があります。
+    /// 引数にnullが与えられた場合は実際の操作に不十分であっても構いません。(ドキュメント生成用だから
     /// </remarks>
     public abstract class Machine : IDisposable
     {
-        public Machine(MachineConstructorArgs args)
+        public Machine(MachineConstructorArgs? args)
         {
-            var configFileName = args.MachineDirectory.FullName + "/config.json";
-            if (File.Exists(configFileName))
+            if(args is not null)
             {
-                var bytes = File.ReadAllBytes(configFileName);
-                MachineConfig = new MachineConfig(new Utf8JsonReader(new ReadOnlySpan<byte>(bytes)));
+                var configFileName = args.MachineDirectory.FullName + "/config.json";
+                if (File.Exists(configFileName))
+                {
+                    var bytes = File.ReadAllBytes(configFileName);
+                    MachineConfig = new Config(new Utf8JsonReader(new ReadOnlySpan<byte>(bytes)));
+                }
             }
-            else
-            {
-                MachineConfig = new MachineConfig();
-            }
-        }
-        public Machine()
-        {
-            MachineConfig = new MachineConfig();
+            MachineConfig ??= new Config();
         }
         private double speedModifier = 1;
         /// <summary>
@@ -44,7 +42,7 @@ namespace Wimm.Machines
         public abstract string ControlBoard { get; }
         public abstract ConnectionState ConnectionStatus { get; }
         public abstract Camera Camera { get; }
-        public MachineConfig MachineConfig { get; }
+        public Config MachineConfig { get; }
         /// <summary>
         /// 構造化された、つまり意味のある単位にグループ化されたModuleGroup
         /// </summary>

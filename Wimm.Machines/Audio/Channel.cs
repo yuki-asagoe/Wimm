@@ -26,6 +26,6 @@ namespace Wimm.Machines.Audio
             BitsPerSample = bitPerSample;
             SamplingRate = samplingRate;
         }
-        internal abstract Span<byte> GetData();
+        public abstract ReadOnlySpan<byte> GetData();
     }
 }

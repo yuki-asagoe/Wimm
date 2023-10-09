@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Wimm.Ui"
       xmlns:wimm="clr-namespace:Wimm"
+      xmlns:common="clr-namespace:Wimm.Common;assembly=Wimm.Common"
       xmlns:machine="clr-namespace:Wimm.Machines;assembly=Wimm.Machines"
       xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
@@ -133,7 +134,7 @@
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <TreeView Name="ModuleGroupTree">
                                     <TreeView.ItemTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type machine:ModuleGroup}" ItemsSource="{Binding Children}">
+                                        <HierarchicalDataTemplate DataType="{x:Type common:ModuleGroup}" ItemsSource="{Binding Children}">
                                             <TextBlock Text="{Binding Name, Mode=OneTime}"/>
                                         </HierarchicalDataTemplate>
                                     </TreeView.ItemTemplate>

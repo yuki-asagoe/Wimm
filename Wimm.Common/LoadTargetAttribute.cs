@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Wimm.Machines
+namespace Wimm.Common
 {
     /// <summary>
     /// Wimmによる読み込み対象になるMachineクラスに付与します。

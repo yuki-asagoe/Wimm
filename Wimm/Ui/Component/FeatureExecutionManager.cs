@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Wimm.Common;
 using Wimm.Machines;
 using Wimm.Model.Control;
 using Wimm.Ui.Commands;
@@ -133,7 +134,7 @@ namespace Wimm.Ui.Component
 
         public bool HasErrors => errorText is not null;
 
-        public string Name { get; } = ParameterInfo.Name;
+        public string Name { get; } = ParameterInfo.Name ?? "arg";
         public Type Type { get; } = ParameterInfo.ParameterType;
         public bool CanAccept { get; } = AcceptableTypes.Contains(ParameterInfo.ParameterType);
         string valueAsString = string.Empty;

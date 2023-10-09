@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Xml;
+using Wimm.Common;
 using Wimm.Machines;
 
 namespace Wimm.Model.Control
@@ -65,7 +66,7 @@ namespace Wimm.Model.Control
         public FileInfo MachineAssemblyFile { get; }
         public FileInfo ConfigFile { get; }
         public FileInfo MetaInfoFile { get; }
-        public FileInfo? IconFile { get; }
+        public FileInfo IconFile { get; }
         public FileInfo MacroRegistryFile { get; }
         public FileInfo[] Macros { get; }
         public sealed class Generator : IDisposable

@@ -9,33 +9,33 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Wimm.Machines
+namespace Wimm.Common.Setting
 {
-    public class MachineConfig
+    public class Config
     {
         private SortedList<string, ConfigItemRegistry> Registries = new SortedList<string, ConfigItemRegistry>();
         private SortedList<string, string> Items = new SortedList<string, string>();
         public void AddRegistries(params ConfigItemRegistry[] items)
         {
-            foreach(var item in items)
+            foreach (var item in items)
             {
-                Registries.Add(item.Name,item);
+                Registries.Add(item.Name, item);
             }
         }
         public string? GetValueOrDefault(string name)
         {
             if (Items.TryGetValue(name, out var value)) { return value; }
-            if (Registries.TryGetValue(name,out var registry)) { return registry.Default; }
+            if (Registries.TryGetValue(name, out var registry)) { return registry.Default; }
             return null;
         }
-        internal MachineConfig(Utf8JsonReader configJsonReader)
+        public Config(Utf8JsonReader configJsonReader)
         {
             foreach (var item in LoadConfigJson(configJsonReader))
             {
                 Items.Add(item.Key, item.Value.Value);
             }
         }
-        internal MachineConfig() { }
+        public Config() { }
         // TODO フォーマットをドキュメントにまとめて
         /// <summary>
         /// Json形式のコンフィグを読み込みして配列にして返します。<br></br>
@@ -43,15 +43,15 @@ namespace Wimm.Machines
         /// </summary>
         /// <param name="jsonReader">対象となるJsonデータのリーダー</param>
         /// <returns>読み込まれた値、Keyは"name"プロパティに相当します</returns>
-        public static KeyValuePair<string,(string Value,string? Default)>[] LoadConfigJson(Utf8JsonReader jsonReader)
+        public static KeyValuePair<string, (string Value, string? Default)>[] LoadConfigJson(Utf8JsonReader jsonReader)
         {
             var itemList = new LinkedList<KeyValuePair<string, (string Value, string? Default)>>();
-            var json= JsonNode.Parse(ref jsonReader);
-            if(json is JsonArray array)
+            var json = JsonNode.Parse(ref jsonReader);
+            if (json is JsonArray array)
             {
-                foreach(var item in array)
+                foreach (var item in array)
                 {
-                    if(item is JsonObject configItem)
+                    if (item is JsonObject configItem)
                     {
                         bool correct = false;
                         correct |= configItem.TryGetPropertyValue("name", out var nameObj);
@@ -72,7 +72,7 @@ namespace Wimm.Machines
                             }
                             else
                             {
-                                itemList.AddLast(new KeyValuePair<string, (string Name, string? Default)>(name, (value,null)));
+                                itemList.AddLast(new KeyValuePair<string, (string Name, string? Default)>(name, (value, null)));
                             }
                         }
                     }
@@ -83,10 +83,10 @@ namespace Wimm.Machines
         public static void WriteConfigJson(Utf8JsonWriter jsonWriter, KeyValuePair<string, (string Value, string? Default)>[] items)
         {
             var json = new JsonArray();
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 var jsonItem = new JsonObject();
-                jsonItem.Add("name",JsonValue.Create(item.Key));
+                jsonItem.Add("name", JsonValue.Create(item.Key));
                 jsonItem.Add("value", JsonValue.Create(item.Value.Value));
                 if (item.Value.Default is string Default)
                     jsonItem.Add("default", JsonValue.Create(Default));
@@ -99,5 +99,5 @@ namespace Wimm.Machines
             WriteConfigJson(jsonWriter, Registries.Select(it => new KeyValuePair<string, (string, string?)>(it.Value.Name, (it.Value.Default, it.Value.Default))).ToArray());
         }
     }
-    public record ConfigItemRegistry(string Name,string Default);
+    public record ConfigItemRegistry(string Name, string Default);
 }

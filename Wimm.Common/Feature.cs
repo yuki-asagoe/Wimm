@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Wimm.Machines
+namespace Wimm.Common
 {
     /// <summary>
     /// モジュールが提供する機能を表現するクラス

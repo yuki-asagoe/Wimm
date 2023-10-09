@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Wimm.Common.Setting;
 using Wimm.Machines;
 using Wimm.Ui.Commands;
 using Wimm.Ui.Records;
@@ -46,7 +47,7 @@ namespace Wimm.Ui.ViewModel
             try
             {
                 var jsonReader = new Utf8JsonReader(new ReadOnlySpan<byte>(File.ReadAllBytes(ConfigFile.FullName)));
-                var items = MachineConfig.LoadConfigJson(jsonReader);
+                var items = Config.LoadConfigJson(jsonReader);
                 ConfigEntries = items.Select((it) => { return new MachineConfigEntry(it.Key, it.Value.Value, it.Value.Default); }).ToArray();
             }
             catch(IOException e)
@@ -63,7 +64,7 @@ namespace Wimm.Ui.ViewModel
                     try
                     {
                         using var writer = new Utf8JsonWriter(ConfigFile.OpenWrite());
-                        MachineConfig.WriteConfigJson(
+                        Config.WriteConfigJson(
                             writer,
                             ConfigEntries.Select(it => new KeyValuePair<string, (string, string?)>(it.Name, (it.Value, it.Default))).ToArray()
                         );

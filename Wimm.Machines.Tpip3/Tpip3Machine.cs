@@ -1,4 +1,5 @@
 ﻿using System.Windows.Interop;
+using Wimm.Common.Setting;
 using Wimm.Machines.Tpip3.Import;
 
 namespace Wimm.Machines.Tpip3
@@ -29,23 +30,24 @@ namespace Wimm.Machines.Tpip3
         }
         protected HwndSource? Hwnd { get; init; }
         protected string MachineIPAddress { get; init; }=string.Empty;
-        protected Tpip3Machine(MachineConstructorArgs args):base(args)
+        protected Tpip3Machine(MachineConstructorArgs? args):base(args)
         {
-            Hwnd = HwndSource.FromHwnd(args.HostingWindowHandle);
+            
             MachineConfig.AddRegistries();
-            TpipInitialized = true;
-            AddRegistries();
-            if(MachineConfig.GetValueOrDefault("TPIP3_IP_Address") is string ipAddress)
-            {
-                args.Logger.Info($"接続先IPアドレス:{ipAddress}");
-                MachineIPAddress = ipAddress;
-            }
-            TPJT3.NativeMethods.init(MachineIPAddress, Hwnd.Handle);
-        }
-        protected Tpip3Machine()
-        {
             TpipInitialized = false;
             AddRegistries();
+            if(args is not null)
+            {
+                Hwnd = HwndSource.FromHwnd(args.HostingWindowHandle);
+                if (MachineConfig.GetValueOrDefault("TPIP3_IP_Address") is string ipAddress)
+                {
+                    args.Logger.Info($"接続先IPアドレス:{ipAddress}");
+                    MachineIPAddress = ipAddress;
+                }
+                TPJT3.NativeMethods.init(MachineIPAddress, Hwnd.Handle);
+                TpipInitialized = false;
+            }
+            
         }
         public override void Dispose()
         {

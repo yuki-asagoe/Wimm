@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wimm.Machines.Tpip3", "Wimm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wimm.Machines.TpipForRasberryPi", "Wimm.Machines.TpipForRasberryPi\Wimm.Machines.TpipForRasberryPi.csproj", "{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wimm.Device", "Wimm.Device\Wimm.Device.csproj", "{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wimm.Common", "Wimm.Common\Wimm.Common.csproj", "{EA2625C7-15C2-48EA-B638-DD22CDBDB235}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,22 @@ Global
 		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Release|x86.ActiveCfg = Release|Any CPU
 		{6BA93FAF-4212-4416-8C1E-410DEE7FCBF0}.Release|x86.Build.0 = Release|Any CPU
+		{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}.Debug|x86.Build.0 = Debug|Any CPU
+		{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}.Release|x86.ActiveCfg = Release|Any CPU
+		{6618FE96-AF7E-4CA4-98E3-0396FD4D81A8}.Release|x86.Build.0 = Release|Any CPU
+		{EA2625C7-15C2-48EA-B638-DD22CDBDB235}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA2625C7-15C2-48EA-B638-DD22CDBDB235}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA2625C7-15C2-48EA-B638-DD22CDBDB235}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EA2625C7-15C2-48EA-B638-DD22CDBDB235}.Debug|x86.Build.0 = Debug|Any CPU
+		{EA2625C7-15C2-48EA-B638-DD22CDBDB235}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA2625C7-15C2-48EA-B638-DD22CDBDB235}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA2625C7-15C2-48EA-B638-DD22CDBDB235}.Release|x86.ActiveCfg = Release|Any CPU
+		{EA2625C7-15C2-48EA-B638-DD22CDBDB235}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

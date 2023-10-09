@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Wimm.Machines
+namespace Wimm.Common
 {
     /// <summary>
     /// 操作可能な全ての部品を表現する共通基底クラス

@@ -21,5 +21,33 @@ namespace Wimm.Logging
             var entryDir = entryFile.Directory;
             return entryDir?.CreateSubdirectory("log");
         }
+        public Common.Logging.ILogger ToCommonLogger(string name)
+        {
+            return new ForMachineLogger(this, name);
+        }
+        private class ForMachineLogger : Common.Logging.ILogger
+        {
+            public ForMachineLogger(ILogger logger,string prefix)
+            {
+                Logger = logger;
+                Prefix = prefix;
+            }
+            ILogger Logger { get; }
+            string Prefix { get; }
+            public void Error(string message)
+            {
+                Logger.Error($"[{Prefix}]{message}");
+            }
+
+            public void Info(string message)
+            {
+                Logger.Info($"[{Prefix}]{message}");
+            }
+
+            public void Warn(string message)
+            {
+                Logger.Warn($"[{Prefix}]{message}");
+            }
+        }
     }
 }
