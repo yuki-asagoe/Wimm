@@ -51,6 +51,12 @@ namespace Wimm.Machines
         public InformationTree Information { get; protected init; }
             = new InformationTree(string.Empty, ImmutableArray<InformationTree>.Empty, ImmutableArray<InformationTree.Entry>.Empty);
         public virtual void Reset() {}
+        /// <summary>
+        /// <c>Information</c>の更新を行います。
+        /// <c>Information</c>の読み込みと書き込みはここでのみ認められます。
+        /// </summary>
+        /// <seealso cref="Information"/>
+        public virtual void UpdateInformationTree(){}
         public virtual void Dispose(){ }
         private MachineState state=MachineState.Idle;
         public MachineState Status

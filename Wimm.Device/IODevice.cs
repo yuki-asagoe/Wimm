@@ -26,6 +26,12 @@ namespace Wimm.Device
         public Config DeviceConfig { get; }
         public InformationTree Information { get; protected init; }
             = new InformationTree(string.Empty, ImmutableArray<InformationTree>.Empty, ImmutableArray<InformationTree.Entry>.Empty);
+        /// <summary>
+        /// <c>Information</c>の更新を行います。
+        /// <c>Information</c>の読み込みと書き込みはここでのみ認められます。
+        /// </summary>
+        /// <seealso cref="Information"/>
+        public virtual void UpdateInformationTree() { }
         public IODevice(DeviceConstructorArgs? args)
         {
             if(args is not null)
