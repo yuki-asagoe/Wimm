@@ -47,7 +47,9 @@ namespace Wimm.Machines
         /// 構造化された、つまり意味のある単位にグループ化されたModuleGroup
         /// </summary>
         public ModuleGroup StructuredModules { get; protected init; }
-            = new ModuleGroup("",ImmutableArray<ModuleGroup>.Empty, ImmutableArray<Module>.Empty);
+            = new ModuleGroup(string.Empty,ImmutableArray<ModuleGroup>.Empty, ImmutableArray<Module>.Empty);
+        public InformationTree Information { get; protected init; }
+            = new InformationTree(string.Empty, ImmutableArray<InformationTree>.Empty, ImmutableArray<InformationTree.Entry>.Empty);
         public virtual void Reset() {}
         public virtual void Dispose(){ }
         private MachineState state=MachineState.Idle;

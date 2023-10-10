@@ -24,6 +24,8 @@ namespace Wimm.Device
         public abstract string ID { get; }
         public ImmutableArray<Feature<Delegate>> Features { get; protected init; }
         public Config DeviceConfig { get; }
+        public InformationTree Information { get; protected init; }
+            = new InformationTree(string.Empty, ImmutableArray<InformationTree>.Empty, ImmutableArray<InformationTree.Entry>.Empty);
         public IODevice(DeviceConstructorArgs? args)
         {
             if(args is not null)
