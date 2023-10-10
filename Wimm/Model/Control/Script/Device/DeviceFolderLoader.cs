@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Wimm.Common.Logging;
 using Wimm.Device;
+using Wimm.Logging;
 using Wimm.Model.Control.Device;
 
 namespace Wimm.Model.Control.Script.Device
@@ -37,7 +38,7 @@ namespace Wimm.Model.Control.Script.Device
             }
             if(Folders.TryGetValue(id,out DeviceFolder? folder))
             {
-                device = MachineController.Builder.GetDevice(folder.DeviceAssemblyFile, new DeviceConstructorArgs(HWND,Logger,folder.DeviceDirectory));
+                device = MachineController.Builder.GetDevice(folder.DeviceAssemblyFile, new DeviceConstructorArgs(HWND,new DeviceLogger(Logger,folder.DeviceName),folder.DeviceDirectory));
                 if (device is null) return null;
                 return (LoadedInstances[id] = device, ConstructedTables[id] = ConstructTableFromIODevice(device));
             }

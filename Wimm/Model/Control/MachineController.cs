@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Interop;
 using Wimm.Common;
+using Wimm.Common.Logging;
 using Wimm.Device;
 using Wimm.Logging;
 using Wimm.Machines;
@@ -162,7 +163,7 @@ namespace Wimm.Model.Control
             public static MachineController Build(DirectoryInfo machineDirectory,WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
             {
                 var dll = new FileInfo(machineDirectory + "/" + machineDirectory.Name + ".dll");
-                var args = new MachineConstructorArgs(hwnd, logger.ToCommonLogger("Machine"), machineDirectory);
+                var args = new MachineConstructorArgs(hwnd, new MachineLogger(logger), machineDirectory);
                 Machine machine = GetMachine(dll, args);
                 int gamepadIndex = GeneralSetting.Default.SelectedControllerIndex;
                 ScriptDriver binder = new ScriptDriver(machine, machineDirectory, gamepadIndex, wimmFeature, hwnd, logger);

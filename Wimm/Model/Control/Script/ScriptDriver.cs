@@ -17,6 +17,7 @@ using Wimm.Common;
 using Wimm.Device;
 using Wimm.Model.Control.Script.Device;
 using Wimm.Model.Control.Device;
+using Wimm.Common.Logging;
 
 namespace Wimm.Model.Control
 {
@@ -45,7 +46,7 @@ namespace Wimm.Model.Control
             {
                 throw new IOException("拡張デバイスのフォルダを取得できませんでした。");
             }
-            DeviceLoader = new DeviceFolderLoader(deviceDirectory,hwnd,logger.ToCommonLogger("Device"));
+            DeviceLoader = new DeviceFolderLoader(deviceDirectory,hwnd,logger);
             WimmFeature = wimmFeature;
             ControllerIndex = controllerIndex;
             Machine = machine;

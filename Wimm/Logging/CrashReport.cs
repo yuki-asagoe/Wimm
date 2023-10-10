@@ -13,7 +13,7 @@ namespace Wimm.Logging
     {
         public static void Log(string message,Exception e)
         {
-            var logDir = ILogger.GetLogDirectory()?.CreateSubdirectory("crash-report");
+            var logDir = LogDirectory.GetLogDirectory()?.CreateSubdirectory("crash-report");
             if (logDir is null) return;
             var date = DateTime.Now;
             var file = new FileInfo(logDir.FullName + $"/crash-report_{date.Year}-{date.Month}-{date.Day}_{date.Hour}-{date.Minute}-{date.Second}.log");
