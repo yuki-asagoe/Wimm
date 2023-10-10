@@ -48,8 +48,7 @@ namespace Wimm.Machines
         /// </summary>
         public ModuleGroup StructuredModules { get; protected init; }
             = new ModuleGroup(string.Empty,ImmutableArray<ModuleGroup>.Empty, ImmutableArray<Module>.Empty);
-        public InformationTree Information { get; protected init; }
-            = new InformationTree(string.Empty, ImmutableArray<InformationTree>.Empty, ImmutableArray<InformationTree.Entry>.Empty);
+        public ImmutableArray<InformationTree> Information { get; protected init; } = ImmutableArray<InformationTree>.Empty;
         public virtual void Reset() {}
         /// <summary>
         /// <c>Information</c>の更新を行います。

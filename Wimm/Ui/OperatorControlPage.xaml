@@ -5,13 +5,13 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Wimm.Ui"
       xmlns:wimm="clr-namespace:Wimm"
-      xmlns:common="clr-namespace:Wimm.Common;assembly=Wimm.Common"
       xmlns:machine="clr-namespace:Wimm.Machines;assembly=Wimm.Machines"
       xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:t="clr-namespace:Simple.Wpf.Terminal;assembly=Simple.Wpf.Terminal"
       xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
       xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
+      xmlns:Common="clr-namespace:Wimm.Common;assembly=Wimm.Common"
       xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
       mc:Ignorable="d" 
       d:DesignHeight="600" d:DesignWidth="800"
@@ -22,7 +22,7 @@
             <Setter Property="HeaderTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <TextBlock Text="{Binding }" 
+                        <TextBlock Text="{Binding}" 
                                    Background="{StaticResource MahApps.Brushes.Accent}"
                                    Foreground="{StaticResource MahApps.Brushes.IdealForeground}"
                                    Padding="4"/>
@@ -134,7 +134,7 @@
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <TreeView Name="ModuleGroupTree">
                                     <TreeView.ItemTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type common:ModuleGroup}" ItemsSource="{Binding Children}">
+                                        <HierarchicalDataTemplate DataType="{x:Type Common:ModuleGroup}" ItemsSource="{Binding Children}">
                                             <TextBlock Text="{Binding Name, Mode=OneTime}"/>
                                         </HierarchicalDataTemplate>
                                     </TreeView.ItemTemplate>
@@ -231,12 +231,61 @@
                     </Border>
                 </Grid>
             </Metro:MetroTabItem>
-            
-            
-            <Metro:MetroTabItem Header="Infomation">
-                
-            </Metro:MetroTabItem>
 
+            <Metro:MetroTabItem Header="Infomation">
+                <Metro:MetroTabItem.Resources>
+                    <Style TargetType="Metro:MetroHeader">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding}"/>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Metro:MetroTabItem.Resources>
+                <!--TreeListView-->
+                <Grid Grid.IsSharedSizeScope="True">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Metro:MetroHeader>
+                        <!--Header-->
+                        <Metro:MetroHeader.Header>
+                            <Grid Background="{StaticResource MahApps.Brushes.Accent}">
+                                <Grid.Resources>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
+                                        <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.IdealForeground}"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition SharedSizeGroup="InformationTree_Name"/>
+                                    <ColumnDefinition SharedSizeGroup="InformationTree_Value"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Name"/>
+                                <TextBlock Text="Value" Grid.Column="1"/>
+                            </Grid>
+                        </Metro:MetroHeader.Header>
+                        <!--Content-->
+                        <TreeView ItemsSource="{Binding MachineController.Machine.Information}">
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate ItemsSource="{Binding Entries}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition SharedSizeGroup="InformationTree_Name"/>
+                                            <ColumnDefinition SharedSizeGroup="InformationTree_Value"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}"/>
+                                        <TextBlock Text="{Binding Value}" Grid.Column="1"/>
+                                    </Grid>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </Metro:MetroHeader>
+                </Grid>
+            </Metro:MetroTabItem>
 
             <Metro:MetroTabItem Header="Script">
                 <Grid>
