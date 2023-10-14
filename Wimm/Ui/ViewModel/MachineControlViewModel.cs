@@ -205,6 +205,7 @@ namespace Wimm.Ui.ViewModel
                 }
                 else if (controller.IsControlStopping) { ControlStatus = ControlStatus.Idle; }
                 else { ControlStatus = ControlStatus.Running; }
+                controller.Machine.UpdateInformationTree();
             }
             else ControlStatus = ControlStatus.Idle;
             foreach(var extension in ExtensionProviders)
