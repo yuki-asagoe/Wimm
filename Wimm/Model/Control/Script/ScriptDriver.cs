@@ -16,7 +16,6 @@ using System.Text;
 using Wimm.Common;
 using Wimm.Device;
 using Wimm.Model.Control.Script.Device;
-using Wimm.Model.Control.Device;
 using Wimm.Common.Logging;
 
 namespace Wimm.Model.Control
@@ -41,7 +40,7 @@ namespace Wimm.Model.Control
 
         public ScriptDriver(Machine machine, DirectoryInfo machineFolder, int controllerIndex, WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
         {
-            var deviceDirectory = DeviceFolder.Generator.GetDeviceRootFolder();
+            var deviceDirectory = DeviceFolder.GetDeviceRootFolder();
             if (deviceDirectory is null)
             {
                 throw new IOException("拡張デバイスのフォルダを取得できませんでした。");

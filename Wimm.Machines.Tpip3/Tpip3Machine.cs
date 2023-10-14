@@ -15,7 +15,7 @@ namespace Wimm.Machines.Tpip3
         /// </summary>
         protected bool TpipInitialized { get; private init; }
         public const string ControlBoardName = "Tpip3";
-        public override string ControlBoard => ControlBoardName;
+        public override string ControlSystem => ControlBoardName;
         public override ConnectionState ConnectionStatus {
             get {
                 return TPJT3.NativeMethods.get_com_mode() switch

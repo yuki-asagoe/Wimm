@@ -39,7 +39,7 @@ namespace Wimm.Machines
             set { speedModifier = Math.Clamp(value, 0, 1); }
         }
         public abstract string Name { get; }
-        public abstract string ControlBoard { get; }
+        public abstract string ControlSystem { get; }
         public abstract ConnectionState ConnectionStatus { get; }
         public abstract Camera Camera { get; }
         public Config MachineConfig { get; }

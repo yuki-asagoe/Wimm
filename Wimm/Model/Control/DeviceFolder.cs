@@ -9,7 +9,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Wimm.Device;
 
-namespace Wimm.Model.Control.Device
+namespace Wimm.Model.Control
 {
     public class DeviceFolder
     {
@@ -26,7 +26,6 @@ namespace Wimm.Model.Control.Device
             DeviceDirectory = deviceDirectory;
             MetaInfoFile= new FileInfo($"{deviceDirectory.FullName}/meta_info.json");
             ConfigFile = new FileInfo($"{deviceDirectory.FullName}/config.json");
-            DeviceAssemblyFile = new FileInfo($"{deviceDirectory.FullName}/{deviceDirectory.Name}.dll");
             IconFile = new FileInfo($"{deviceDirectory.FullName}/icon.png");
             try
             {
@@ -39,6 +38,14 @@ namespace Wimm.Model.Control.Device
                 if (json is not null && json["id"] is JsonNode idNode)
                 {
                     DeviceID = idNode.GetValue<string>();
+                }
+                if(json is not null && json["assembly"] is JsonNode assemblyNode)
+                {
+                    DeviceAssemblyFile = new FileInfo($"{deviceDirectory.FullName}/{assemblyNode.GetValue<string>()}");
+                }
+                else
+                {
+                    DeviceAssemblyFile = new FileInfo($"{deviceDirectory.FullName}/{deviceDirectory.Name}.dll");
                 }
             }
             catch(JsonException e)
@@ -58,19 +65,34 @@ namespace Wimm.Model.Control.Device
                     && DeviceAssemblyFile.Exists && DeviceAssemblyFile.Extension == ".dll";
             }
         }
+        public static DirectoryInfo? GetDeviceRootFolder()
+        {
+            var exeLocation = Assembly.GetEntryAssembly()?.Location;
+            if (exeLocation is null) return null;
+            var exe = new FileInfo(exeLocation);
+            var exeDirectory = exe.Directory;
+            if (exeDirectory is null) return null;
+            var path = exeDirectory.FullName + "/Devices";
+            var directory = new DirectoryInfo(exeLocation);
+            if (directory.Exists) { return directory; }
+            else return Directory.CreateDirectory(path);
+        }
         public sealed class Generator : IDisposable
         {
             IODevice Device { get; }
             public DirectoryInfo DeviceDirectory { get; }
             public DeviceFolder DeviceFolder { get; }
+            FileInfo AssemblyFile { get; }
             /// <summary>
             /// 既存のマシンフォルダからジェネレータを生成します。
             /// </summary>
             /// <param name="deviceDirectory">対象のマシンフォルダ</param>
-            public Generator(DirectoryInfo deviceDirectory)
+            public Generator(DirectoryInfo deviceDirectory) : this(new DeviceFolder(deviceDirectory)) { }
+            public Generator(DeviceFolder folder)
             {
-                DeviceDirectory = deviceDirectory;
-                var deviceAssemblyFile = new FileInfo($"{deviceDirectory.FullName}/{DeviceDirectory.Name}.dll");
+                DeviceDirectory = folder.DeviceDirectory;
+                AssemblyFile = folder.DeviceAssemblyFile;
+                var deviceAssemblyFile = new FileInfo($"{folder.DeviceDirectory.FullName}/{DeviceDirectory.Name}.dll");
                 Device = MachineController.Builder.GetDevice(deviceAssemblyFile, null);
                 DeviceFolder = new DeviceFolder(DeviceDirectory);
             }
@@ -80,6 +102,7 @@ namespace Wimm.Model.Control.Device
             /// <param name="assemblyFile">対象のマシンDLLファイル</param>
             public Generator(FileInfo assemblyFile)
             {
+                AssemblyFile = assemblyFile;
                 Device = MachineController.Builder.GetDevice(assemblyFile, null);
                 var root = GetDeviceRootFolder();
                 if (root is null)
@@ -93,6 +116,10 @@ namespace Wimm.Model.Control.Device
                 File.Copy(assemblyFile.FullName, DeviceDirectory.FullName + "/" + assemblyFile.Name, true);
                 DeviceFolder = new DeviceFolder(DeviceDirectory);
             }
+            public Generator GenerateAll()
+            {
+                return GenerateConfig().GenerateMetaInfo();
+            }
             public Generator GenerateMetaInfo()
             {
                 if (disposed) return this;
@@ -105,6 +132,9 @@ namespace Wimm.Model.Control.Device
                         ),
                         new KeyValuePair<string, JsonNode?>(
                             "id", JsonValue.Create(Device.ID)
+                        ),
+                        new KeyValuePair<string, JsonNode?>(
+                            "assembly",JsonValue.Create(AssemblyFile.Name)
                         )
                     };
                     json.WriteTo(metainfo);
@@ -132,18 +162,7 @@ namespace Wimm.Model.Control.Device
             {
                 Dispose();
             }
-            public static DirectoryInfo? GetDeviceRootFolder()
-            {
-                var exeLocation = Assembly.GetEntryAssembly()?.Location;
-                if (exeLocation is null) return null;
-                var exe = new FileInfo(exeLocation);
-                var exeDirectory = exe.Directory;
-                if (exeDirectory is null) return null;
-                var path = exeDirectory.FullName + "/Devices";
-                var directory = new DirectoryInfo(exeLocation);
-                if (directory.Exists) { return directory; }
-                else return Directory.CreateDirectory(path);
-            }
+            
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Wimm.Machines.TpipForRasberryPi
         /// </summary>
         protected bool TpipInitialized { get; private init; }
         public const string ControlBoardName = "Tpip4RP";
-        public override string ControlBoard => ControlBoardName;
+        public override string ControlSystem => ControlBoardName;
         public override ConnectionState ConnectionStatus
         {
             get

@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Wimm.Common.Logging;
 using Wimm.Device;
 using Wimm.Logging;
-using Wimm.Model.Control.Device;
 
 namespace Wimm.Model.Control.Script.Device
 {

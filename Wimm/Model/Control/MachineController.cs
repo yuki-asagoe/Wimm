@@ -160,14 +160,18 @@ namespace Wimm.Model.Control
         }
         public class Builder
         {
-            public static MachineController Build(DirectoryInfo machineDirectory,WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
+            public static MachineController Build(MachineFolder machineDirectory, WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
             {
-                var dll = new FileInfo(machineDirectory + "/" + machineDirectory.Name + ".dll");
-                var args = new MachineConstructorArgs(hwnd, new MachineLogger(logger), machineDirectory);
+                var dll = machineDirectory.MachineAssemblyFile;
+                var args = new MachineConstructorArgs(hwnd, new MachineLogger(logger), machineDirectory.MachineDirectory);
                 Machine machine = GetMachine(dll, args);
                 int gamepadIndex = GeneralSetting.Default.SelectedControllerIndex;
-                ScriptDriver binder = new ScriptDriver(machine, machineDirectory, gamepadIndex, wimmFeature, hwnd, logger);
+                ScriptDriver binder = new ScriptDriver(machine, machineDirectory.MachineDirectory, gamepadIndex, wimmFeature, hwnd, logger);
                 return new MachineController(machine, binder, gamepadIndex);
+            }
+            public static MachineController Build(DirectoryInfo machineDirectory,WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
+            {
+                return Build(new MachineFolder(machineDirectory), wimmFeature, hwnd, logger);
             }
             public static Machine GetMachine(FileInfo dll, MachineConstructorArgs? args)
             {
