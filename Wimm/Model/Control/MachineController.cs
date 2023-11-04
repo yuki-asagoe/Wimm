@@ -196,25 +196,12 @@ namespace Wimm.Model.Control
                     );
                 }
                 Machine? machine = null;
-                if (args is not null)
+                machine = GetMachineInstance(machineType, args);
+                if (machine is null)
                 {
-                    machine = GetMachineInstance(machineType, args);
-                    if (machine is null)
-                    {
-                        throw new TypeLoadException(
-                            $"型[{machineType.FullName}]に引数({nameof(MachineConstructorArgs)})のコンストラクタが見つかりませんでした。"
-                        );
-                    }
-                }
-                else
-                {
-                    machine = GetMachineInstance(machineType);
-                    if (machine is null)
-                    {
-                        throw new TypeLoadException(
-                            $"型[{machineType.FullName}]に引数なしのコンストラクタが見つかりませんでした。"
-                        );
-                    }
+                    throw new TypeLoadException(
+                        $"型[{machineType.FullName}]に引数({nameof(MachineConstructorArgs)})のコンストラクタが見つかりませんでした。"
+                    );
                 }
                 return machine;
             }
@@ -241,7 +228,7 @@ namespace Wimm.Model.Control
                 }
                 return null;
             }
-            public static Machine? GetMachineInstance(Type machineType, MachineConstructorArgs args)
+            public static Machine? GetMachineInstance(Type machineType, MachineConstructorArgs? args)
             {
                 if (machineType.IsSubclassOf(typeof(Machine)))
                 {

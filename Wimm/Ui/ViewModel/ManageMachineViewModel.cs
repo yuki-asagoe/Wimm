@@ -234,6 +234,7 @@ namespace Wimm.Ui.ViewModel
                         var fileDialog = new SaveFileDialog()
                         {
                             Title = "モジュールのエクスポート",
+                            FileName = machineEntry.Name+".wimm-machine",
                             Filter = "マシンファイル (*.wimm-machine)|*.wimm-machine"
                         };
                         if (fileDialog.ShowDialog() is true)
@@ -243,12 +244,13 @@ namespace Wimm.Ui.ViewModel
                         }
                         else return;
                     }
-                    if (arg is DeviceEntry deviceEntry)
+                    else if (arg is DeviceEntry deviceEntry)
                     {
                         source = deviceEntry.Directory;
                         var fileDialog = new SaveFileDialog()
                         {
                             Title = "モジュールのエクスポート",
+                            FileName = deviceEntry.Name+".wimm-device",
                             Filter = "デバイスファイル (*.wimm-device)|*.wimm-device"
                         };
                         if (fileDialog.ShowDialog() is true)
@@ -258,7 +260,16 @@ namespace Wimm.Ui.ViewModel
                         }
                         else return;
                     } else return;
-                    ZipFile.CreateFromDirectory(source.FullName, destinationFilePath);
+                    try
+                    {
+                        if (File.Exists(destinationFilePath)) File.Delete(destinationFilePath);
+                        ZipFile.CreateFromDirectory(source.FullName, destinationFilePath);
+                    }
+                    catch(Exception e)
+                    {
+                        await DialogCoordinator.ShowMessageAsync(this, "エラーが発生しました", $"[{e.GetType().FullName}]\n{e.Message}");
+                        return;
+                    }
                     await DialogCoordinator.ShowMessageAsync(this, "モジュールのエクスポート", "成功しました。");
                 }
             );
