@@ -10,7 +10,7 @@ namespace Wimm.Common
     /// モジュールが提供する情報を保存するコレクションです。
     /// 許可された場所以外からのアクセスを禁止します。(スレッドセーフでないため)
     /// </summary>
-    public record InformationTree(string Name,ImmutableArray<InformationTree> Entries) : INotifyPropertyChanged
+    public record InformationNode(string Name,ImmutableArray<InformationNode> Entries) : INotifyPropertyChanged
     {
         private string _value = string.Empty;
         public string Value
@@ -32,6 +32,13 @@ namespace Wimm.Common
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             }
+        }
+        /// <summary>
+        /// 子要素から名前が一致するものを検索します
+        /// </summary>
+        public InformationNode? this[string name]
+        {
+            get{ return Entries.FirstOrDefault(it => it.Name == name); }
         }
     }
 }

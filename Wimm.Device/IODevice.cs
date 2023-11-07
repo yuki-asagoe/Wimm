@@ -24,7 +24,7 @@ namespace Wimm.Device
         public abstract string ID { get; }
         public ImmutableArray<Feature<Delegate>> Features { get; protected init; }
         public Config DeviceConfig { get; }
-        public ImmutableArray<InformationTree> Information { get; protected init; } = ImmutableArray<InformationTree>.Empty;
+        public ImmutableArray<InformationNode> Information { get; protected init; } = ImmutableArray<InformationNode>.Empty;
         /// <c>Information</c>の更新を行います。
         /// <c>Information</c>の読み込みと書き込みはここでのみ認められます。
         /// </summary>

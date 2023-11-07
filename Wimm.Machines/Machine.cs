@@ -41,14 +41,14 @@ namespace Wimm.Machines
         public abstract string Name { get; }
         public abstract string ControlSystem { get; }
         public abstract ConnectionState ConnectionStatus { get; }
-        public abstract Camera Camera { get; }
+        public Camera Camera { get; protected init; } = new DummyCamera();
         public Config MachineConfig { get; }
         /// <summary>
         /// 構造化された、つまり意味のある単位にグループ化されたModuleGroup
         /// </summary>
         public ModuleGroup StructuredModules { get; protected init; }
             = new ModuleGroup(string.Empty,ImmutableArray<ModuleGroup>.Empty, ImmutableArray<Module>.Empty);
-        public ImmutableArray<InformationTree> Information { get; protected init; } = ImmutableArray<InformationTree>.Empty;
+        public ImmutableArray<InformationNode> Information { get; protected init; } = ImmutableArray<InformationNode>.Empty;
         public virtual void Reset() {}
         /// <summary>
         /// <c>Information</c>の更新を行います。
