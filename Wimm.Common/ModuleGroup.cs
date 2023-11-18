@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Wimm.Machines
+namespace Wimm.Common
 {
     /// <summary>
     /// グループ化されたモジュール群を表すレコード

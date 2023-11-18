@@ -8,16 +8,18 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Xml;
+using Wimm.Common;
 using Wimm.Machines;
+using Wimm.Ui.Records;
 
 namespace Wimm.Model.Control
 {
-    internal class MachineFolder
+    public class MachineFolder
     {
         public MachineFolder(DirectoryInfo machineDirectory)
         {
-            this.MachineDirectory = machineDirectory;
-            MachineAssemblyFile = new FileInfo($"{machineDirectory.FullName}/{MachineDirectory.Name}.dll");
+            MachineDirectory = machineDirectory;
+            
             MetaInfoFile = new FileInfo($"{machineDirectory.FullName}/meta_info.json");
             ConfigFile = new FileInfo($"{machineDirectory.FullName}/config.json");
             ScriptInitializeFile = new FileInfo($"{machineDirectory.FullName}/script/initialize.neo.lua");
@@ -51,6 +53,14 @@ namespace Wimm.Model.Control
                 {
                     ControlBoard = boardNode.GetValue<string>();
                 }
+                if (json is not null && json["assembly"] is JsonNode assemblyNode)
+                {
+                    MachineAssemblyFile = new FileInfo($"{machineDirectory.FullName}/{assemblyNode.GetValue<string>()}");
+                }
+                else
+                {
+                    MachineAssemblyFile = new FileInfo($"{machineDirectory.FullName}/{MachineDirectory.Name}.dll");
+                }
                 MachineName ??= string.Empty;
                 ControlBoard ??= string.Empty;
             }
@@ -65,22 +75,25 @@ namespace Wimm.Model.Control
         public FileInfo MachineAssemblyFile { get; }
         public FileInfo ConfigFile { get; }
         public FileInfo MetaInfoFile { get; }
-        public FileInfo? IconFile { get; }
+        public FileInfo IconFile { get; }
         public FileInfo MacroRegistryFile { get; }
         public FileInfo[] Macros { get; }
         public sealed class Generator : IDisposable
         {
             Machine Machine { get; }
             public DirectoryInfo MachineDirectory { get; }
+            FileInfo AssemblyFile { get; }
             bool disposed = false;
             /// <summary>
             /// 既存のマシンフォルダからジェネレータを生成します。
             /// </summary>
             /// <param name="machineDirectory">対象のマシンフォルダ</param>
-            public Generator(DirectoryInfo machineDirectory)
+            public Generator(DirectoryInfo machineDirectory) : this(new MachineFolder(machineDirectory)){}
+            public Generator(MachineFolder machineFolder)
             {
-                MachineDirectory = machineDirectory;
-                var machineAssemblyFile = new FileInfo($"{machineDirectory.FullName}/{MachineDirectory.Name}.dll");
+                AssemblyFile = machineFolder.MachineAssemblyFile;
+                MachineDirectory = machineFolder.MachineDirectory;
+                var machineAssemblyFile = new FileInfo($"{machineFolder.MachineDirectory.FullName}/{MachineDirectory.Name}.dll");
                 Machine = MachineController.Builder.GetMachine(machineAssemblyFile, null);
             }
             /// <summary>
@@ -89,6 +102,7 @@ namespace Wimm.Model.Control
             /// <param name="machineAssemblyFile">対象のマシンDLLファイル</param>
             public Generator(FileInfo machineAssemblyFile)
             {
+                AssemblyFile = machineAssemblyFile;
                 Machine = MachineController.Builder.GetMachine(machineAssemblyFile, null);
                 var root = GetMachineRootFolder();
                 if(root is null)
@@ -117,7 +131,10 @@ namespace Wimm.Model.Control
                         "name", JsonValue.Create(Machine.Name)
                     ));
                     json.Add(new KeyValuePair<string, JsonNode?>(
-                        "board", JsonValue.Create(Machine.ControlBoard)
+                        "board", JsonValue.Create(Machine.ControlSystem)
+                    ));
+                    json.Add(new KeyValuePair<string, JsonNode?>(
+                        "assembly", JsonValue.Create(AssemblyFile.Name)
                     ));
                     json.WriteTo(metainfo);
                 };

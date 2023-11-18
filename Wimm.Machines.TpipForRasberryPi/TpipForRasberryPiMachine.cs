@@ -1,4 +1,5 @@
 ﻿using System.Windows.Interop;
+using Wimm.Common.Setting;
 using Wimm.Machines.TpipForRasberryPi.Import;
 
 namespace Wimm.Machines.TpipForRasberryPi
@@ -14,7 +15,7 @@ namespace Wimm.Machines.TpipForRasberryPi
         /// </summary>
         protected bool TpipInitialized { get; private init; }
         public const string ControlBoardName = "Tpip4RP";
-        public override string ControlBoard => ControlBoardName;
+        public override string ControlSystem => ControlBoardName;
         public override ConnectionState ConnectionStatus
         {
             get
@@ -31,22 +32,21 @@ namespace Wimm.Machines.TpipForRasberryPi
         }
         protected HwndSource? Hwnd { get; init; }
         protected string MachineIPAddress { get; init; } = string.Empty;
-        protected TpipForRasberryPiMachine(MachineConstructorArgs args):base(args)
+        protected TpipForRasberryPiMachine(MachineConstructorArgs? args):base(args)
         {
-            Hwnd = HwndSource.FromHwnd(args.HostingWindowHandle);
-            TpipInitialized = true;
-            AddRegistries();
-            if (MachineConfig.GetValueOrDefault("TPIP4RP_IP_Address") is string ipAddress)
-            {
-                args.Logger.Info($"接続先IPアドレス:{ipAddress}");
-                MachineIPAddress = ipAddress;
-            }
-            TPJT4.NativeMethods.init(MachineIPAddress, Hwnd.Handle);
-        }
-        protected TpipForRasberryPiMachine():base()
-        {
-            AddRegistries();
             TpipInitialized = false;
+            AddRegistries();
+            if(args is not null)
+            {
+                Hwnd = HwndSource.FromHwnd(args.HostingWindowHandle);
+                if (MachineConfig.GetValueOrDefault("TPIP4RP_IP_Address") is string ipAddress)
+                {
+                    args.Logger.Info($"接続先IPアドレス:{ipAddress}");
+                    MachineIPAddress = ipAddress;
+                }
+                TPJT4.NativeMethods.init(MachineIPAddress, Hwnd.Handle);
+                TpipInitialized = true;
+            }
         }
         public override void Dispose()
         {

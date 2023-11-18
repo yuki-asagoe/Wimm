@@ -1,0 +1,166 @@
+﻿<Page x:Class="Wimm.Ui.ManageMachinesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+      xmlns:local="clr-namespace:Wimm.Ui"
+      xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:ViewModels="clr-namespace:Wimm.Ui.ViewModel"
+      xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+      Dialog:DialogParticipation.Register="{Binding}"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      d:DataContext="{d:DesignInstance ViewModels:ManageMachineViewModel}"
+      Title="ManageMachinesPage">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="100"/>
+            <ColumnDefinition MinWidth="100"/>
+        </Grid.ColumnDefinitions>
+        <Border BorderThickness="1" BorderBrush="{StaticResource MahApps.Brushes.Gray6}" Margin="{StaticResource Wimm.Margin.Small}">
+            <Metro:MetroHeader Style="{StaticResource Wimm.MetroHeader}" Header="Machines" >
+                <DockPanel>
+                    <DockPanel LastChildFill="False" Background="{StaticResource MahApps.Brushes.Gray7}" DockPanel.Dock="Bottom">
+                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}" Margin="{StaticResource Wimm.Margin.Small}" Command="{Binding AddMachineCommand}">
+                            <icon:PackIconModern Kind="Add"/>
+                        </Button>
+                    </DockPanel>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Machines}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="Control System" Width="*" Binding="{Binding ControlBoardName}"/>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding MachineDirectory}">
+                                            <icon:PackIconModern Kind="Folder"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.OpenConfigCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}">
+                                            <icon:PackIconModern Kind="Settings"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.OpenGeneratorCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}">
+                                            <icon:PackIconModern Kind="Refresh"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.ExportModuleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}">
+                                            <icon:PackIconModern Kind="InboxOut"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.RemoveModuleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}">
+                                            <icon:PackIconModern Kind="Delete"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Metro:MetroHeader>
+        </Border>
+        <Border BorderBrush="{StaticResource MahApps.Brushes.Gray6}" BorderThickness="1" Grid.Column="1" Margin="{StaticResource Wimm.Margin.Small}">
+            <Metro:MetroHeader  Style="{StaticResource Wimm.MetroHeader}" Header="Devices">
+                <DockPanel>
+                    <DockPanel LastChildFill="False" Background="{StaticResource MahApps.Brushes.Gray7}" DockPanel.Dock="Bottom">
+                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}" Margin="{StaticResource Wimm.Margin.Small}" Command="{Binding AddDeviceCommand}">
+                            <icon:PackIconModern Kind="Add"/>
+                        </Button>
+                    </DockPanel>
+                    <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Devices}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" Width="*"/>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding Directory}">
+                                            <icon:PackIconModern Kind="Folder"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.OpenConfigCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}">
+                                            <icon:PackIconModern Kind="Settings"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.ExportModuleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}">
+                                            <icon:PackIconModern Kind="InboxOut"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                            Margin="{StaticResource Wimm.Margin.Small}"
+                                            Command="{Binding DataContext.RemoveModuleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}">
+                                            <icon:PackIconModern Kind="Delete"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Metro:MetroHeader>
+        </Border>
+        
+    </Grid>
+</Page>

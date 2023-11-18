@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace Wimm.Logging
 {
-    public interface ILogger
+    public static class LogDirectory
     {
-        public void Info(string message);
-        public void Warn(string message);
-        public void Error(string message);
         public static DirectoryInfo? GetLogDirectory()
         {
             var entryLocation = Assembly.GetEntryAssembly()?.Location;

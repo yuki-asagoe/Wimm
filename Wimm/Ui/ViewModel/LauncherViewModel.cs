@@ -24,13 +24,14 @@ namespace Wimm.Ui.ViewModel
                 {
                     new MenuItem("ホーム",PackIconModernKind.Home,new Uri("EntrancePage.xaml",UriKind.Relative)),
                     new MenuItem("ランチャー",PackIconModernKind.RocketRotated45,new Uri("MachineSelectPage.xaml",UriKind.Relative)),
-                    new MenuItem("コントローラー",PackIconModernKind.ControllerXbox,new Uri("ControllerSettingPage.xaml",UriKind.Relative))
+                    new MenuItem("コントローラー",PackIconModernKind.ControllerXbox,new Uri("ControllerSettingPage.xaml",UriKind.Relative)),
+                    new MenuItem("モジュール管理",PackIconModernKind.List,new Uri("ManageMachinesPage.xaml",UriKind.Relative))
                 }
-            );
+             );
             OptionMenuItems = new ObservableCollection<MenuItem>(
                 new MenuItem[]
                 {
-                    new MenuItem("ロボット追加",PackIconModernKind.PageUpload,new Uri("AddMachinePage.xaml",UriKind.Relative)),
+                    //new MenuItem("ロボット追加",PackIconModernKind.PageUpload,new Uri("AddMachinePage.xaml",UriKind.Relative)),
                     new MenuItem("設定",PackIconModernKind.Settings,new Uri("SettingPage.xaml",UriKind.Relative)),
                     new MenuItem("インフォメーション", PackIconModernKind.InformationCircle,new Uri("InformationPage.xaml",UriKind.Relative))
                 }

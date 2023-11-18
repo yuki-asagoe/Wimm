@@ -16,6 +16,10 @@ namespace Wimm.Machines.Video
         public abstract bool SupportingMultiObservation { get; }
         public ImmutableArray<Channel> Channels { get; protected init; }
         private Task? imageUpdateTask = null;
+        /// <summary>
+        /// チャネルの有効化状態を変化させます。
+        /// どうしても必要な場合を除きオーバーライドは避け、変更の監視が必要ならChannel.ActivationChanged イベントを使用してください
+        /// </summary>
         public virtual void Activate(Channel channel,bool activation)
         {
             if (!activation)

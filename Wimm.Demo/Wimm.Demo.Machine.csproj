@@ -4,15 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenCvSharp4" Version="4.6.0.20220608" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Wimm.Common\Wimm.Common.csproj" />
+    <ProjectReference Include="..\Wimm.Machines\Wimm.Machines.csproj" />
   </ItemGroup>
 
 </Project>

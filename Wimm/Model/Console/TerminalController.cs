@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Wimm.Common.Logging;
 using Wimm.Logging;
 
 namespace Wimm.Model.Console
@@ -20,7 +21,7 @@ namespace Wimm.Model.Console
         private class OutputFormatter : IEnumerable<string>, INotifyCollectionChanged
         {
             #region OutputFormatter
-            INotifyCollectionChangedSynchronizedView<string, string> Lines;
+            readonly INotifyCollectionChangedSynchronizedView<string, string> Lines;
             public OutputFormatter(INotifyCollectionChangedSynchronizedView<string, string> output,Dispatcher dispatcher)
             {
                 Lines = output;
@@ -29,7 +30,7 @@ namespace Wimm.Model.Console
             public event NotifyCollectionChangedEventHandler? CollectionChanged;
             private class Enumerator : IEnumerator<string>
             {
-                IEnumerator<(string, string)> InEnumerator;
+                readonly IEnumerator<(string, string)> InEnumerator;
                 public Enumerator(IEnumerator<(string,string)> enumerator)
                 {
                     InEnumerator = enumerator;
@@ -140,7 +141,7 @@ namespace Wimm.Model.Console
         }
         public static FileInfo? GetLogFile()
         {
-            var logDir = ILogger.GetLogDirectory();
+            var logDir = LogDirectory.GetLogDirectory();
             if(logDir is not null)
             {
                 var date = DateTime.Now;

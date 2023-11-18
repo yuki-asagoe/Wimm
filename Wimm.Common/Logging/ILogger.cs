@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Wimm.Machines.Logging
+namespace Wimm.Common.Logging
 {
-    public interface IMachineLogger
+    public interface ILogger
     {
         public void Info(string message);
         public void Warn(string message);

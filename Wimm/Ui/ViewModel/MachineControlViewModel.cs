@@ -22,10 +22,10 @@ using Wimm.Model.Control.Script;
 using System.Collections.Immutable;
 using Wimm.Model.Video.Filters;
 using Wimm.Machines.Extension;
-using Wimm.Machines.Logging;
 using Wimm.Ui.Extension;
 using Neo.IronLua;
 using Wimm.Ui.Component;
+using Wimm.Common.Logging;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -107,17 +107,6 @@ namespace Wimm.Ui.ViewModel
         }
         private DirectoryInfo MachineDirectory { get; init; }
         private WimmFeatureProvider WimmFeatureProvider { get; init; }
-        private class MachineToTerminalLogger : IMachineLogger
-        {
-            TerminalController Controller { get; }
-            public MachineToTerminalLogger(TerminalController controller)
-            {
-                Controller = controller;
-            }
-            public void Error(string message){ Controller.Post("[Machine]" + message,MessageLevel.Error); }
-            public void Info(string message){ Controller.Post("[Machine]" + message); }
-            public void Warn(string message){ Controller.Post("[Machine]" + message,MessageLevel.Warning); }
-        }
         public async Task<Exception?> OnLoad(IntPtr hwnd, Dispatcher dispatcher)
         //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
         {
@@ -131,8 +120,8 @@ namespace Wimm.Ui.ViewModel
                             .Builder
                             .Build(
                                 MachineDirectory,
-                                new MachineConstructorArgs(hwnd,new MachineToTerminalLogger(TerminalController),MachineDirectory),
                                 WimmFeatureProvider,
+                                hwnd,
                                 TerminalController.GetLogger()
                             );
                     }
@@ -216,6 +205,7 @@ namespace Wimm.Ui.ViewModel
                 }
                 else if (controller.IsControlStopping) { ControlStatus = ControlStatus.Idle; }
                 else { ControlStatus = ControlStatus.Running; }
+                controller.Machine.UpdateInformationTree();
             }
             else ControlStatus = ControlStatus.Idle;
             foreach(var extension in ExtensionProviders)

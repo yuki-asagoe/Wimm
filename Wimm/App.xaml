@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:Wimm"
              xmlns:converters="clr-namespace:Wimm.Ui.Converter"
              xmlns:validation="clr-namespace:Wimm.Ui.Validation"
+             xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              StartupUri="Ui/LauncherWindow.xaml"
              Startup="Application_Startup"
              DispatcherUnhandledException="Application_DispatcherUnhandledException">
@@ -23,6 +24,18 @@
                     <Thickness x:Key="Wimm.Margin.Large">20</Thickness>
                     <Thickness x:Key="Wimm.Margin.Large.Horizontal">20 0 20 0</Thickness>
                     <Thickness x:Key="Wimm.Margin.Large.Vertical">0 20 0 20</Thickness>
+                    <Style x:Key="Wimm.MetroHeader" TargetType="metro:MetroHeader" BasedOn="{StaticResource MahApps.Styles.MetroHeader}">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" 
+                                   Background="{StaticResource MahApps.Brushes.Accent}"
+                                   Foreground="{StaticResource MahApps.Brushes.IdealForeground}"
+                                   Padding="4"/>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
                 </ResourceDictionary>
                 <ResourceDictionary xmlns:terminal="clr-namespace:Simple.Wpf.Terminal;assembly=Simple.Wpf.Terminal">
                     <Style TargetType="{x:Type terminal:Terminal}" BasedOn="{x:Null}">

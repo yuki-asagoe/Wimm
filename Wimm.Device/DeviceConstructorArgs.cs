@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Wimm.Common.Logging;
 
-namespace Wimm.Machines
+namespace Wimm.Device
 {
-    public record MachineConstructorArgs(IntPtr HostingWindowHandle,ILogger Logger, DirectoryInfo MachineDirectory);
+    public record DeviceConstructorArgs(IntPtr HostingWindowHandle, ILogger Logger, DirectoryInfo DeviceDirectory) { }
 }
