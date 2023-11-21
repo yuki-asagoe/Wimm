@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/*.html
+/docs/*.html
+/Wimm/*.html
+/Wimm.Machines/*.html
