@@ -6,16 +6,30 @@
              xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d"
              d:DesignWidth="200">
-    <Grid>
-        <Metro:MetroProgressBar 
-            Style="{StaticResource MahApps.Styles.ProgressBar}" 
-            Minimum="{Binding MinVoltage}"
-            Maximum="{Binding MaxVoltage}"
-            Value="{Binding Voltage}"/>
-        <TextBlock 
-            VerticalAlignment="Center" HorizontalAlignment="Left"
-            Margin="4 0"
-            Text="{Binding Voltage, StringFormat={}{0:0.00}V}"
-            Foreground="{StaticResource MahApps.Brushes.IdealForeground}"/>
-    </Grid>
+    <DataGrid ItemsSource="{Binding Voltages}" AutoGenerateColumns="False" HeadersVisibility="None">
+        <DataGrid.Columns>
+            <DataGridTextColumn Binding="{Binding Name}"/>
+            <DataGridTemplateColumn Width="*">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Metro:MetroProgressBar 
+                                Style="{StaticResource MahApps.Styles.ProgressBar}" 
+                                Minimum="{Binding MinVoltage}"
+                                Maximum="{Binding MaxVoltage}"
+                                Value="{Binding Voltage}"/>
+                            <TextBlock 
+                                Width="50"
+                                VerticalAlignment="Center" HorizontalAlignment="Left"
+                                TextAlignment="Center"
+                                Padding="4 0"
+                                Text="{Binding Voltage, StringFormat={}{0:0.00}V}"
+                                Foreground="{StaticResource MahApps.Brushes.IdealForeground}"
+                                Background="{StaticResource MahApps.Brushes.Gray9}"/>
+                        </Grid>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+        </DataGrid.Columns>
+    </DataGrid>
 </UserControl>

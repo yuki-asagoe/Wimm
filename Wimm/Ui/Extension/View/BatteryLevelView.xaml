@@ -6,36 +6,52 @@
              xmlns:Metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:Converters="clr-namespace:Wimm.Ui.Converter"
+             xmlns:Provider="clr-namespace:Wimm.Ui.Extension.Provider"
              mc:Ignorable="d" 
              d:DesignWidth="200">
     <UserControl.Resources>
         <Converters:PercentageToBatteryLevelConverter x:Key="PercentageToBatteryIcon"/>
     </UserControl.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Icon:PackIconModern Kind="{Binding Percentage, Converter={StaticResource PercentageToBatteryIcon}}" Width="30" Margin="4">
-            <Icon:PackIconModern.Style>
-                <Style TargetType="Icon:PackIconModern">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Charging}" Value="True">
-                            <Setter Property="Kind" Value="BatteryCharging"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Icon:PackIconModern.Style>
-        </Icon:PackIconModern>
-        <Metro:MetroProgressBar 
-            Grid.Column="1"
-            Style="{StaticResource MahApps.Styles.ProgressBar}"
-            Minimum="0" Maximum="100" Value="{Binding Percentage}"/>
-        <TextBlock
-            Grid.Column="1"
-            HorizontalAlignment="Left" VerticalAlignment="Center"
-            Margin="4 0"
-            Text="{Binding Percentage,StringFormat={}{0:0.00}%}"
-            Foreground="{StaticResource MahApps.Brushes.IdealForeground}"/>
-    </Grid>
+    <DataGrid ItemsSource="{Binding Batteries}" AutoGenerateColumns="False" HeadersVisibility="None">
+        <DataGrid.Columns>
+            <DataGridTextColumn Binding="{Binding Name}"/>
+            <DataGridTemplateColumn>
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Icon:PackIconModern Kind="{Binding Percentage, Converter={StaticResource PercentageToBatteryIcon}}" Width="30" Margin="4">
+                            <Icon:PackIconModern.Style>
+                                <Style TargetType="Icon:PackIconModern">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Charging}" Value="True">
+                                            <Setter Property="Kind" Value="BatteryCharging"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Icon:PackIconModern.Style>
+                        </Icon:PackIconModern>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Width="*">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Metro:MetroProgressBar
+                                Style="{StaticResource MahApps.Styles.ProgressBar}"
+                                Minimum="0" Maximum="100" Value="{Binding Percentage}"/>
+                            <TextBlock
+                                Width="50"
+                                Grid.Column="1"
+                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                TextAlignment="Center"
+                                Padding="4 0"
+                                Text="{Binding Percentage,StringFormat={}{0:0.00}%}"
+                                Foreground="{StaticResource MahApps.Brushes.IdealForeground}"
+                                Background="{StaticResource MahApps.Brushes.Gray9}"/>
+                        </Grid>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+        </DataGrid.Columns>
+    </DataGrid>
 </UserControl>
