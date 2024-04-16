@@ -69,11 +69,7 @@ namespace Wimm.Machines
         protected virtual void OnStatusChanged(MachineState newState) {}
         public ControlProcess? StartControl()
         {
-            if(Status is MachineState.Active)
-            {
-                return StartControlProcess();
-            }
-            return null;
+            return StartControlProcess();
         }
         /// <summary>
         /// 制御処理を開始する際に呼び出されます。

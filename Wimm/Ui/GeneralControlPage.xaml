@@ -19,6 +19,7 @@
     <Page.Resources>
         <Converters:PercentageToBatteryLevelConverter x:Key="BatteryIconConverter"/>
         <Converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
+        <Converters:IsInfinityConverter x:Key="IsInfinity"/>
         <Style x:Key="InformationTile" TargetType="Expander" BasedOn="{StaticResource MahApps.Styles.Expander}">
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Background" Value="{StaticResource MahApps.Brushes.IdealForeground}"/>
@@ -145,7 +146,7 @@
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Margin="{StaticResource Wimm.Margin.Small}" Text="{Binding RunningMacro.Name}"/>
-                                    <Metro:MetroProgressBar Grid.Column="1" Minimum="0" Maximum="{Binding MacroMaxProgress}" Value="{Binding MacroProgress}"/>
+                                    <Metro:MetroProgressBar Grid.Column="1" IsIndeterminate="{Binding RunningMacro.LifeTimeSeconds, Converter={StaticResource IsInfinity}}" Minimum="0" Maximum="{Binding MacroMaxProgress}" Value="{Binding MacroProgress}"/>
                                 </Grid>
                             </Border>
                             <DataGrid AutoGenerateColumns="False" BorderThickness="1" ItemsSource="{Binding MacroList}" SelectionMode="Single">

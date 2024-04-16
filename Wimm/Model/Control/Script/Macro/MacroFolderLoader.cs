@@ -41,9 +41,27 @@ namespace Wimm.Model.Control.Script.Macro
                     MacroInfo.LuaChunkParams
                 );
                 if (chunk is null) { break; }
-                if(nameObj.TryGetValue<string>(out var name)&&lifetimeObj.TryGetValue<double>(out var lifetime))
+                if(nameObj.TryGetValue<string>(out var name))
                 {
-                    listBuilder.AddLast(new MacroInfo(name, lifetime, chunk));
+                    if(lifetimeObj.TryGetValue<double>(out var lifetime))
+                    {
+                        listBuilder.AddLast(new MacroInfo(name, lifetime, chunk));
+                    }
+                    else if(lifetimeObj.TryGetValue<string>(out var lifetimeString))
+                    {
+                        if (double.TryParse(lifetimeString, out var time))
+                        {
+                            listBuilder.AddLast(new MacroInfo(name, time, chunk));
+                        }
+                        else if (lifetimeString == "Infinity" || lifetimeString == "infinity")
+                        {
+                            listBuilder.AddLast(new MacroInfo(name, double.PositiveInfinity, chunk));
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 else
                 {
