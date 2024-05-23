@@ -217,6 +217,10 @@ namespace Wimm.Ui.ViewModel
         {
             if (MachineController is MachineController controller)
             {
+                if (!IsControlRunning)
+                {
+                    IsControlRunning = true;
+                }
                 controller.StartMacro(macro);
                 ControlStatus = ControlStatus.Macro;
                 MacroMaxProgress = controller.MacroMaxSecond;

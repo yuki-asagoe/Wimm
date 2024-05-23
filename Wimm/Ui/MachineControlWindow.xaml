@@ -35,6 +35,11 @@
                         Robot Name : <Run Text="{Binding MachineName}"/>
                     </TextBlock>
                 </StatusBarItem>
+                <StatusBarItem Margin="{StaticResource Wimm.Margin.Middle.Horizontal}">
+                    <Button ToolTip="Reset" Style="{StaticResource MahApps.Styles.Button.Chromeless}" Foreground="{StaticResource MahApps.Brushes.IdealForeground}">
+                        <icon:PackIconModern Kind="Reset"/>
+                    </Button>
+                </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
                     <TextBlock>
                         <TextBlock.Style>
