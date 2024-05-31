@@ -12,16 +12,14 @@ namespace Wimm.Machines.Extension
     /// </summary>
     public interface IPowerVoltageProvidable : IMachineExtension
     {
-        /// <summary>
-        /// 電圧の最大値<br/>
-        /// 目安量です、必ずしも <b>Voltage</b> の値がこれを超えないとは限りません
-        /// </summary>
-        public double MaxVoltage { get; }
-        /// <summary>
-        /// 電圧の最小値<br/>
-        /// 目安量です、必ずしも <b>Voltage</b> の値がこれを超えないとは限りません
-        /// </summary>
-        public double MinVoltage { get; }
-        public double Voltage { get; }
+        public VoltageInfo[] Voltages { get; }
+        /// <param name="Voltage">現在の電圧値、単位は[V]です。</param>
+        /// <param name="MinVoltage">
+        /// 電圧の最小値<br/>目安量です、必ずしも <b>Voltage</b> の値がこれを超えないとは限りません
+        /// </param>
+        /// <param name="MaxVoltage">
+        /// 電圧の最大値<br/>目安量です、必ずしも <b>Voltage</b> の値がこれを超えないとは限りません
+        /// </param>
+        public record VoltageInfo(string Name,double Voltage,double MinVoltage,double MaxVoltage);
     }
 }

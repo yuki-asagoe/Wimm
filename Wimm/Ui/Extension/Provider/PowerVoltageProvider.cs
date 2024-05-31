@@ -34,23 +34,21 @@ namespace Wimm.Ui.Extension.Provider
         }
         public class PowerVoltage : INotifyPropertyChanged
         {
-            private double voltage;
+            private IEnumerable<IPowerVoltageProvidable.VoltageInfo> voltages=Array.Empty<IPowerVoltageProvidable.VoltageInfo>();
             private IPowerVoltageProvidable Source { get; }
             public PowerVoltage(IPowerVoltageProvidable providable)
             {
                 Source = providable;
-                MaxVoltage = providable.MaxVoltage;
-                MinVoltage = providable.MinVoltage;
-                voltage = providable.Voltage;
+                Update();
             }
             public void Update()
             {
-                Voltage = Source.Voltage;
+                Voltages = Source.Voltages;
             }
-            public double Voltage
+            public IEnumerable<IPowerVoltageProvidable.VoltageInfo> Voltages
             {
-                get { return voltage; }
-                set { voltage = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Voltage))); }
+                get { return voltages; }
+                set { voltages = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Voltages))); }
             }
             public double MaxVoltage { get; init; }
             public double MinVoltage { get; init; }

@@ -1,5 +1,7 @@
-﻿using System.Windows.Interop;
+﻿using System.Runtime.InteropServices;
+using System.Windows.Interop;
 using Wimm.Common.Setting;
+using Wimm.Machines.Extension;
 using Wimm.Machines.Tpip3.Import;
 
 namespace Wimm.Machines.Tpip3
@@ -7,8 +9,8 @@ namespace Wimm.Machines.Tpip3
     /// <summary>
     /// Tpip3ボードで制御するロボットを表現するクラスです。
     /// </summary>
-    /// <remarks>派生クラスはpublic (string,HwndSource)コンストラクタを提供する必要があります</remarks>
-    public abstract class Tpip3Machine : Machine
+    /// <remarks>派生クラスはpublic (MachineConstructorArgs?)コンストラクタを提供する必要があります</remarks>
+    public abstract class Tpip3Machine : Machine,IPowerVoltageProvidable
     {
         /// <summary>
         /// Tpipの初期化が行われたか、falseの場合実際の制御処理を行う必要はありません。
@@ -30,6 +32,15 @@ namespace Wimm.Machines.Tpip3
         }
         protected HwndSource? Hwnd { get; init; }
         protected string MachineIPAddress { get; init; }=string.Empty;
+        public IPowerVoltageProvidable.VoltageInfo[] Voltages {
+            get
+            {
+                var data = new TPJT3.INP_DT_STR[1];
+                TPJT3.NativeMethods.get_sens(data, Marshal.SizeOf<TPJT3.INP_DT_STR>());
+                return new[] { new IPowerVoltageProvidable.VoltageInfo("Control",data[0].batt / 100.0, 0, 30) };
+            }
+        }
+
         protected Tpip3Machine(MachineConstructorArgs? args):base(args)
         {
             

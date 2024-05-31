@@ -63,12 +63,15 @@ namespace Wimm.Ui.ViewModel
                 {
                     try
                     {
-                        using var writer = new Utf8JsonWriter(ConfigFile.OpenWrite());
-                        Config.WriteConfigJson(
-                            writer,
-                            ConfigEntries.Select(it => new KeyValuePair<string, (string, string?)>(it.Name, (it.Value, it.Default))).ToArray()
-                        );
-                        Feedback = "変更を保存しました。";
+                        using(var stream = ConfigFile.OpenWrite())
+                        {
+                            using var writer = new Utf8JsonWriter(stream);
+                            Config.WriteConfigJson(
+                                writer,
+                                ConfigEntries.Select(it => new KeyValuePair<string, (string, string?)>(it.Name, (it.Value, it.Default))).ToArray()
+                            );
+                            Feedback = "変更を保存しました。";
+                        }
                     }
                     catch(IOException e)
                     {

@@ -33,27 +33,21 @@ namespace Wimm.Ui.Extension.Provider
         }
         public class BatteryLevel : INotifyPropertyChanged
         {
-            private bool charging;
-            private double percentage;
+            private IEnumerable<IBatteryLevelProvidable.Battery> batteries=Array.Empty<IBatteryLevelProvidable.Battery>();
             private IBatteryLevelProvidable Source { get; }
             public BatteryLevel(IBatteryLevelProvidable providable)
             {
                 Source = providable;
+                Update();
             }
             public void Update()
             {
-                Charging = Source.Charging;
-                Percentage = Source.BatteryPercentage;
+                Batteries = Source.Batteries;
             }
-            public bool Charging
+            public IEnumerable<IBatteryLevelProvidable.Battery> Batteries
             {
-                get { return charging; }
-                set { charging = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Charging))); }
-            }
-            public double Percentage
-            {
-                get { return percentage; }
-                set { percentage = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Percentage))); }
+                get { return batteries; }
+                private set { batteries = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Batteries))); }
             }
             public event PropertyChangedEventHandler? PropertyChanged;
         }
