@@ -22,10 +22,10 @@ using Wimm.Model.Control.Script;
 using System.Collections.Immutable;
 using Wimm.Model.Video.Filters;
 using Wimm.Machines.Extension;
+using Wimm.Common.Logging;
 using Wimm.Ui.Extension;
 using Neo.IronLua;
 using Wimm.Ui.Component;
-using Wimm.Common.Logging;
 
 namespace Wimm.Ui.ViewModel
 {
@@ -107,10 +107,21 @@ namespace Wimm.Ui.ViewModel
         }
         private DirectoryInfo MachineDirectory { get; init; }
         private WimmFeatureProvider WimmFeatureProvider { get; init; }
+        private class MachineToTerminalLogger : ILogger
+        {
+            TerminalController Controller { get; }
+            public MachineToTerminalLogger(TerminalController controller)
+            {
+                Controller = controller;
+            }
+            public void Error(string message){ Controller.Post("[Machine]" + message,MessageLevel.Error); }
+            public void Info(string message){ Controller.Post("[Machine]" + message); }
+            public void Warn(string message){ Controller.Post("[Machine]" + message,MessageLevel.Warning); }
+        }
         public async Task<Exception?> OnLoad(IntPtr hwnd, Dispatcher dispatcher)
         //HwndSourceがWindowロード後しかアクセスできないのでここでMachine構築
         {
-            (var e, var controller) = await Task.Run<(Exception?, MachineController?)>(
+            (Exception? e, MachineController? controller) = await Task.Run<(Exception?, MachineController?)>(
                 () =>
                 {
                     MachineController? controller = null;
@@ -120,8 +131,8 @@ namespace Wimm.Ui.ViewModel
                             .Builder
                             .Build(
                                 MachineDirectory,
+                                new MachineConstructorArgs(hwnd,new MachineToTerminalLogger(TerminalController),MachineDirectory),
                                 WimmFeatureProvider,
-                                hwnd,
                                 TerminalController.GetLogger()
                             );
                     }
@@ -205,7 +216,6 @@ namespace Wimm.Ui.ViewModel
                 }
                 else if (controller.IsControlStopping) { ControlStatus = ControlStatus.Idle; }
                 else { ControlStatus = ControlStatus.Running; }
-                controller.Machine.UpdateInformationTree();
             }
             else ControlStatus = ControlStatus.Idle;
             foreach(var extension in ExtensionProviders)
@@ -217,10 +227,6 @@ namespace Wimm.Ui.ViewModel
         {
             if (MachineController is MachineController controller)
             {
-                if (!IsControlRunning)
-                {
-                    IsControlRunning = true;
-                }
                 controller.StartMacro(macro);
                 ControlStatus = ControlStatus.Macro;
                 MacroMaxProgress = controller.MacroMaxSecond;
@@ -312,9 +318,10 @@ namespace Wimm.Ui.ViewModel
         public ImmutableArray<Filter> Filters { get; } = new Filter[] {
             new LinearBrightnessCorrectionFilter(),
             new GammaBrightnessCorrectionFilter(),
+            new ReverseFilter(),
             new BinarizationFilter(),
             new GrayScaleFilter(),
-            new CannyEdgeFilter()
+            new EdgeDetectionFilter()
         }.ToImmutableArray();
         public TerminalController TerminalController { get; }
         public MachineController? MachineController { get { return controller; } private set { controller = value; } }
