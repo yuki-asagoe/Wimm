@@ -51,9 +51,13 @@ namespace Wimm.Ui.ViewModel
                     if(arg is string s && MachineController is MachineController controller)
                     {
                         var e = await controller.CallScriptStringAsync(s);
-                        if(e is not null)
+                        if (e is LuaException luaE)
                         {
-                            ManualScriptFeedback = $"Error at L{e.Line}:{e.Message}";
+                            ManualScriptFeedback = $"Error at L{luaE.Line}:{luaE.Message}";
+                        }
+                        else if(e is not null)
+                        {
+                            ManualScriptFeedback = $"{e.GetType()} : {e.Message}";
                         }
                         else
                         {

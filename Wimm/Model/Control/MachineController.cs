@@ -143,14 +143,14 @@ namespace Wimm.Model.Control
                 ScriptDriver.StopMacro();
             }
         }
-        public Task<LuaException?> CallScriptStringAsync(string s) => Task.Run(
+        public Task<Exception?> CallScriptStringAsync(string s) => Task.Run(
             () =>
             {
                 try
                 {
                     ScriptDriver.ExecuteScriptString(s);
                 }
-                catch(LuaException e)
+                catch(Exception e)
                 {
                     return e;
                 }
