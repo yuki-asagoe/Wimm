@@ -31,18 +31,18 @@ namespace Wimm.Model.Control
         public int ObservedGamepadIndex { get; } = 0;
         //こいつはThreading.Timerで別スレッドから走るので一応排他制御いれます。
         //多分特にマクロ操作関係が危ないかと
-        private ScriptDriver MachineBridge { get; init; }
+        private ScriptDriver ScriptDriver { get; init; }
         private Timer ControlTimer { get; set; }
         private int ControlPeriod { get; init; }
         public bool IsControlStopping { get; private set; }
-        public double MacroProgress { get { lock (MachineBridge) { return MachineBridge.RunningMacro?.Progress ?? 0; } } }
+        public double MacroProgress { get { lock (ScriptDriver) { return ScriptDriver.RunningMacro?.Progress ?? 0; } } }
         public double MacroRunningSecond
         {
             get
             {
-                lock (MachineBridge)
+                lock (ScriptDriver)
                 {
-                    return MachineBridge.RunningMacro?.RunningSecond ?? 0;
+                    return ScriptDriver.RunningMacro?.RunningSecond ?? 0;
                 }
             }
         }
@@ -50,16 +50,16 @@ namespace Wimm.Model.Control
         {
             get
             {
-                lock (MachineBridge)
+                lock (ScriptDriver)
                 {
-                    return MachineBridge.RunningMacro?.MaxRunningSecond ?? 1;
+                    return ScriptDriver.RunningMacro?.MaxRunningSecond ?? 1;
                 }
             }
         }
         private MachineController(Machine machine,ScriptDriver binder,int controllerIndex,int controlPeriod=50)
         {
             Machine = machine;
-            MachineBridge = binder;
+            ScriptDriver = binder;
             ObservedGamepadIndex = controllerIndex;
             ControlTimer = new Timer(OnTimer, null, Timeout.Infinite, Timeout.Infinite);
             ControlPeriod = controlPeriod;
@@ -73,12 +73,12 @@ namespace Wimm.Model.Control
         }
         private void Control()
         {
-            lock (MachineBridge)
+            lock (ScriptDriver)
             {
                 bool macroRunning = IsMacroRunning;
-                MachineBridge.StartControlProcess();
-                MachineBridge.DoControl();
-                MachineBridge.EndControlProcess();
+                ScriptDriver.StartControlProcess();
+                ScriptDriver.DoControl();
+                ScriptDriver.EndControlProcess();
                 if (macroRunning && !IsMacroRunning)
                     OnStopMacro?.Invoke();
             }
@@ -90,11 +90,11 @@ namespace Wimm.Model.Control
                 object? returned = null;
                 try
                 {
-                    lock (MachineBridge)
+                    lock (ScriptDriver)
                     {
-                        MachineBridge.StartControlProcess();
+                        ScriptDriver.StartControlProcess();
                         returned = feature.Function.DynamicInvoke(args);
-                        MachineBridge.EndControlProcess();
+                        ScriptDriver.EndControlProcess();
                     }
                 }
                 catch (TargetInvocationException e)
@@ -123,31 +123,45 @@ namespace Wimm.Model.Control
             ControlTimer.Change(Timeout.Infinite, Timeout.Infinite);
             Machine.Status = MachineState.Idle;
         }
-        public bool IsMacroRunning => MachineBridge.RunningMacro is not null;
-        public ImmutableArray<MacroInfo> MacroList => MachineBridge.MacroList;
+        public bool IsMacroRunning => ScriptDriver.RunningMacro is not null;
+        public ImmutableArray<MacroInfo> MacroList => ScriptDriver.MacroList;
         public void StartMacro(MacroInfo macro)
         {
-            lock(MachineBridge)
+            lock(ScriptDriver)
             {
                 if (IsMacroRunning)
                 {
-                    MachineBridge.StopMacro();
+                    ScriptDriver.StopMacro();
                 }
-                MachineBridge.StartMacro(macro);
+                ScriptDriver.StartMacro(macro);
             }
         }
         public void StopMacro()
         {
-            lock (MachineBridge)
+            lock (ScriptDriver)
             {
-                MachineBridge.StopMacro();
+                ScriptDriver.StopMacro();
             }
         }
+        public Task<LuaException?> CallScriptStringAsync(string s) => Task.Run(
+            () =>
+            {
+                try
+                {
+                    ScriptDriver.ExecuteScriptString(s);
+                }
+                catch(LuaException e)
+                {
+                    return e;
+                }
+                return null;
+            }
+        );
         public void Dispose()
         {
             if (!disposedValue)
             {
-                MachineBridge.Dispose();
+                ScriptDriver.Dispose();
                 ControlTimer.Dispose();
                 Machine.Dispose();
                 GC.SuppressFinalize(this);

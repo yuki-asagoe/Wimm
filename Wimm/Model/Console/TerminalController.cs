@@ -136,7 +136,7 @@ namespace Wimm.Model.Console
             if (Lines.Count == LineSize)
             {
                  Lines.RemoveFirst();
-             }
+            }
             Lines.AddLast(message);
         }
         public static FileInfo? GetLogFile()

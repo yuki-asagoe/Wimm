@@ -342,29 +342,24 @@
             </Metro:MetroTabItem>
 
             <Metro:MetroTabItem Header="Script">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="82*"/>
-                        <ColumnDefinition Width="117*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Metro:MetroHeader Header="Script Information" Grid.ColumnSpan="2">
-
+                <DockPanel>
+                    
+                    <Metro:MetroHeader Header="Script Information" DockPanel.Dock="Top">
+                        <Grid Height="50">
+                        </Grid>
                     </Metro:MetroHeader>
-                    <Metro:MetroHeader Header="Manual Script Call" Grid.ColumnSpan="2" Margin="0,287,0,0" Grid.RowSpan="2">
+                    <Metro:MetroHeader Header="Manual Script Call">
                         <DockPanel>
-                            <DockPanel Background="{StaticResource MahApps.Brushes.Gray8}" LastChildFill="False" DockPanel.Dock="Bottom">
-                                <Button DockPanel.Dock="Right" Style="{StaticResource MahApps.Styles.Button.Chromeless}">
+                            <DockPanel Background="{StaticResource MahApps.Brushes.Gray8}" DockPanel.Dock="Bottom">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource MahApps.Styles.Button.Chromeless}" Command="{Binding CommandCallScript}" CommandParameter="{Binding ManualScript}">
                                     <icon:PackIconModern Kind="ControlPlay" Margin="{StaticResource Wimm.Margin.Small}"/>
                                 </Button>
+                                <TextBlock Margin="{StaticResource Wimm.Margin.Small}" Text="{Binding ManualScriptFeedback}"/>
                             </DockPanel>
-                            <TextBox Margin="{StaticResource Wimm.Margin.Middle}"/>
+                            <TextBox AcceptsReturn="True" AcceptsTab="True" Margin="{StaticResource Wimm.Margin.Middle}" Text="{Binding ManualScript, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
                         </DockPanel>
                     </Metro:MetroHeader>
-                </Grid>
+                </DockPanel>
             </Metro:MetroTabItem>
         </Metro:MetroTabControl>
     </Grid>

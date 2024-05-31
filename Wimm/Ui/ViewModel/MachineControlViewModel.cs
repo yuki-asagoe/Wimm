@@ -46,6 +46,23 @@ namespace Wimm.Ui.ViewModel
                 () => { StopMacro(); },
                 () => { return  MachineController is not null; }
             );
+            CommandCallScript = new ParamsDelegateCommand(
+                async (arg) => { 
+                    if(arg is string s && MachineController is MachineController controller)
+                    {
+                        var e = await controller.CallScriptStringAsync(s);
+                        if(e is not null)
+                        {
+                            ManualScriptFeedback = $"Error at L{e.Line}:{e.Message}";
+                        }
+                        else
+                        {
+                            ManualScriptFeedback = $"Done / {DateTime.Now}";
+                        }
+                    }
+                },
+                (arg) => arg is string s && s.Length != 0
+            );
             CommandOpenImmersiveSelection = new ParamsDelegateCommand((arg) =>
             {
                 if(arg is ImmersiveSelectionUIMode mode)
@@ -304,6 +321,7 @@ namespace Wimm.Ui.ViewModel
         public ICommand CommandMacroStop { get; }
         public ICommand CommandStartQRDetect { get; }
         public ICommand CommandStopQRDetect { get; }
+        public ICommand CommandCallScript { get; }
         public ICommand CommandRemoveFilter { get; }
         public ICommand CommandSwitchControl { get; }
         public ICommand CommandSwitchQRDetect { get; }
@@ -392,6 +410,10 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("ImmersiveSelectionMode", typeof(ImmersiveSelectionUIMode), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ExtensionProvidersProperty
             = DependencyProperty.Register("ExtensionProviders", typeof(ImmutableArray<ExtensionViewProvider>), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty ManualScriptProperty
+            = DependencyProperty.Register("ManualScript", typeof(string), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty ManualScriptFeedbackProperty
+            = DependencyProperty.Register("ManualScriptFeedback", typeof(string), typeof(MachineControlViewModel));
 
         public Filter? SelectedVideoFilter
         {
@@ -477,6 +499,16 @@ namespace Wimm.Ui.ViewModel
         {
             get { return (ImmutableArray<ExtensionViewProvider>)GetValue(ExtensionProvidersProperty); }
             set { SetValue(ExtensionProvidersProperty, value); }
+        }
+        public string ManualScript
+        {
+            get { return (string)GetValue(ManualScriptProperty); }
+            set { SetValue(ManualScriptProperty, value); }
+        }
+        public string ManualScriptFeedback
+        {
+            get { return (string)GetValue(ManualScriptFeedbackProperty); }
+            set { SetValue(ManualScriptFeedbackProperty, value); }
         }
         public GeneralSetting Setting { get; } = GeneralSetting.Default;
 
