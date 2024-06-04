@@ -67,6 +67,7 @@
     <PackageReference Include="OpenCvSharp4.WpfExtensions" Version="4.6.0.20220608" />
     <PackageReference Include="Simple.Wpf.Terminal" Version="2.3.53" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageReference Include="Vortice.XInput" Version="2.1.41" />
   </ItemGroup>
 

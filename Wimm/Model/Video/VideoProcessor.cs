@@ -2,6 +2,7 @@
 using OpenCvSharp.WpfExtensions;
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Wimm.Machines.Video;
@@ -72,11 +73,13 @@ namespace Wimm.Model.Video
             {
                 using var target=image;
                 using var detector = new QRCodeDetector();
-                var result=detector.DetectAndDecode(image, out var area);
-                if(result is null || result.Length == 0 || area is null)
+                var result = detector.DetectAndDecode(image, out var area);
+
+                if (result is null || result.Length == 0 || area is null)
                 {
                     return null;
                 }
+                WriteableBitmap clippedImageSource;
                 try
                 {
                     //ゴリ押しこそ正義
@@ -91,14 +94,31 @@ namespace Wimm.Model.Video
                     {
                         return null;
                     }
-                    var clippedImageSource = clippedImage.ToWriteableBitmap();
+                    clippedImageSource = clippedImage.ToWriteableBitmap();
                     clippedImageSource.Freeze();
-                    return new QRDetectionResult(result, clippedImageSource);
+                    
                 }
                 catch (OpenCVException _)
                 {
                     return new QRDetectionResult(result,null);
                 }
+                var allOneByte = result.All(it => (0xFF00 & it) == 0);
+                if (allOneByte && result.Any(it => (it & 0b10000000) != 0)) // maybe binary?
+                {
+                    var byteArray = result.Select(it => (byte)it).ToArray();
+                    EncodingProvider provider = CodePagesEncodingProvider.Instance;
+                    var builder = new StringBuilder();
+                    builder
+                        .Append(result)
+                        .Append('\n')
+                        .AppendLine("Warning : This may be incorrect text")
+                        .Append("Shift-JIS: ")
+                        .AppendLine(provider.GetEncoding("shift-jis")?.GetString(byteArray))
+                        .Append("0x: ")
+                        .AppendLine(BitConverter.ToString(byteArray));
+                    result = builder.ToString();
+                }
+                return new QRDetectionResult(result, clippedImageSource);
             });
         }
         private Task<QRDetectionResult?>? qrDetectionTask = null;

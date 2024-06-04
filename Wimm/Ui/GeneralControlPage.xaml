@@ -185,6 +185,7 @@
                                     HorizontalAlignment="Center" 
                                     Margin="{StaticResource Wimm.Margin.Middle.Vertical}" 
                                     Text="{Binding DetectedQRCodeValue}"
+                                    TextWrapping="Wrap"
                                     Grid.Column="1" Grid.Row="1"
                                     />
                             <Image Stretch="Uniform" Grid.RowSpan="2" Source="{Binding DetectedQRCode}"/>
