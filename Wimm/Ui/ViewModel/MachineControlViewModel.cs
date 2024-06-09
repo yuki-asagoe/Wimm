@@ -26,10 +26,12 @@ using Wimm.Ui.Extension;
 using Neo.IronLua;
 using Wimm.Ui.Component;
 using Wimm.Common.Logging;
+using Wimm.Model.Video.QR;
+using System.Linq;
 
 namespace Wimm.Ui.ViewModel
 {
-    public sealed class MachineControlViewModel : DependencyObject, IDisposable
+    internal sealed class MachineControlViewModel : DependencyObject, IDisposable
     {
         public MachineControlViewModel(DirectoryInfo machineDirectory)
         {
@@ -103,7 +105,7 @@ namespace Wimm.Ui.ViewModel
             );
             CommandStartQRDetect = new DelegateCommand(() =>
             {
-                if (VideoProcessor is not null) VideoProcessor.QRDetecting = true;
+                if (VideoProcessor is not null) VideoProcessor.IsQRDetectionRequested = true;
                 QRDetectionRunning = true;
                 TerminalController.Post("QRコード検出を開始します。");
             },
@@ -111,7 +113,7 @@ namespace Wimm.Ui.ViewModel
             );
             CommandStopQRDetect = new DelegateCommand(() =>
             {
-                if (VideoProcessor is not null) VideoProcessor.QRDetecting = false;
+                if (VideoProcessor is not null) VideoProcessor.IsQRDetectionRequested = false;
                 QRDetectionRunning = false;
                 TerminalController.Post("QRコード検出を停止しました。");
             },
@@ -175,12 +177,13 @@ namespace Wimm.Ui.ViewModel
                 MachineController.Machine.Camera
             );
             FeatureExecutionManager.Controller = MachineController;
-            VideoProcessor.QRUpdated += (result) =>
+            VideoProcessor.OnQRDetected += (result) =>
                 dispatcher.BeginInvoke(() => {
                     QRDetectionRunning = false;
-                    DetectedQRCodeValue = result.Result;
-                    if (result.DetectedArea is not null) DetectedQRCode = result.DetectedArea;
-                    TerminalController.Post($"QRコードが検出されました。[{result.Result}]");
+                    DetectedQRInfos = result;
+                    VideoProcessor.IsQRDetectionRequested = false;
+                    var first = result.FirstOrDefault((QRDetectionResult?)null);
+                    TerminalController.Post($"コードが検出されました。[{first?.Text}]");
                 });
             VideoProcessor.ImageUpdated += (image) =>
             {
@@ -392,10 +395,8 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("ConnectionStatus", typeof(ConnectionState), typeof(MachineControlViewModel));
         public readonly static DependencyProperty QRDetectionRunningProperty
             = DependencyProperty.Register("QRDetectionRunning", typeof(bool), typeof(MachineControlViewModel));
-        public readonly static DependencyProperty DetectedQRCodeValueProperty
-            = DependencyProperty.Register("DetectedQRCodeValue", typeof(string), typeof(MachineControlViewModel));
-        public readonly static DependencyProperty DetectedQRCodeProperty
-            = DependencyProperty.Register("DetectedQRCode", typeof(BitmapSource), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty DetectedQRInfosProperty
+            = DependencyProperty.Register("DetectedQRInfos", typeof(IEnumerable<QRDetectionResult>), typeof(MachineControlViewModel));
         public readonly static DependencyProperty CameraOutputProperty
             = DependencyProperty.Register("CameraOutput", typeof(ImageSource), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ObservedGamepadProperty
@@ -469,15 +470,10 @@ namespace Wimm.Ui.ViewModel
             get { return (bool)GetValue(QRDetectionRunningProperty); }
             set { SetValue(QRDetectionRunningProperty, value); }
         }
-        public string DetectedQRCodeValue
+        public IEnumerable<QRDetectionResult> DetectedQRInfos
         {
-            get { return GetValue(DetectedQRCodeValueProperty) as string ?? ""; }
-            private set { SetValue(DetectedQRCodeValueProperty, value); }
-        }
-        public BitmapSource DetectedQRCode
-        {
-            get { return (BitmapSource)GetValue(DetectedQRCodeProperty); }
-            private set { SetValue(DetectedQRCodeProperty, value); }
+            get { return (IEnumerable<QRDetectionResult>)GetValue(DetectedQRInfosProperty); }
+            private set { SetValue(DetectedQRInfosProperty, value); }
         }
         public ImageSource? CameraOutput
         {

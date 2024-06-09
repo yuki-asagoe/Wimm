@@ -163,33 +163,32 @@
                         </StackPanel>
                     </StackPanel>
                 </Expander>
-                <Expander Header="QR Code Detection" IsExpanded="True"
+                <Expander Header="Code Detection" IsExpanded="True"
                           Visibility="{Binding Setting.EnableQRDetection,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel>
                         <Metro:ProgressRing Margin="{StaticResource Wimm.Margin.Small.Vertical}" Visibility="{Binding QRDetectionRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                        <Separator Visibility="{Binding DetectedQRCodeValue, Converter={StaticResource NotNullToVisibilityConverter}}"/>
-                        <Grid Visibility="{Binding DetectedQRCodeValue, Converter={StaticResource NotNullToVisibilityConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                        <StackPanel Visibility="{Binding DetectedQRInfos, Converter={StaticResource NotNullToVisibilityConverter}}">
+                            <Separator/>
                             <TextBlock 
-                                    HorizontalAlignment="Center" 
-                                    Margin="{StaticResource Wimm.Margin.Small.Vertical}"
-                                    Grid.Column="1">検出されました。</TextBlock>
-                            <TextBlock
-                                    HorizontalAlignment="Center" 
-                                    Margin="{StaticResource Wimm.Margin.Middle.Vertical}" 
-                                    Text="{Binding DetectedQRCodeValue}"
-                                    TextWrapping="Wrap"
-                                    Grid.Column="1" Grid.Row="1"
-                                    />
-                            <Image Stretch="Uniform" Grid.RowSpan="2" Source="{Binding DetectedQRCode}"/>
-                        </Grid>
+                                HorizontalAlignment="Center" 
+                                Margin="{StaticResource Wimm.Margin.Small.Vertical}"
+                                Grid.Column="1"
+                                Text="検出されました。"/>
+                            <ListView ItemsSource="{Binding DetectedQRInfos}">
+                                <ListView.View>
+                                    <GridView AllowsColumnReorder="False">
+                                        <GridViewColumn Header="Code" Width="70">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Image Source="{Binding QRImage}" ToolTip="{Binding RawBytesAsString}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Text" DisplayMemberBinding="{Binding Text}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </StackPanel>
                         <Button Command="{Binding CommandStartQRDetect}">自動検知 ON</Button>
                         <Button 
                                 Command="{Binding CommandStopQRDetect}" 

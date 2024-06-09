@@ -102,6 +102,10 @@
                     <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
                                Text="{Binding License.Vortice_XInput}"/>
                 </Expander>
+                <Expander Header="ZXing.NET">
+                    <TextBlock Margin="{StaticResource Wimm.Margin.Middle.Horizontal}" 
+               Text="{Binding License.ZXing_NET}"/>
+                </Expander>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>
