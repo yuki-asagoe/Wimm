@@ -11,11 +11,7 @@ namespace Wimm.Machines.Extension
     /// </summary>
     public interface IBatteryLevelProvidable : IMachineExtension
     {
-        /// <summary>
-        /// 現在のバッテリ残量を返す。
-        /// </summary>
-        /// <value>現在のバッテリ残量 単位は[%]</value>
-        public double BatteryPercentage { get; }
-        public bool Charging { get; }
+        public Battery[] Batteries { get; }
+        public record Battery(string Name,double Percentage,bool Charging);
     }
 }

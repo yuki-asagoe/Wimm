@@ -1,24 +1,30 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Wimm.Machines.Video;
+using Wimm.Model.Video.QR;
 
 namespace Wimm.Model.Video
 {
     /// <summary>
     /// カメラ更新の処理とQRコードなどの検知を管理するクラス
     /// </summary>
-    public class VideoProcessor:ICameraUpdateListener
+    internal class VideoProcessor:ICameraUpdateListener
     {
         public VideoProcessor(System.Drawing.Size imageSize,Camera camera)
         {
             ImageSize = imageSize;
             Camera = camera;
             camera.SetListener(this);
+            Detector.OnDetected += (it) => OnQRDetected?.Invoke(it);
         }
+        private QRDetector Detector { get; } = new QRDetector();
         public System.Drawing.Size ImageSize { get; set; }
         //コレクションにして複数のフィルタを組み合わせられるようにしたかったが制御と利用が煩雑化することを懸念して断念する
         public Filter? VideoFilter { private get; set; } = null;
@@ -32,14 +38,13 @@ namespace Wimm.Model.Video
         /// QRコードのデータが更新された時に呼び出されます。
         /// 動作スレッドを保障しません、Dispatcherなどを用いて明示的にUIスレッドに結果をフィードバックすることを推奨します。
         /// </summary>
-        public event QRResultUpdateHandler? QRUpdated;
-        public delegate void QRResultUpdateHandler(QRDetectionResult result);
+        public event QRDetector.DetectionResultNotificator? OnQRDetected;
         public delegate void ImageUpdateHandler(BitmapSource image);
         /// <summary>
         /// 画像加工処理を行います、非常に高頻度で呼び出されることが想定されるのであまり重たくしすぎないでください
         /// 重くするとコマ落ちの恐れがあります。
         /// </summary>
-        private BitmapSource Draw(FrameData[] frames)
+        private async Task<BitmapSource> Draw(FrameData[] frames)
         {
             var frame=frames[0].Frame;
             VideoFilter?.Apply(frame);
@@ -47,62 +52,18 @@ namespace Wimm.Model.Video
             image.Freeze();
             return image;
         }
-        public bool IsReadyToReceive => true;
+        public bool IsReadyToReceive => DrawTask?.IsCompleted ?? true;
+        public Task<BitmapSource>? DrawTask { get; set; }
         public async void OnReceiveData(FrameData[] frames)
         {
-            if((qrDetectionTask?.IsCompleted??true) && QRDetecting)
+            DrawTask = Draw(frames);
+            ImageUpdated?.Invoke(await DrawTask);
+            if (IsQRDetectionRequested)
             {
-                qrDetectionTask = DetectQR(frames[0].Frame.Clone());
-                ImageUpdated?.Invoke(Draw(frames));
-                var result=await qrDetectionTask;
-                if(result is not null)
-                {
-                    QRDetecting = false;
-                    QRUpdated?.Invoke(result);
-                }
-            }
-            else
-            {
-                ImageUpdated?.Invoke(Draw(frames));
+                using Mat image = frames[0].Frame.Clone();
+                Detector.RequestDetection(image);
             }
         }
-        private Task<QRDetectionResult?> DetectQR(Mat image)
-        {
-            return Task.Run(() =>
-            {
-                using var target=image;
-                using var detector = new QRCodeDetector();
-                var result=detector.DetectAndDecode(image, out var area);
-                if(result is null || result.Length == 0 || area is null)
-                {
-                    return null;
-                }
-                try
-                {
-                    //ゴリ押しこそ正義
-                    int minX = (int)Math.Clamp(area.Select(x => x.X).Min(),0,image.Cols);
-                    int minY = (int)Math.Clamp(area.Select(x => x.Y).Min(), 0, image.Rows);
-                    int width = (int)Math.Clamp(area.Select(x => x.X).Max()-minX, 0, image.Cols);
-                    int height = (int)Math.Clamp(area.Select(x => x.Y).Max()-minY,0,image.Rows);
-                    using var clippedImage = image.Clone(new OpenCvSharp.Rect(
-                        minX, minY, width, height
-                    ));
-                    if (clippedImage is null)
-                    {
-                        return null;
-                    }
-                    var clippedImageSource = clippedImage.ToWriteableBitmap();
-                    clippedImageSource.Freeze();
-                    return new QRDetectionResult(result, clippedImageSource);
-                }
-                catch (OpenCVException _)
-                {
-                    return new QRDetectionResult(result,null);
-                }
-            });
-        }
-        private Task<QRDetectionResult?>? qrDetectionTask = null;
-        public bool QRDetecting { get; set; }
+        public bool IsQRDetectionRequested { get; set; } = false;
     }
-    public record QRDetectionResult(string Result,BitmapSource? DetectedArea);
 }

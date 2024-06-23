@@ -26,10 +26,12 @@ using Wimm.Ui.Extension;
 using Neo.IronLua;
 using Wimm.Ui.Component;
 using Wimm.Common.Logging;
+using Wimm.Model.Video.QR;
+using System.Linq;
 
 namespace Wimm.Ui.ViewModel
 {
-    public sealed class MachineControlViewModel : DependencyObject, IDisposable
+    internal sealed class MachineControlViewModel : DependencyObject, IDisposable
     {
         public MachineControlViewModel(DirectoryInfo machineDirectory)
         {
@@ -45,6 +47,27 @@ namespace Wimm.Ui.ViewModel
             CommandMacroStop = new DelegateCommand(
                 () => { StopMacro(); },
                 () => { return  MachineController is not null; }
+            );
+            CommandCallScript = new ParamsDelegateCommand(
+                async (arg) => { 
+                    if(arg is string s && MachineController is MachineController controller)
+                    {
+                        var e = await controller.CallScriptStringAsync(s);
+                        if (e is LuaException luaE)
+                        {
+                            ManualScriptFeedback = $"Error at L{luaE.Line}:{luaE.Message}";
+                        }
+                        else if(e is not null)
+                        {
+                            ManualScriptFeedback = $"{e.GetType()} : {e.Message}";
+                        }
+                        else
+                        {
+                            ManualScriptFeedback = $"Done / {DateTime.Now}";
+                        }
+                    }
+                },
+                (arg) => arg is string s && s.Length != 0
             );
             CommandOpenImmersiveSelection = new ParamsDelegateCommand((arg) =>
             {
@@ -82,7 +105,7 @@ namespace Wimm.Ui.ViewModel
             );
             CommandStartQRDetect = new DelegateCommand(() =>
             {
-                if (VideoProcessor is not null) VideoProcessor.QRDetecting = true;
+                if (VideoProcessor is not null) VideoProcessor.IsQRDetectionRequested = true;
                 QRDetectionRunning = true;
                 TerminalController.Post("QRコード検出を開始します。");
             },
@@ -90,7 +113,7 @@ namespace Wimm.Ui.ViewModel
             );
             CommandStopQRDetect = new DelegateCommand(() =>
             {
-                if (VideoProcessor is not null) VideoProcessor.QRDetecting = false;
+                if (VideoProcessor is not null) VideoProcessor.IsQRDetectionRequested = false;
                 QRDetectionRunning = false;
                 TerminalController.Post("QRコード検出を停止しました。");
             },
@@ -154,12 +177,13 @@ namespace Wimm.Ui.ViewModel
                 MachineController.Machine.Camera
             );
             FeatureExecutionManager.Controller = MachineController;
-            VideoProcessor.QRUpdated += (result) =>
+            VideoProcessor.OnQRDetected += (result) =>
                 dispatcher.BeginInvoke(() => {
                     QRDetectionRunning = false;
-                    DetectedQRCodeValue = result.Result;
-                    if (result.DetectedArea is not null) DetectedQRCode = result.DetectedArea;
-                    TerminalController.Post($"QRコードが検出されました。[{result.Result}]");
+                    DetectedQRInfos = result;
+                    VideoProcessor.IsQRDetectionRequested = false;
+                    var first = result.FirstOrDefault((QRDetectionResult?)null);
+                    TerminalController.Post($"コードが検出されました。[{first?.Text}]");
                 });
             VideoProcessor.ImageUpdated += (image) =>
             {
@@ -304,6 +328,7 @@ namespace Wimm.Ui.ViewModel
         public ICommand CommandMacroStop { get; }
         public ICommand CommandStartQRDetect { get; }
         public ICommand CommandStopQRDetect { get; }
+        public ICommand CommandCallScript { get; }
         public ICommand CommandRemoveFilter { get; }
         public ICommand CommandSwitchControl { get; }
         public ICommand CommandSwitchQRDetect { get; }
@@ -312,9 +337,10 @@ namespace Wimm.Ui.ViewModel
         public ImmutableArray<Filter> Filters { get; } = new Filter[] {
             new LinearBrightnessCorrectionFilter(),
             new GammaBrightnessCorrectionFilter(),
+            new ReverseFilter(),
             new BinarizationFilter(),
             new GrayScaleFilter(),
-            new CannyEdgeFilter()
+            new EdgeDetectionFilter()
         }.ToImmutableArray();
         public TerminalController TerminalController { get; }
         public MachineController? MachineController { get { return controller; } private set { controller = value; } }
@@ -369,10 +395,8 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("ConnectionStatus", typeof(ConnectionState), typeof(MachineControlViewModel));
         public readonly static DependencyProperty QRDetectionRunningProperty
             = DependencyProperty.Register("QRDetectionRunning", typeof(bool), typeof(MachineControlViewModel));
-        public readonly static DependencyProperty DetectedQRCodeValueProperty
-            = DependencyProperty.Register("DetectedQRCodeValue", typeof(string), typeof(MachineControlViewModel));
-        public readonly static DependencyProperty DetectedQRCodeProperty
-            = DependencyProperty.Register("DetectedQRCode", typeof(BitmapSource), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty DetectedQRInfosProperty
+            = DependencyProperty.Register("DetectedQRInfos", typeof(IEnumerable<QRDetectionResult>), typeof(MachineControlViewModel));
         public readonly static DependencyProperty CameraOutputProperty
             = DependencyProperty.Register("CameraOutput", typeof(ImageSource), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ObservedGamepadProperty
@@ -391,6 +415,10 @@ namespace Wimm.Ui.ViewModel
             = DependencyProperty.Register("ImmersiveSelectionMode", typeof(ImmersiveSelectionUIMode), typeof(MachineControlViewModel));
         public readonly static DependencyProperty ExtensionProvidersProperty
             = DependencyProperty.Register("ExtensionProviders", typeof(ImmutableArray<ExtensionViewProvider>), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty ManualScriptProperty
+            = DependencyProperty.Register("ManualScript", typeof(string), typeof(MachineControlViewModel));
+        public readonly static DependencyProperty ManualScriptFeedbackProperty
+            = DependencyProperty.Register("ManualScriptFeedback", typeof(string), typeof(MachineControlViewModel));
 
         public Filter? SelectedVideoFilter
         {
@@ -442,15 +470,10 @@ namespace Wimm.Ui.ViewModel
             get { return (bool)GetValue(QRDetectionRunningProperty); }
             set { SetValue(QRDetectionRunningProperty, value); }
         }
-        public string DetectedQRCodeValue
+        public IEnumerable<QRDetectionResult> DetectedQRInfos
         {
-            get { return GetValue(DetectedQRCodeValueProperty) as string ?? ""; }
-            private set { SetValue(DetectedQRCodeValueProperty, value); }
-        }
-        public BitmapSource DetectedQRCode
-        {
-            get { return (BitmapSource)GetValue(DetectedQRCodeProperty); }
-            private set { SetValue(DetectedQRCodeProperty, value); }
+            get { return (IEnumerable<QRDetectionResult>)GetValue(DetectedQRInfosProperty); }
+            private set { SetValue(DetectedQRInfosProperty, value); }
         }
         public ImageSource? CameraOutput
         {
@@ -476,6 +499,16 @@ namespace Wimm.Ui.ViewModel
         {
             get { return (ImmutableArray<ExtensionViewProvider>)GetValue(ExtensionProvidersProperty); }
             set { SetValue(ExtensionProvidersProperty, value); }
+        }
+        public string ManualScript
+        {
+            get { return (string)GetValue(ManualScriptProperty); }
+            set { SetValue(ManualScriptProperty, value); }
+        }
+        public string ManualScriptFeedback
+        {
+            get { return (string)GetValue(ManualScriptFeedbackProperty); }
+            set { SetValue(ManualScriptFeedbackProperty, value); }
         }
         public GeneralSetting Setting { get; } = GeneralSetting.Default;
 

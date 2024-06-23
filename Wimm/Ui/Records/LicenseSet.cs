@@ -18,6 +18,7 @@ namespace Wimm.Ui.Records
         public string OpenCVSharp4 { get; }
         public string Simple_Wpf_Terminal { get; }
         public string Vortice_XInput { get; }
+        public string ZXing_NET { get; }
         private static LicenseSet? instance = null;
         public static LicenseSet Instance
         {
@@ -52,6 +53,10 @@ namespace Wimm.Ui.Records
             using (var stream = new StreamReader(Application.GetResourceStream(new Uri(@"Resources\Text\Vortice.XInput.License.txt", UriKind.Relative)).Stream))
             {
                 Vortice_XInput = stream.ReadToEnd();
+            }
+            using (var stream = new StreamReader(Application.GetResourceStream(new Uri(@"Resources\Text\ZXing.License.txt", UriKind.Relative)).Stream))
+            {
+                ZXing_NET = stream.ReadToEnd();
             }
         }
     }

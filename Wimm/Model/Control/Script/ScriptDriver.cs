@@ -176,6 +176,19 @@ namespace Wimm.Model.Control
             RunningMacro?.Dispose();
             RunningMacro = null;
         }
+        public void ExecuteScriptString(string s)
+        {
+            var compiled=lua.CompileChunk(
+                s, 
+                "manual_script",
+                new LuaCompileOptions(),
+                new KeyValuePair<string, Type>("wimm", typeof(WimmFeatureProvider))
+            );
+            ControlEnvironment.DoChunk(
+                compiled,
+                WimmFeature
+            );
+        }
         public void DoFile(string filePath)
         {
             ControlEnvironment.DoChunk(filePath);

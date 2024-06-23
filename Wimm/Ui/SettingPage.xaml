@@ -29,7 +29,7 @@
                     <ColumnDefinition Width="150"/>
                 </Grid.ColumnDefinitions>
                 <Metro:ToggleSwitch Grid.Column="1" IsOn="{Binding EnableQRDetection, Mode=TwoWay}"/>
-                <TextBlock VerticalAlignment="Center" Text="QRコード検出を使用する"/>
+                <TextBlock VerticalAlignment="Center" Text="コード検出を使用する"/>
             </Grid>
             <Separator/>
             <Grid Margin="{StaticResource Wimm.Margin.Middle.Vertical}">

@@ -124,7 +124,8 @@ namespace Wimm.Model.Control
             public Generator GenerateMetaInfo()
             {
                 if (disposed) return this;
-                using (var metainfo = new Utf8JsonWriter(File.Create(MachineDirectory.FullName + "/meta_info.json")))
+                using var stream = File.Create(MachineDirectory.FullName + "/meta_info.json");
+                using (var metainfo = new Utf8JsonWriter(stream))
                 {
                     var json = new JsonObject();
                     json.Add(new KeyValuePair<string, JsonNode?>(
@@ -143,7 +144,8 @@ namespace Wimm.Model.Control
             public Generator GenerateConfig()
             {
                 if (disposed) return this;
-                using (var config = new Utf8JsonWriter(File.Create(MachineDirectory.FullName + "./config.json")))
+                using var stream = File.Create(MachineDirectory.FullName + "./config.json");
+                using (var config = new Utf8JsonWriter(stream))
                 {
                     Machine.MachineConfig.WriteRegistriesTo(config);
                 }
@@ -293,7 +295,8 @@ namespace Wimm.Model.Control
                 }
                 var macroFolder = new DirectoryInfo(scriptFolder + "/macro");
                 if (!macroFolder.Exists) { Directory.CreateDirectory(macroFolder.FullName); }
-                using (var macros = new Utf8JsonWriter(File.Create(macroFolder + "/macros.json")))
+                using var macroFileStream = File.Create(macroFolder + "/macros.json");
+                using (var macros = new Utf8JsonWriter(macroFileStream))
                 {
                     var data = new JsonObject
                 {
