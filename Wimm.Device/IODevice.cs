@@ -25,11 +25,7 @@ namespace Wimm.Device
         public ImmutableArray<Feature<Delegate>> Features { get; protected init; }
         public Config DeviceConfig { get; }
         public ImmutableArray<InformationNode> Information { get; protected init; } = ImmutableArray<InformationNode>.Empty;
-        /// <c>Information</c>の更新を行います。
-        /// <c>Information</c>の読み込みと書き込みはここでのみ認められます。
-        /// </summary>
-        /// <seealso cref="Information"/>
-        public virtual void UpdateInformationTree() { }
+
         public IODevice(DeviceConstructorArgs? args)
         {
             if(args is not null)
