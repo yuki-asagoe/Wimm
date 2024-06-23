@@ -50,12 +50,6 @@ namespace Wimm.Machines
             = new ModuleGroup(string.Empty,ImmutableArray<ModuleGroup>.Empty, ImmutableArray<Module>.Empty);
         public ImmutableArray<InformationNode> Information { get; protected init; } = ImmutableArray<InformationNode>.Empty;
         public virtual void Reset() {}
-        /// <summary>
-        /// <c>Information</c>の更新を行います。
-        /// <c>Information</c>の読み込みと書き込みはここでのみ認められます。
-        /// </summary>
-        /// <seealso cref="Information"/>
-        public virtual void UpdateInformationTree(){}
         public virtual void Dispose(){ }
         private MachineState state=MachineState.Idle;
         public MachineState Status

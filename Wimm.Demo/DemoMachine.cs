@@ -9,6 +9,10 @@ namespace Wimm.Demo.Machine
     [LoadTarget]
     public class DemoMachine : Machines.Machine
     {
+        public override string Name => "Demo Machine";
+        public override string ControlSystem => "Demo";
+
+        Timer PeriodicTimer { get; }
         public DemoMachine(MachineConstructorArgs? args) : base(args)
         {
             Information = ImmutableArray.Create(
@@ -23,13 +27,16 @@ namespace Wimm.Demo.Machine
             MachineConfig.AddRegistries(
                 new Common.Setting.ConfigItemRegistry("Test","Default Value")
             );
-        }
-        public override void UpdateInformationTree()
-        {
-            // Informations/Time
-            Information[1].Entries[0].Value = $"{Stopwatch.ElapsedMilliseconds} ms";
-            // or Information[1]["Time"] (slightly slower)
-            Information[1].Entries[1].Value = MachineConfig.GetValueOrDefault("Test")??string.Empty;
+            PeriodicTimer = new Timer(
+                (obj) =>
+                {
+                    // Informations/Time
+                    Information[1].Entries[0].Value = $"{Stopwatch.ElapsedMilliseconds} ms";
+                    // or Information[1]["Time"] (slightly slower)
+                    Information[1].Entries[1].Value = MachineConfig.GetValueOrDefault("Test") ?? string.Empty;
+                },
+                null,1000,20
+            );
         }
         protected override void OnStatusChanged(MachineState newState)
         {
@@ -52,11 +59,11 @@ namespace Wimm.Demo.Machine
             base.Reset();
             Stopwatch.Reset();
         }
-
-        public override string Name => "Demo Machine";
-
-        public override string ControlSystem => "Demo";
-
+        public override void Dispose()
+        {
+            PeriodicTimer.Dispose();
+            base.Dispose();
+        }
         public override ConnectionState ConnectionStatus 
         {
             get { return Status == MachineState.Active ? ConnectionState.Online : ConnectionState.Offline; }
