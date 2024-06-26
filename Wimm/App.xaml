@@ -17,6 +17,7 @@
                 <ResourceDictionary Source="/Wimm;component/XAMLResources/Styles/ThemeStyle.xaml"/>
                 <ResourceDictionary Source="/Wimm;component/XAMLResources/Styles/TerminalStyle.xaml"/>
                 <ResourceDictionary Source="/Wimm;component/XAMLResources/Animations/StdAnimation.xaml"/>
+                <ResourceDictionary Source="/Wimm;component/XAMLResources/Converters/ValueConverters.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
