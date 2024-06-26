@@ -22,7 +22,7 @@ namespace Wimm.Ui
     public partial class ImmersiveControlPage : Page
     {
         MachineControlViewModel ViewModel { get; }
-        public ImmersiveControlPage(MachineControlViewModel viewModel)
+        internal ImmersiveControlPage(MachineControlViewModel viewModel)
         {
             ViewModel = viewModel;
             InitializeComponent();

@@ -35,7 +35,7 @@ namespace Wimm.Ui
         }
         MachineControlViewModel ViewModel { get; init; }
         private UiMode Mode { get; set; }
-        public MachineControlWindow(MachineControlViewModel viewModel)
+        internal MachineControlWindow(MachineControlViewModel viewModel)
         {
             InitializeComponent();
             ViewModel = viewModel;

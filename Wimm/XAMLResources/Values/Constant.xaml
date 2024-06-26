@@ -1,0 +1,13 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Thickness x:Key="Wimm.Margin.Small">6</Thickness>
+    <Thickness x:Key="Wimm.Margin.Small.Horizontal">6 0 6 0</Thickness>
+    <Thickness x:Key="Wimm.Margin.Small.Vertical">0 6 0 6</Thickness>
+    <Thickness x:Key="Wimm.Margin.Middle">10</Thickness>
+    <Thickness x:Key="Wimm.Margin.Middle.Horizontal">10 0 10 0</Thickness>
+    <Thickness x:Key="Wimm.Margin.Middle.Vertical">0 10 0 10</Thickness>
+    <Thickness x:Key="Wimm.Margin.Large">20</Thickness>
+    <Thickness x:Key="Wimm.Margin.Large.Horizontal">20 0 20 0</Thickness>
+    <Thickness x:Key="Wimm.Margin.Large.Vertical">0 20 0 20</Thickness>
+</ResourceDictionary>

@@ -21,7 +21,7 @@ namespace Wimm.Ui
     /// </summary>
     public partial class GeneralControlPage : Page
     {
-        public GeneralControlPage(MachineControlViewModel viewModel)
+        internal GeneralControlPage(MachineControlViewModel viewModel)
         {
             InitializeComponent();
             DataContext = viewModel;

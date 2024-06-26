@@ -25,7 +25,7 @@ namespace Wimm.Ui
     {
         MachineControlViewModel ViewModel;
         
-        public OperatorControlPage(MachineControlViewModel viewModel)
+        internal OperatorControlPage(MachineControlViewModel viewModel)
         {
             DataContext = viewModel;
             ViewModel = viewModel;

@@ -11,7 +11,7 @@ namespace Wimm.Model.Control.Script
     public class WimmFeatureProvider
     {
         MachineControlViewModel ViewModel { get; }
-        public WimmFeatureProvider(MachineControlViewModel viewModel)
+        internal WimmFeatureProvider(MachineControlViewModel viewModel)
         {
             ViewModel = viewModel;
         }

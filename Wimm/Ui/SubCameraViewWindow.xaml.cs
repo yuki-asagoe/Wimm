@@ -21,7 +21,7 @@ namespace Wimm.Ui
     /// </summary>
     public partial class SubCameraViewWindow : MetroWindow
     {
-        public SubCameraViewWindow(MachineControlViewModel viewModel)
+        internal SubCameraViewWindow(MachineControlViewModel viewModel)
         {
             DataContext = viewModel;
             InitializeComponent();

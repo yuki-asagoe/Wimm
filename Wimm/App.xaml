@@ -4,7 +4,6 @@
              xmlns:local="clr-namespace:Wimm"
              xmlns:converters="clr-namespace:Wimm.Ui.Converter"
              xmlns:validation="clr-namespace:Wimm.Ui.Validation"
-             xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              StartupUri="Ui/LauncherWindow.xaml"
              Startup="Application_Startup"
              DispatcherUnhandledException="Application_DispatcherUnhandledException">
@@ -14,39 +13,9 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Green.xaml" />
-                <ResourceDictionary>
-                    <Thickness x:Key="Wimm.Margin.Small">6</Thickness>
-                    <Thickness x:Key="Wimm.Margin.Small.Horizontal">6 0 6 0</Thickness>
-                    <Thickness x:Key="Wimm.Margin.Small.Vertical">0 6 0 6</Thickness>
-                    <Thickness x:Key="Wimm.Margin.Middle">10</Thickness>
-                    <Thickness x:Key="Wimm.Margin.Middle.Horizontal">10 0 10 0</Thickness>
-                    <Thickness x:Key="Wimm.Margin.Middle.Vertical">0 10 0 10</Thickness>
-                    <Thickness x:Key="Wimm.Margin.Large">20</Thickness>
-                    <Thickness x:Key="Wimm.Margin.Large.Horizontal">20 0 20 0</Thickness>
-                    <Thickness x:Key="Wimm.Margin.Large.Vertical">0 20 0 20</Thickness>
-                    <Style x:Key="Wimm.MetroHeader" TargetType="metro:MetroHeader" BasedOn="{StaticResource MahApps.Styles.MetroHeader}">
-                        <Setter Property="HeaderTemplate">
-                            <Setter.Value>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}" 
-                                   Background="{StaticResource MahApps.Brushes.Accent}"
-                                   Foreground="{StaticResource MahApps.Brushes.IdealForeground}"
-                                   Padding="4"/>
-                                </DataTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ResourceDictionary>
-                <ResourceDictionary xmlns:terminal="clr-namespace:Simple.Wpf.Terminal;assembly=Simple.Wpf.Terminal">
-                    <Style TargetType="{x:Type terminal:Terminal}" BasedOn="{x:Null}">
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Background" Value="{StaticResource MahApps.Brushes.ThemeBackground}" />
-                        <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Text}" />
-                        <Setter Property="ItemsMargin" Value="5" />
-                        <Setter Property="ItemHeight" Value="10" />
-                        <Setter Property="Prompt" Value=">"/>
-                    </Style>
-                </ResourceDictionary>
+                <ResourceDictionary Source="/Wimm;component/XAMLResources/Values/Constant.xaml"/>
+                <ResourceDictionary Source="/Wimm;component/XAMLResources/Styles/ThemeStyle.xaml"/>
+                <ResourceDictionary Source="/Wimm;component/XAMLResources/Styles/TerminalStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

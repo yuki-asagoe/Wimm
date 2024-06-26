@@ -101,4 +101,8 @@
     <SplashScreen Include="Resources\Image\splash_screen.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="XAMLResources\Values\" />
+  </ItemGroup>
+
 </Project>
