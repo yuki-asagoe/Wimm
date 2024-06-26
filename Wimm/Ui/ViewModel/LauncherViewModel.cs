@@ -31,7 +31,6 @@ namespace Wimm.Ui.ViewModel
             OptionMenuItems = new ObservableCollection<MenuItem>(
                 new MenuItem[]
                 {
-                    //new MenuItem("ロボット追加",PackIconModernKind.PageUpload,new Uri("AddMachinePage.xaml",UriKind.Relative)),
                     new MenuItem("設定",PackIconModernKind.Settings,new Uri("SettingPage.xaml",UriKind.Relative)),
                     new MenuItem("インフォメーション", PackIconModernKind.InformationCircle,new Uri("InformationPage.xaml",UriKind.Relative))
                 }

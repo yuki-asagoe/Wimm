@@ -43,6 +43,7 @@
     <None Remove="Resources\Text\OpenCvSharp4.License.txt" />
     <None Remove="Resources\Text\Simple.Wpf.Terminal.License.txt" />
     <None Remove="Resources\Text\Vortice.XInput.License.txt" />
+    <None Remove="Resources\Text\ZXing.License.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,6 +56,7 @@
     <Resource Include="Resources\Text\OpenCvSharp4.License.txt" />
     <Resource Include="Resources\Text\Simple.Wpf.Terminal.License.txt" />
     <Resource Include="Resources\Text\Vortice.XInput.License.txt" />
+    <Resource Include="Resources\Text\ZXing.License.txt" />
   </ItemGroup>
 
   <ItemGroup>
