@@ -197,7 +197,10 @@ namespace Wimm.Ui.ViewModel
             MachineController.OnStopMacro += OnStopMacroNotificated;
             ExtensionProviders = ExtensionsBuilder.Instance.Build(MachineController.Machine);
             MacroList = controller.MacroList;
-            periodicTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, dispatcher);
+            periodicTimer = new DispatcherTimer(
+                Setting.SetHighPriorityToPeriodicWork?DispatcherPriority.Render:DispatcherPriority.ApplicationIdle,
+                dispatcher
+            );
             periodicTimer.Tick += HighRatePeriodicWork;
             periodicTimer.Interval += new TimeSpan(0, 0, 0, 0, Math.Clamp(Setting.ControlPeriodicWorkInterval, (short)100, (short)2000));
             periodicTimer.Start();

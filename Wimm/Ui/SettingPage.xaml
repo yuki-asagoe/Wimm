@@ -37,8 +37,16 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="150"/>
                 </Grid.ColumnDefinitions>
-                <Metro:NumericUpDown Grid.Column="1" HorizontalAlignment="Left" Width="100" Value="{Binding ControlPeriodicWorkInterval, Mode=TwoWay}" Minimum="10" Maximum="2000"/>
+                <Metro:NumericUpDown Grid.Column="1" HorizontalAlignment="Left" Width="100" Value="{Binding ControlPeriodicWorkInterval, Mode=TwoWay}" Minimum="1" Maximum="2000"/>
                 <TextBlock VerticalAlignment="Center" Text="制御中の定期情報更新処理の間隔(ms)"/>
+            </Grid>
+            <Grid Margin="{StaticResource Wimm.Margin.Middle.Vertical}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="150"/>
+                </Grid.ColumnDefinitions>
+                <Metro:ToggleSwitch Grid.Column="1" HorizontalAlignment="Left" Width="100" IsOn="{Binding SetHighPriorityToPeriodicWork,Mode=TwoWay}"/>
+                <TextBlock VerticalAlignment="Center" Text="定期情報更新処理の優先度を上げる"/>
             </Grid>
             <Separator/>
         </StackPanel>

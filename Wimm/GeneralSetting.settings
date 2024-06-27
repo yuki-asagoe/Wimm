@@ -11,5 +11,8 @@
     <Setting Name="ControlPeriodicWorkInterval" Type="System.Int16" Scope="User">
       <Value Profile="(Default)">500</Value>
     </Setting>
+    <Setting Name="SetHighPriorityToPeriodicWork" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

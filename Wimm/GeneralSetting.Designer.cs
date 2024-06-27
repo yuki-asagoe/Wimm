@@ -12,7 +12,7 @@ namespace Wimm {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.2.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.6.0.0")]
     public sealed partial class GeneralSetting : global::System.Configuration.ApplicationSettingsBase {
         
         private static GeneralSetting defaultInstance = ((GeneralSetting)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new GeneralSetting())));
@@ -56,6 +56,18 @@ namespace Wimm {
             }
             set {
                 this["ControlPeriodicWorkInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SetHighPriorityToPeriodicWork {
+            get {
+                return ((bool)(this["SetHighPriorityToPeriodicWork"]));
+            }
+            set {
+                this["SetHighPriorityToPeriodicWork"] = value;
             }
         }
     }
