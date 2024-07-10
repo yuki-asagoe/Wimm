@@ -22,17 +22,17 @@ namespace Wimm.Ui.ViewModel
             MenuItems = new ObservableCollection<MenuItem>(
                 new MenuItem[]
                 {
-                    new MenuItem("ホーム",PackIconModernKind.Home,new Uri("EntrancePage.xaml",UriKind.Relative)),
-                    new MenuItem("ランチャー",PackIconModernKind.RocketRotated45,new Uri("MachineSelectPage.xaml",UriKind.Relative)),
-                    new MenuItem("コントローラー",PackIconModernKind.ControllerXbox,new Uri("ControllerSettingPage.xaml",UriKind.Relative)),
-                    new MenuItem("モジュール管理",PackIconModernKind.List,new Uri("ManageMachinesPage.xaml",UriKind.Relative))
+                    new MenuItem("ホーム",PackIconModernKind.Home,new Uri("pack://application:,,,/Wimm;component/Ui/XAML/Page/EntrancePage.xaml",UriKind.Absolute)),
+                    new MenuItem("ランチャー",PackIconModernKind.RocketRotated45,new Uri("pack://application:,,,/Wimm;component/Ui/XAML/Page/MachineSelectPage.xaml",UriKind.Absolute)),
+                    new MenuItem("コントローラー",PackIconModernKind.ControllerXbox,new Uri("pack://application:,,,/Wimm;component/Ui/XAML/Page/ControllerSettingPage.xaml",UriKind.Absolute)),
+                    new MenuItem("モジュール管理",PackIconModernKind.List,new Uri("pack://application:,,,/Wimm;component/Ui/XAML/Page/ManageMachinesPage.xaml",UriKind.Absolute))
                 }
              );
             OptionMenuItems = new ObservableCollection<MenuItem>(
                 new MenuItem[]
                 {
-                    new MenuItem("設定",PackIconModernKind.Settings,new Uri("SettingPage.xaml",UriKind.Relative)),
-                    new MenuItem("インフォメーション", PackIconModernKind.InformationCircle,new Uri("InformationPage.xaml",UriKind.Relative))
+                    new MenuItem("設定",PackIconModernKind.Settings,new Uri("pack://application:,,,/Wimm;component/Ui/XAML/Page/SettingPage.xaml",UriKind.Absolute)),
+                    new MenuItem("インフォメーション", PackIconModernKind.InformationCircle,new Uri("pack://application:,,,/Wimm;component/Ui/XAML/Page/InformationPage.xaml",UriKind.Absolute))
                 }
             );
         }

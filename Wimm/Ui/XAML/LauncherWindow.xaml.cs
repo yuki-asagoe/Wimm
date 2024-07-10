@@ -29,7 +29,7 @@ namespace Wimm.Ui
         {
             ViewModel = new LauncherViewModel();
             DataContext = ViewModel;
-            ViewModel.ContentUri = new Uri("MachineSelectPage.xaml",UriKind.Relative);
+            ViewModel.ContentUri = new Uri("pack://application:,,,/Wimm;component/Ui/XAML/Page/MachineSelectPage.xaml", UriKind.Absolute);
             InitializeComponent();
         }
 

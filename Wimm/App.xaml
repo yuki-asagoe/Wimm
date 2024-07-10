@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:Wimm"
              xmlns:converters="clr-namespace:Wimm.Ui.Converter"
              xmlns:validation="clr-namespace:Wimm.Ui.Validation"
-             StartupUri="Ui/LauncherWindow.xaml"
+             StartupUri="Ui/XAML/LauncherWindow.xaml"
              Startup="Application_Startup"
              DispatcherUnhandledException="Application_DispatcherUnhandledException">
     <Application.Resources>
