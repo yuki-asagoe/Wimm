@@ -181,7 +181,8 @@ namespace Wimm.Model.Control
                 Machine machine = GetMachine(dll, args);
                 int gamepadIndex = GeneralSetting.Default.SelectedControllerIndex;
                 ScriptDriver binder = new ScriptDriver(machine, machineDirectory.MachineDirectory, gamepadIndex, wimmFeature, hwnd, logger);
-                return new MachineController(machine, binder, gamepadIndex);
+                int contorlInterval = GeneralSetting.Default.ControlInterval;
+                return new MachineController(machine, binder, gamepadIndex,contorlInterval);
             }
             public static MachineController Build(DirectoryInfo machineDirectory,WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
             {

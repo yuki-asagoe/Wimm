@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -344,6 +345,36 @@ namespace Wimm.Model.Control
             var directory = new DirectoryInfo(exeLocation);
             if (directory.Exists) { return directory; }
             else return Directory.CreateDirectory(path);
+        }
+        public static void ExtractToZip(DirectoryInfo source,string destinationFilePath)
+        {
+            if (File.Exists(destinationFilePath)) File.Delete(destinationFilePath);
+            using var arc = ZipFile.Open(destinationFilePath, ZipArchiveMode.Create);
+            arc.CreateEntryFromDirectory(source.FullName,source.Name);
+        }
+    }
+    internal static class ZipArchiveExtension
+    {
+        public static void CreateEntryFromAny(this ZipArchive archive, string sourceName, string entryName = "")
+        {
+            var fileName = Path.GetFileName(sourceName);
+            if (File.GetAttributes(sourceName).HasFlag(FileAttributes.Directory))
+            {
+                archive.CreateEntryFromDirectory(sourceName, Path.Combine(entryName, fileName));
+            }
+            else
+            {
+                archive.CreateEntryFromFile(sourceName, Path.Combine(entryName, fileName), CompressionLevel.Fastest);
+            }
+        }
+
+        public static void CreateEntryFromDirectory(this ZipArchive archive, string sourceDirName, string entryName = "")
+        {
+            string[] files = Directory.GetFiles(sourceDirName).Concat(Directory.GetDirectories(sourceDirName)).ToArray();
+            foreach (var file in files)
+            {
+                archive.CreateEntryFromAny(file, entryName);
+            }
         }
     }
 }

@@ -262,8 +262,8 @@ namespace Wimm.Ui.ViewModel
                     } else return;
                     try
                     {
-                        if (File.Exists(destinationFilePath)) File.Delete(destinationFilePath);
-                        ZipFile.CreateFromDirectory(source.FullName, destinationFilePath);
+                        MachineFolder.ExtractToZip(source, destinationFilePath);
+
                     }
                     catch(Exception e)
                     {

@@ -8,11 +8,14 @@
     <Setting Name="EnableQRDetection" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="ControlPeriodicWorkInterval" Type="System.Int16" Scope="User">
+    <Setting Name="ControlPeriodicWorkInterval" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">500</Value>
     </Setting>
     <Setting Name="SetHighPriorityToPeriodicWork" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ControlInterval" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">50</Value>
     </Setting>
   </Settings>
 </SettingsFile>
