@@ -24,9 +24,24 @@ namespace Wimm.Model.Control
             MetaInfoFile = new FileInfo($"{machineDirectory.FullName}/meta_info.json");
             ConfigFile = new FileInfo($"{machineDirectory.FullName}/config.json");
             ScriptInitializeFile = new FileInfo($"{machineDirectory.FullName}/script/initialize.neo.lua");
+            if (!ScriptInitializeFile.Exists) { 
+                ScriptInitializeFile= new FileInfo($"{machineDirectory.FullName}/script/initialize.lua");
+            }
             ScriptDefinitionFile = new FileInfo($"{machineDirectory.FullName}/script/definition.neo.lua");
+            if (!ScriptDefinitionFile.Exists)
+            {
+                ScriptDefinitionFile = new FileInfo($"{machineDirectory.FullName}/script/definition.lua");
+            }
             ScriptMappingFile = new FileInfo($"{machineDirectory.FullName}/script/control_map.neo.lua");
+            if (!ScriptMappingFile.Exists)
+            {
+                ScriptMappingFile = new FileInfo($"{machineDirectory.FullName}/script/control_map.lua");
+            }
             ScriptOnControlFile = new FileInfo($"{machineDirectory.FullName}/script/on_control.neo.lua");
+            if (!ScriptOnControlFile.Exists)
+            {
+                ScriptOnControlFile = new FileInfo($"{machineDirectory.FullName}/script/on_control.lua");
+            }
             MacroRegistryFile = new FileInfo($"{machineDirectory.FullName}/script/macro/macros.json");
             LinkedList<FileInfo> buffer = new();
             for (int i = 1; i <= 100; i++)
@@ -286,9 +301,9 @@ namespace Wimm.Model.Control
             {
                 if (disposed) return this;
                 DirectoryInfo scriptFolder = MachineDirectory.CreateSubdirectory("script");
-                File.Create(scriptFolder.FullName + "/initialize.neo.lua").Close();
-                File.Create(scriptFolder.FullName + "/definition.neo.lua").Close();
-                using (var stream = new StreamWriter(File.Create(scriptFolder.FullName + "/control_map.neo.lua")))
+                File.Create(scriptFolder.FullName + "/initialize.lua").Close();
+                File.Create(scriptFolder.FullName + "/definition.lua").Close();
+                using (var stream = new StreamWriter(File.Create(scriptFolder.FullName + "/control_map.lua")))
                 {
                     stream.WriteLine("-- コントロールの操作のマッピングを行います。高度な制御がいるならon_controlを使ってネ");
                     stream.WriteLine("-- map(key_array,button_array,action)");
@@ -296,7 +311,7 @@ namespace Wimm.Model.Control
                     stream.WriteLine("-- buttons : Votice.XInput.GamepadButtons");
                     stream.WriteLine("-- keys : 未定、現在参照できません map関数の入力は受け入れますが何もしません");
                 }
-                using (var stream = new StreamWriter(File.Create(scriptFolder.FullName + "/on_control.neo.lua")))
+                using (var stream = new StreamWriter(File.Create(scriptFolder.FullName + "/on_control.lua")))
                 {
                     stream.WriteLine("-- 毎制御ごとに呼び出します。以下引数");
                     stream.WriteLine("-- {Root Module Name} - StructuredModlues これの名前はマシンDLL依存なんだけどよくないかな");
