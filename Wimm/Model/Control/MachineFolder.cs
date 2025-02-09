@@ -105,14 +105,25 @@ namespace Wimm.Model.Control
             {
                 AssemblyFile = machineAssemblyFile;
                 Machine = MachineController.Builder.GetMachine(machineAssemblyFile, null);
-                var root = GetMachineRootFolder();
-                if(root is null)
+                var root = GetMachineRootFolders();
+                if(root.Length ==0)
                 {
                     throw new IOException("マシンフォルダの取得に失敗しました。");
                 }
                 var dllName = machineAssemblyFile.Name[..^machineAssemblyFile.Extension.Length];
-                var machineDirectoryPath = root.FullName + "/" + dllName;
-                MachineDirectory = new DirectoryInfo(machineDirectoryPath);
+                string? machineDirectoryPath=null;
+                foreach (var f in root)
+                {
+                    var directoryPath = f.FullName + "/" + dllName;
+                    if (Directory.Exists(directoryPath))
+                    {
+                        machineDirectoryPath = directoryPath;
+                        break;
+                    }
+                }
+                MachineDirectory = machineDirectoryPath is null ? 
+                    GetMachineRootFolder().CreateSubdirectory(dllName) : 
+                    new DirectoryInfo(machineDirectoryPath);
                 MachineDirectory.Create();
                 File.Copy(machineAssemblyFile.FullName, MachineDirectory.FullName + "/" + machineAssemblyFile.Name, true);
             }
@@ -334,17 +345,21 @@ namespace Wimm.Model.Control
                 Dispose();
             }
         }
-        public static DirectoryInfo? GetMachineRootFolder()
+        public static DirectoryInfo[] GetMachineRootFolders()
         {
             var exeLocation = Assembly.GetEntryAssembly()?.Location;
-            if (exeLocation is null) return null;
+            if (exeLocation is null) return Array.Empty<DirectoryInfo>();
             var exe = new FileInfo(exeLocation);
             var exeDirectory = exe.Directory;
-            if (exeDirectory is null) return null;
+            if (exeDirectory is null) return Array.Empty<DirectoryInfo>();
             var path = exeDirectory.FullName + "/Machines";
-            var directory = new DirectoryInfo(exeLocation);
-            if (directory.Exists) { return directory; }
-            else return Directory.CreateDirectory(path);
+            DirectoryInfo[] directories = [GetMachineRootFolder(),exeDirectory.CreateSubdirectory("Machines")];
+            return directories;
+        }
+        public static DirectoryInfo GetMachineRootFolder()
+        {
+            var appFolder = WimmInfo.GetAppFolder();
+            return appFolder.CreateSubdirectory("Machines");
         }
         public static void ExtractToZip(DirectoryInfo source,string destinationFilePath)
         {
