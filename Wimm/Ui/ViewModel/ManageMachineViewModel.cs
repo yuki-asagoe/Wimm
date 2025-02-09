@@ -100,6 +100,15 @@ namespace Wimm.Ui.ViewModel
                                 try
                                 {
                                     generator.GenerateAll();
+                                    var directory = file.Directory;
+                                    // おまけで同一フォルダ内のDllはコピーしておく (依存している可能性が高い
+                                    if (directory is not null)
+                                    {
+                                        foreach (var f in directory.GetFiles().Where(it => it.Name.EndsWith(".dll") && it.Name != file.Name))
+                                        {
+                                            File.Copy(f.FullName, generator.MachineDirectory.FullName + "/" + f.Name);
+                                        }
+                                    }
                                 }
                                 catch(Exception e)
                                 {
@@ -113,7 +122,7 @@ namespace Wimm.Ui.ViewModel
                             await controller.CloseAsync();
                             if(result is null)
                             {
-                                Machines = new ObservableCollection<MachineEntry>(MachineEntry.LoadEntries() ?? Array.Empty<MachineEntry>());
+                                Machines = new ObservableCollection<MachineEntry>(MachineEntry.LoadEntries());
                                 await DialogCoordinator.ShowMessageAsync(this, "ロボットの追加", "正常に完了しました。");
                             }
                             else
