@@ -38,7 +38,7 @@ namespace Wimm.Model.Control
         public RunningMacro? RunningMacro
         { get; private set; }
 
-        public ScriptDriver(Machine machine, DirectoryInfo machineFolder, int controllerIndex, WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
+        public ScriptDriver(Machine machine, MachineFolder machineFolder, int controllerIndex, WimmFeatureProvider wimmFeature, IntPtr hwnd, ILogger logger)
         {
             var deviceDirectory = DeviceFolder.GetDeviceRootFolder();
             if (deviceDirectory is null)
@@ -56,71 +56,68 @@ namespace Wimm.Model.Control
             RootModuleName = machine.StructuredModules.Name;
             Logger = logger;
             #region //Load Machine Folder
-            var scriptFolder = new DirectoryInfo(machineFolder.FullName + "/script");
-            var definitionFile = new FileInfo(scriptFolder.FullName + "/definition.neo.lua");
-            if (!definitionFile.Exists)
-            {
-                throw new FileNotFoundException("スクリプトファイル[definition.neo.lua]が見つかりません。ファイル名を確認してください。");
-            }
-            var initializeFile = new FileInfo(scriptFolder.FullName + "/initialize.neo.lua");
-            if (!initializeFile.Exists){
-                throw new FileNotFoundException("スクリプトファイル[initialize.neo.lua]が見つかりません。ファイル名を確認してください。");
-            }
-            var control_mapFile = new FileInfo(scriptFolder.FullName + "/control_map.neo.lua");
-            if (!control_mapFile.Exists)
-            {
-                throw new FileNotFoundException("スクリプトファイル[control_map.neo.lua]が見つかりません。ファイル名を確認してください。");
-            }
-            //var logicalMovementFile = new FileInfo(scriptFolder + "/logical_movement.neo.lua");
-            var on_controlFile = new FileInfo(scriptFolder.FullName + "/on_control.neo.lua");
-            if (!on_controlFile.Exists)
-            {
-                throw new FileNotFoundException("スクリプトファイル[on_control.neo.lua]が見つかりません。ファイル名を確認してください。");
-            }
+            
             ControlEnvironment.DefineFunction("getdevice", this.GetDevice);
             try
             {
-                ControlEnvironment.DoChunk(
-                    initializeFile.FullName,
-                    new KeyValuePair<string, object>(
-                        RootModuleName,
-                        ModuleTable
-                    )
-                );
-                logger?.Info("initializeファイルの実行が完了しました");
-                ControlEnvironment.DoChunk(
-                    definitionFile.FullName,
-                    new KeyValuePair<string, object>(
-                        RootModuleName,
-                        ModuleTable
-                    )
-                );
-                logger?.Info("definitionファイルの実行が完了しました");
-                ControlEnvironment.DoChunk(
-                    control_mapFile.FullName,
-                    new KeyValuePair<string, object>(
-                        "map",
-                        (Action<LuaTable, LuaTable, Func<LuaResult>>)MapControl
-                    ),
-                    new KeyValuePair<string, object>(
-                        "buttons",
-                        LuaKeysEnum.GamepadKeyEnum
-                    ),
-                    new KeyValuePair<string, object>(
-                        RootModuleName,
-                        ModuleTable
-                    )
-                );
-                if (on_controlFile.Exists) ControlChunk = lua.CompileChunk(
-                    on_controlFile.FullName,
-                    new LuaCompileOptions(),
-                    new KeyValuePair<string, Type>(RootModuleName, typeof(LuaTable)),
-                    new KeyValuePair<string, Type>("buttons", typeof(LuaTable)),
-                    new KeyValuePair<string, Type>("gamepad", typeof(Gamepad)),
-                    new KeyValuePair<string, Type>("wimm", typeof(WimmFeatureProvider)),
-                    new KeyValuePair<string, Type>("input", typeof(InputSupporter))
-                );
-            }catch(LuaParseException e)
+                if (machineFolder.ScriptInitializeFile.Exists)
+                {
+                    ControlEnvironment.DoChunk(
+                        machineFolder.ScriptInitializeFile.FullName,
+                        new KeyValuePair<string, object>(
+                            RootModuleName,
+                            ModuleTable
+                        )
+                    );
+                    logger?.Info($"[{machineFolder.ScriptInitializeFile.Name}]ファイルの実行が完了しました");
+                }
+                else
+                {
+                    logger?.Warn($"スクリプトファイル[{machineFolder.ScriptInitializeFile.Name}]が見つかりません。スキップしました");
+                }
+                if (machineFolder.ScriptControlMapFile.Exists)
+                {
+                    ControlEnvironment.DoChunk(
+                        machineFolder.ScriptControlMapFile.FullName,
+                        new KeyValuePair<string, object>(
+                            "map",
+                            (Action<LuaTable, LuaTable, Func<LuaResult>>)MapControl
+                        ),
+                        new KeyValuePair<string, object>(
+                            "buttons",
+                            LuaKeysEnum.GamepadKeyEnum
+                        ),
+                        new KeyValuePair<string, object>(
+                            RootModuleName,
+                            ModuleTable
+                        )
+                    );
+                    logger?.Info($"[{machineFolder.ScriptControlMapFile.Name}]ファイルの実行が完了しました");
+                }
+                else
+                {
+                    logger?.Warn($"スクリプトファイル[{machineFolder.ScriptControlMapFile.Name}]が見つかりません。スキップしました");
+                }
+
+                if (machineFolder.ScriptOnControlFile.Exists)
+                {
+                    ControlChunk = lua.CompileChunk(
+                        machineFolder.ScriptOnControlFile.FullName,
+                        new LuaCompileOptions(),
+                        new KeyValuePair<string, Type>(RootModuleName, typeof(LuaTable)),
+                        new KeyValuePair<string, Type>("buttons", typeof(LuaTable)),
+                        new KeyValuePair<string, Type>("gamepad", typeof(Gamepad)),
+                        new KeyValuePair<string, Type>("wimm", typeof(WimmFeatureProvider)),
+                        new KeyValuePair<string, Type>("input", typeof(InputSupporter))
+                    );
+                    logger?.Info($"[{machineFolder.ScriptOnControlFile.Name}]ファイルのコンパイルが完了しました");
+                }
+                else
+                {
+                    logger?.Warn($"スクリプトファイル[{machineFolder.ScriptOnControlFile.Name}]が見つかりません。このロボットにはスクリプトによる定期制御処理は実行されません");
+                }
+            }
+            catch(LuaParseException e)
             {
                 StringBuilder builder = new StringBuilder();
                 builder
@@ -135,14 +132,19 @@ namespace Wimm.Model.Control
                 );
                 throw newException;
             }
-            logger?.Info("キーマッピングの配置が完了しました");
-            logger?.Info("マクロの識別を開始します");
-            var macroFolder = new DirectoryInfo(scriptFolder.FullName + "/macro");
-            if (macroFolder.Exists)
+            if (machineFolder.MacroDirectory.Exists)
             {
-                var serializer = new MacroFolderLoader(macroFolder, lua);
-                MacroList=serializer.Macros;
+                logger?.Info("マクロの識別を開始します");
+                var serializer = new MacroFolderLoader(machineFolder.MacroDirectory, lua);
+                MacroList = serializer.Macros;
+                logger?.Info($"マクロの識別が完了しました[総数 : {MacroList.Length}]");
             }
+            else
+            {
+                logger?.Info("マクロフォルダが見つかりませんでした。スキップしました。");
+                MacroList = [];
+            }
+            
             #endregion // Load Machine Folder
         }
 

@@ -7,7 +7,7 @@ using Wimm.Machines.Extension;
 
 namespace Wimm.Demo.Machine
 {
-    [LoadTarget]
+    //[LoadTarget] // Available instead of assembly attribute
     public class DemoMachine : Machines.Machine , IPowerVoltageProvidable, IBatteryLevelProvidable
     {
         public override string Name => "Demo Machine";

@@ -44,13 +44,17 @@ namespace Wimm.Model.Video
         /// 画像加工処理を行います、非常に高頻度で呼び出されることが想定されるのであまり重たくしすぎないでください
         /// 重くするとコマ落ちの恐れがあります。
         /// </summary>
-        private async Task<BitmapSource> Draw(FrameData[] frames)
+        private Task<BitmapSource> Draw(FrameData[] frames)
         {
-            var frame=frames[0].Frame;
-            VideoFilter?.Apply(frame);
-            var image = frame.ToBitmapSource();
-            image.Freeze();
-            return image;
+            return Task.Run(() =>
+            {
+                var frame=frames[0].Frame;
+                VideoFilter?.Apply(frame);
+                var image = frame.ToBitmapSource();
+                image.Freeze();
+                return image;
+            });
+            
         }
         public bool IsReadyToReceive => DrawTask?.IsCompleted ?? true;
         public Task<BitmapSource>? DrawTask { get; set; }

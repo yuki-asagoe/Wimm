@@ -180,7 +180,7 @@ namespace Wimm.Model.Control
                 var args = new MachineConstructorArgs(hwnd, new MachineLogger(logger), machineDirectory.MachineDirectory);
                 Machine machine = GetMachine(dll, args);
                 int gamepadIndex = GeneralSetting.Default.SelectedControllerIndex;
-                ScriptDriver binder = new ScriptDriver(machine, machineDirectory.MachineDirectory, gamepadIndex, wimmFeature, hwnd, logger);
+                ScriptDriver binder = new ScriptDriver(machine, machineDirectory, gamepadIndex, wimmFeature, hwnd, logger);
                 int contorlInterval = GeneralSetting.Default.ControlInterval;
                 return new MachineController(machine, binder, gamepadIndex,contorlInterval);
             }
@@ -222,6 +222,13 @@ namespace Wimm.Model.Control
             }
             public static Type? GetMachineType(Assembly assembly)
             {
+                if(assembly.GetCustomAttribute<LoadTargetAttribute>() is LoadTargetAttribute attr)
+                {
+                    if(attr.Target is Type type && type.IsSubclassOf(typeof(Machine)))
+                    {
+                        return type;
+                    }
+                }
                 foreach (var type in assembly.GetTypes())
                 {
                     if (
@@ -285,6 +292,13 @@ namespace Wimm.Model.Control
             }
             public static Type? GetDeviceType(Assembly assembly)
             {
+                if (assembly.GetCustomAttribute<LoadTargetAttribute>() is LoadTargetAttribute attr)
+                {
+                    if (attr.Target is Type type && type.IsSubclassOf(typeof(IODevice)))
+                    {
+                        return type;
+                    }
+                }
                 foreach (var type in assembly.GetTypes())
                 {
                     if (

@@ -9,6 +9,9 @@ namespace Wimm.Common
     /// <summary>
     /// Wimmによる読み込み対象になるMachineクラスに付与します。
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class,AllowMultiple = false)]
-    public class LoadTargetAttribute:Attribute{}
+    public class LoadTargetAttribute:Attribute{
+        public Type? Target { get; }
+        public LoadTargetAttribute() { }
+        public LoadTargetAttribute(Type target) { Target = target; }
+    }
 }

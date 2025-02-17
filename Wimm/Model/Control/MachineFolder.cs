@@ -23,25 +23,22 @@ namespace Wimm.Model.Control
             
             MetaInfoFile = new FileInfo($"{machineDirectory.FullName}/meta_info.json");
             ConfigFile = new FileInfo($"{machineDirectory.FullName}/config.json");
+            ScriptDirectory = new DirectoryInfo($"{machineDirectory.FullName}/script");
             ScriptInitializeFile = new FileInfo($"{machineDirectory.FullName}/script/initialize.neo.lua");
             if (!ScriptInitializeFile.Exists) { 
                 ScriptInitializeFile= new FileInfo($"{machineDirectory.FullName}/script/initialize.lua");
             }
-            ScriptDefinitionFile = new FileInfo($"{machineDirectory.FullName}/script/definition.neo.lua");
-            if (!ScriptDefinitionFile.Exists)
+            ScriptControlMapFile = new FileInfo($"{machineDirectory.FullName}/script/control_map.neo.lua");
+            if (!ScriptControlMapFile.Exists)
             {
-                ScriptDefinitionFile = new FileInfo($"{machineDirectory.FullName}/script/definition.lua");
-            }
-            ScriptMappingFile = new FileInfo($"{machineDirectory.FullName}/script/control_map.neo.lua");
-            if (!ScriptMappingFile.Exists)
-            {
-                ScriptMappingFile = new FileInfo($"{machineDirectory.FullName}/script/control_map.lua");
+                ScriptControlMapFile = new FileInfo($"{machineDirectory.FullName}/script/control_map.lua");
             }
             ScriptOnControlFile = new FileInfo($"{machineDirectory.FullName}/script/on_control.neo.lua");
             if (!ScriptOnControlFile.Exists)
             {
                 ScriptOnControlFile = new FileInfo($"{machineDirectory.FullName}/script/on_control.lua");
             }
+            MacroDirectory = new DirectoryInfo($"{machineDirectory.FullName}/script/macro");
             MacroRegistryFile = new FileInfo($"{machineDirectory.FullName}/script/macro/macros.json");
             LinkedList<FileInfo> buffer = new();
             for (int i = 1; i <= 100; i++)
@@ -58,42 +55,75 @@ namespace Wimm.Model.Control
             }
             Macros = buffer.ToArray();
             IconFile = new FileInfo($"{machineDirectory.FullName}/icon.png");
-            using (var stream = MetaInfoFile.OpenRead())
+            
+        }
+        public string? _machineName = null;
+        public string? _controlSystem = null;
+        public FileInfo? _machineAssemblyFile = null;
+
+        public string MachineName 
+        {
+            get
             {
-                var json = JsonNode.Parse(stream);
-                if (json is not null && json["name"] is JsonNode nameNode)
-                {
-                    MachineName = nameNode.GetValue<string>();
-                }
-                if (json is not null && json["board"] is JsonNode boardNode)
-                {
-                    ControlBoard = boardNode.GetValue<string>();
-                }
-                if (json is not null && json["assembly"] is JsonNode assemblyNode)
-                {
-                    MachineAssemblyFile = new FileInfo($"{machineDirectory.FullName}/{assemblyNode.GetValue<string>()}");
-                }
-                else
-                {
-                    MachineAssemblyFile = new FileInfo($"{machineDirectory.FullName}/{MachineDirectory.Name}.dll");
-                }
-                MachineName ??= string.Empty;
-                ControlBoard ??= string.Empty;
+                if (_machineName is null) LoadMetaInfo();
+                return _machineName ?? string.Empty;
             }
         }
-        public string MachineName { get; }
-        public string ControlBoard { get; }
+        public string ControlSystem
+        {
+            get
+            {
+                if (_controlSystem is null) LoadMetaInfo();
+                return _controlSystem ?? string.Empty;
+            }
+        }
         public DirectoryInfo MachineDirectory { get; }
+        public DirectoryInfo ScriptDirectory { get; }
+        public DirectoryInfo MacroDirectory { get; }
         public FileInfo ScriptInitializeFile { get; }
-        public FileInfo ScriptDefinitionFile { get; }
-        public FileInfo ScriptMappingFile { get; }
+        public FileInfo ScriptControlMapFile { get; }
         public FileInfo ScriptOnControlFile { get; }
-        public FileInfo MachineAssemblyFile { get; }
+        public FileInfo MachineAssemblyFile
+        {
+            get
+            {
+                if (_machineAssemblyFile is null) LoadMetaInfo();
+                return _machineAssemblyFile ??= new FileInfo($"{MachineDirectory.FullName}/{MachineDirectory.Name}.dll");
+            }
+        }
         public FileInfo ConfigFile { get; }
         public FileInfo MetaInfoFile { get; }
         public FileInfo IconFile { get; }
         public FileInfo MacroRegistryFile { get; }
         public FileInfo[] Macros { get; }
+
+        private void LoadMetaInfo()
+        {
+            if (MetaInfoFile.Exists)
+            {
+                using (var stream = MetaInfoFile.OpenRead())
+                {
+                    var json = JsonNode.Parse(stream);
+                    if (json is not null && json["name"] is JsonNode nameNode)
+                    {
+                        _machineName = nameNode.GetValue<string>();
+                    }
+                    if (json is not null && json["board"] is JsonNode boardNode)
+                    {
+                        _controlSystem = boardNode.GetValue<string>();
+                    }
+                    if (json is not null && json["assembly"] is JsonNode assemblyNode)
+                    {
+                        _machineAssemblyFile = new FileInfo($"{MachineDirectory.FullName}/{assemblyNode.GetValue<string>()}");
+                    }
+
+                }
+            }
+            _machineName ??= string.Empty;
+            _controlSystem ??= string.Empty;
+            _machineAssemblyFile ??= new FileInfo($"{MachineDirectory.FullName}/{MachineDirectory.Name}.dll");
+        }
+
         public sealed class Generator : IDisposable
         {
             Machine Machine { get; }
@@ -302,7 +332,6 @@ namespace Wimm.Model.Control
                 if (disposed) return this;
                 DirectoryInfo scriptFolder = MachineDirectory.CreateSubdirectory("script");
                 File.Create(scriptFolder.FullName + "/initialize.lua").Close();
-                File.Create(scriptFolder.FullName + "/definition.lua").Close();
                 using (var stream = new StreamWriter(File.Create(scriptFolder.FullName + "/control_map.lua")))
                 {
                     stream.WriteLine("-- コントロールの操作のマッピングを行います。高度な制御がいるならon_controlを使ってネ");
