@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using Wimm.Machines.Tpip3.Import;
 using Wimm.Machines.Video;
 
@@ -18,6 +19,10 @@ namespace Wimm.Machines.Tpip3
         {
             if (names.Length > 4) { throw new ArgumentException("カメラは4つまでしか設定できません"); }
             Channels = names.Select(it => (Channel)new Tpip3CameraChannel(it)).ToImmutableArray();
+        }
+        public Tpip3Camera(HwndSource? hwnd, params string[] names) : this(names)
+        {
+            hwnd?.AddHook(this.WndProc);
         }
         public override bool SupportingMultiObservation => false;
         private const int WM_PAINT = 0x000F;

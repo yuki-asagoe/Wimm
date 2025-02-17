@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Interop;
 using Wimm.Machines.TpipForRasberryPi.Import;
 using Wimm.Machines.Video;
 
@@ -17,6 +18,10 @@ namespace Wimm.Machines.TpipForRasberryPi
         {
             if (names.Length > 4) { throw new ArgumentException("カメラは4つまでしか設定できません"); }
             Channels = names.Select(it => (Channel)new Tpip4CameraChannel(it)).ToImmutableArray();
+        }
+        public Tpip4Camera(HwndSource? hwnd,params string[] names) : this(names)
+        {
+            hwnd?.AddHook(this.WndProc);
         }
         public override bool SupportingMultiObservation => false;
         private const int WM_PAINT = 0x000F;
