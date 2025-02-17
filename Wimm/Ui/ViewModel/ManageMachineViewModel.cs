@@ -106,7 +106,7 @@ namespace Wimm.Ui.ViewModel
                                     {
                                         foreach (var f in directory.GetFiles().Where(it => it.Name.EndsWith(".dll") && it.Name != file.Name))
                                         {
-                                            File.Copy(f.FullName, generator.MachineDirectory.FullName + "/" + f.Name);
+                                            File.Copy(f.FullName, generator.Folder.MachineDirectory.FullName + "/" + f.Name);
                                         }
                                     }
                                 }

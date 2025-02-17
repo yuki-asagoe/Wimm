@@ -12,6 +12,7 @@ using System.Xml;
 using Wimm.Common;
 using Wimm.Machines;
 using Wimm.Ui.Records;
+using ZXing;
 
 namespace Wimm.Model.Control
 {
@@ -23,6 +24,7 @@ namespace Wimm.Model.Control
             
             MetaInfoFile = new FileInfo($"{machineDirectory.FullName}/meta_info.json");
             ConfigFile = new FileInfo($"{machineDirectory.FullName}/config.json");
+            DescriptionFile = new FileInfo($"{machineDirectory.FullName}/description.txt");
             ScriptDirectory = new DirectoryInfo($"{machineDirectory.FullName}/script");
             ScriptInitializeFile = new FileInfo($"{machineDirectory.FullName}/script/initialize.neo.lua");
             if (!ScriptInitializeFile.Exists) { 
@@ -83,6 +85,7 @@ namespace Wimm.Model.Control
         public FileInfo ScriptInitializeFile { get; }
         public FileInfo ScriptControlMapFile { get; }
         public FileInfo ScriptOnControlFile { get; }
+        public FileInfo DescriptionFile { get; }
         public FileInfo MachineAssemblyFile
         {
             get
@@ -127,9 +130,22 @@ namespace Wimm.Model.Control
         public sealed class Generator : IDisposable
         {
             Machine Machine { get; }
-            public DirectoryInfo MachineDirectory { get; }
+            Assembly MachineAssembly
+            {
+                get { return Machine.GetType().Assembly; }
+            }
+            public MachineFolder Folder { get; }
             FileInfo AssemblyFile { get; }
             bool disposed = false;
+            SortedList<ResourceType, string>? _resources = null;
+            SortedList<ResourceType, string> ResourceEntries
+            {
+                get
+                {
+                    return _resources ??= MachineLoader.GetAdditionalResourceEntries(Machine.GetType().Assembly);
+                }
+            }
+
             /// <summary>
             /// 既存のマシンフォルダからジェネレータを生成します。
             /// </summary>
@@ -138,9 +154,8 @@ namespace Wimm.Model.Control
             public Generator(MachineFolder machineFolder)
             {
                 AssemblyFile = machineFolder.MachineAssemblyFile;
-                MachineDirectory = machineFolder.MachineDirectory;
-                var machineAssemblyFile = new FileInfo($"{machineFolder.MachineDirectory.FullName}/{MachineDirectory.Name}.dll");
-                Machine = MachineController.Builder.GetMachine(machineAssemblyFile, null);
+                Folder = machineFolder;
+                Machine = MachineLoader.GetMachine(Folder.MachineAssemblyFile, null);
             }
             /// <summary>
             /// Dllファイルから新規にジェネレータを生成します。
@@ -149,7 +164,7 @@ namespace Wimm.Model.Control
             public Generator(FileInfo machineAssemblyFile)
             {
                 AssemblyFile = machineAssemblyFile;
-                Machine = MachineController.Builder.GetMachine(machineAssemblyFile, null);
+                Machine = MachineLoader.GetMachine(machineAssemblyFile, null);
                 var root = GetMachineRootFolders();
                 if(root.Length ==0)
                 {
@@ -166,34 +181,44 @@ namespace Wimm.Model.Control
                         break;
                     }
                 }
-                MachineDirectory = machineDirectoryPath is null ? 
+                var machineDirectory = machineDirectoryPath is null ? 
                     GetMachineRootFolder().CreateSubdirectory(dllName) : 
                     new DirectoryInfo(machineDirectoryPath);
-                MachineDirectory.Create();
-                File.Copy(machineAssemblyFile.FullName, MachineDirectory.FullName + "/" + machineAssemblyFile.Name, true);
+                machineDirectory.Create();
+                Folder = new MachineFolder(machineDirectory);
+                File.Copy(machineAssemblyFile.FullName, Folder.MachineAssemblyFile.FullName, true);
             }
             public Generator GenerateDescription()
             {
                 if (disposed) return this;
-                using (var description = File.Create(MachineDirectory.FullName + "/description.txt")) { };
+                using (var description = Folder.DescriptionFile.Create())
+                {
+                    if (ResourceEntries.TryGetValue(ResourceType.Description, out var path))
+                    {
+                        using var resource = MachineLoader.GetAdditionalResourceStreamWithPath(MachineAssembly,path);
+                        if(resource is not null) { resource.CopyTo(description); }
+                    }
+                }
                 return this;
             }
             public Generator GenerateMetaInfo()
             {
                 if (disposed) return this;
-                using var stream = File.Create(MachineDirectory.FullName + "/meta_info.json");
+                using var stream = Folder.MetaInfoFile.Create();
                 using (var metainfo = new Utf8JsonWriter(stream))
                 {
-                    var json = new JsonObject();
-                    json.Add(new KeyValuePair<string, JsonNode?>(
-                        "name", JsonValue.Create(Machine.Name)
-                    ));
-                    json.Add(new KeyValuePair<string, JsonNode?>(
-                        "board", JsonValue.Create(Machine.ControlSystem)
-                    ));
-                    json.Add(new KeyValuePair<string, JsonNode?>(
-                        "assembly", JsonValue.Create(AssemblyFile.Name)
-                    ));
+                    var json = new JsonObject
+                    {
+                        new KeyValuePair<string, JsonNode?>(
+                            "name", JsonValue.Create(Machine.Name)
+                        ),
+                        new KeyValuePair<string, JsonNode?>(
+                            "board", JsonValue.Create(Machine.ControlSystem)
+                        ),
+                        new KeyValuePair<string, JsonNode?>(
+                            "assembly", JsonValue.Create(AssemblyFile.Name)
+                        )
+                    };
                     json.WriteTo(metainfo);
                 };
                 return this;
@@ -201,7 +226,7 @@ namespace Wimm.Model.Control
             public Generator GenerateConfig()
             {
                 if (disposed) return this;
-                using var stream = File.Create(MachineDirectory.FullName + "./config.json");
+                using var stream = Folder.ConfigFile.Create();
                 using (var config = new Utf8JsonWriter(stream))
                 {
                     Machine.MachineConfig.WriteRegistriesTo(config);
@@ -211,118 +236,139 @@ namespace Wimm.Model.Control
             public Generator GenerateDocs()
             {
                 if (disposed) return this;
-                DirectoryInfo docsFolder = MachineDirectory.CreateSubdirectory("docs");
+                DirectoryInfo docsFolder = Folder.MachineDirectory.CreateSubdirectory("docs");
                 using (var writer = File.Create(docsFolder.FullName + "/Reference.html"))
                 {
-                    writer.Write(Encoding.UTF8.GetBytes("<!DOCTYPE html>\n"));
-                    var document = new XmlDocument();
-                    var html = document.CreateElement("html");
-                    var head = document.CreateElement("head");
+                    if (ResourceEntries.TryGetValue(ResourceType.Reference,out var path))
                     {
-                        var charset = document.CreateElement("meta");
-                        charset.SetAttribute("charset", "UTF-8");
-                        charset.IsEmpty = true;
-                        var title = document.CreateElement("title");
-                        title.AppendChild(document.CreateTextNode($"{Machine.Name} スクリプト リファレンス"));
-                        head.AppendChild(charset);
-                        head.AppendChild(title);
+                        using var resource = MachineLoader.GetAdditionalResourceStreamWithPath(MachineAssembly, path);
+                        if (resource is not null) { resource.CopyTo(writer); }
                     }
-                    var body = document.CreateElement("body");
-                    {
-                        var structureTitle = document.CreateElement("h2");
-                        structureTitle.AppendChild(document.CreateTextNode("モジュールリスト"));
-                        body.AppendChild(structureTitle);
-                        XmlElement ConstructListItem(ModuleGroup group, string idPrefix)
-                        // idは最終的にName_nameみたいな_区切りになるはず、_を.に置き換えるだけで呼び出せるような形
+                    else {
+                        writer.Write(Encoding.UTF8.GetBytes("<!DOCTYPE html>\n"));
+                        var document = new XmlDocument();
+                        var html = document.CreateElement("html");
+                        var head = document.CreateElement("head");
                         {
-                            var rootLi = document!.CreateElement("li");
-                            rootLi.AppendChild(document.CreateTextNode(group.Name));
+                            var charset = document.CreateElement("meta");
+                            charset.SetAttribute("charset", "UTF-8");
+                            charset.IsEmpty = true;
+                            var title = document.CreateElement("title");
+                            title.AppendChild(document.CreateTextNode($"{Machine.Name} スクリプト リファレンス"));
+                            head.AppendChild(charset);
+                            head.AppendChild(title);
+                        }
+                        var body = document.CreateElement("body");
+                        {
+                            var structureTitle = document.CreateElement("h2");
+                            structureTitle.AppendChild(document.CreateTextNode("モジュールリスト"));
+                            body.AppendChild(structureTitle);
+                            XmlElement ConstructListItem(ModuleGroup group, string idPrefix)
+                            // idは最終的にName_nameみたいな_区切りになるはず、_を.に置き換えるだけで呼び出せるような形
+                            {
+                                var rootLi = document!.CreateElement("li");
+                                rootLi.AppendChild(document.CreateTextNode(group.Name));
+                                var ul = document.CreateElement("ul");
+                                rootLi.AppendChild(ul);
+                                foreach (var i in group.Children)
+                                {
+                                    ul.AppendChild(ConstructListItem(i, idPrefix + i.Name + "_"));
+                                }
+                                foreach (var i in group.Modules)
+                                {
+                                    var li = document.CreateElement("li");
+                                    var a = document.CreateElement("a");
+                                    a.SetAttribute("href", "#" + idPrefix + i.Name);
+                                    a.SetAttribute("class", "module");
+                                    a.AppendChild(document.CreateTextNode(i.Name));
+                                    ul.AppendChild(li);
+                                    li.AppendChild(a);
+                                }
+                                return rootLi;
+                            }
+                            var li = ConstructListItem(Machine.StructuredModules, "");
                             var ul = document.CreateElement("ul");
-                            rootLi.AppendChild(ul);
-                            foreach (var i in group.Children)
+                            ul.AppendChild(li);
+                            body.AppendChild(ul);
+                            var descriptionTitle = document.CreateElement("h2");
+                            descriptionTitle.AppendChild(document.CreateTextNode("説明"));
+                            void AddDescription(ModuleGroup group, string idPrefix, string namePrefix)
+                            //NamePrefixはモジュールの名前を.で連結したやつ、スクリプトからの参照にそのままつかえるように
                             {
-                                ul.AppendChild(ConstructListItem(i, idPrefix + i.Name + "_"));
-                            }
-                            foreach (var i in group.Modules)
-                            {
-                                var li = document.CreateElement("li");
-                                var a = document.CreateElement("a");
-                                a.SetAttribute("href", "#" + idPrefix + i.Name);
-                                a.SetAttribute("class", "module");
-                                a.AppendChild(document.CreateTextNode(i.Name));
-                                ul.AppendChild(li);
-                                li.AppendChild(a);
-                            }
-                            return rootLi;
-                        }
-                        var li = ConstructListItem(Machine.StructuredModules, "");
-                        var ul = document.CreateElement("ul");
-                        ul.AppendChild(li);
-                        body.AppendChild(ul);
-                        var descriptionTitle = document.CreateElement("h2");
-                        descriptionTitle.AppendChild(document.CreateTextNode("説明"));
-                        void AddDescription(ModuleGroup group, string idPrefix, string namePrefix)
-                        //NamePrefixはモジュールの名前を.で連結したやつ、スクリプトからの参照にそのままつかえるように
-                        {
-                            foreach (var i in group.Children)
-                            {
-                                AddDescription(i, idPrefix + i.Name + "_", namePrefix + i.Name + ".");
-                            }
-                            foreach (var i in group.Modules)
-                            {
-                                var p = document!.CreateElement("p");
-                                var h3 = document.CreateElement("h3");
-                                h3.SetAttribute("class", "module");
-                                h3.SetAttribute("id", idPrefix + i.Name);
-                                h3.AppendChild(document.CreateTextNode(namePrefix + i.Name));
-                                var featureHeader = document.CreateElement("h4");
-                                featureHeader.AppendChild(document.CreateTextNode("機能"));
-                                var featureUl = document.CreateElement("ul");
-                                XmlNode ConstructFeatureListItem(Feature<Delegate> feature)
+                                foreach (var i in group.Children)
                                 {
-                                    var builder = new StringBuilder();
-                                    builder
-                                        .Append(feature.Name)
-                                        .Append('(');
-                                    foreach (var f in feature.Function.Method.GetParameters())
+                                    AddDescription(i, idPrefix + i.Name + "_", namePrefix + i.Name + ".");
+                                }
+                                foreach (var i in group.Modules)
+                                {
+                                    var p = document!.CreateElement("p");
+                                    var h3 = document.CreateElement("h3");
+                                    h3.SetAttribute("class", "module");
+                                    h3.SetAttribute("id", idPrefix + i.Name);
+                                    h3.AppendChild(document.CreateTextNode(namePrefix + i.Name));
+                                    var featureHeader = document.CreateElement("h4");
+                                    featureHeader.AppendChild(document.CreateTextNode("機能"));
+                                    var featureUl = document.CreateElement("ul");
+                                    XmlNode ConstructFeatureListItem(Feature<Delegate> feature)
                                     {
+                                        var builder = new StringBuilder();
                                         builder
-                                            .Append(f.ParameterType)
-                                            .Append(' ')
-                                            .Append(f.Name)
-                                            .Append(',');
+                                            .Append(feature.Name)
+                                            .Append('(');
+                                        foreach (var f in feature.Function.Method.GetParameters())
+                                        {
+                                            builder
+                                                .Append(f.ParameterType)
+                                                .Append(' ')
+                                                .Append(f.Name)
+                                                .Append(',');
+                                        }
+                                        if (builder[^1] == ',') { builder.Remove(builder.Length - 1, 1); }
+                                        builder.Append(')');
+                                        var item = document!.CreateElement("li");
+                                        item.SetAttribute("class", "feature");
+                                        item.AppendChild(document.CreateTextNode(builder.ToString()));
+                                        return item;
                                     }
-                                    if (builder[^1] == ',') { builder.Remove(builder.Length - 1, 1); }
-                                    builder.Append(')');
-                                    var item = document!.CreateElement("li");
-                                    item.SetAttribute("class", "feature");
-                                    item.AppendChild(document.CreateTextNode(builder.ToString()));
-                                    return item;
+                                    foreach (var f in i.Features)
+                                    {
+                                        featureUl.AppendChild(ConstructFeatureListItem(f));
+                                    }
+                                    var descriptionHeader = document.CreateElement("h4");
+                                    descriptionHeader.InnerText = "説明";
+                                    p.AppendChild(h3);
+                                    p.AppendChild(featureHeader);
+                                    p.AppendChild(featureUl);
+                                    p.AppendChild(descriptionHeader);
+                                    p.AppendChild(document.CreateTextNode(i.Description));
+                                    body!.AppendChild(document.CreateElement("hr"));
+                                    body!.AppendChild(p);
                                 }
-                                foreach (var f in i.Features)
-                                {
-                                    featureUl.AppendChild(ConstructFeatureListItem(f));
-                                }
-                                var descriptionHeader = document.CreateElement("h4");
-                                descriptionHeader.InnerText = "説明";
-                                p.AppendChild(h3);
-                                p.AppendChild(featureHeader);
-                                p.AppendChild(featureUl);
-                                p.AppendChild(descriptionHeader);
-                                p.AppendChild(document.CreateTextNode(i.Description));
-                                body!.AppendChild(document.CreateElement("hr"));
-                                body!.AppendChild(p);
-                            }
 
+                            }
+                            AddDescription(Machine.StructuredModules, "", "");
                         }
-                        AddDescription(Machine.StructuredModules, "", "");
+                        document.AppendChild(html);
+                        html.AppendChild(head);
+                        html.AppendChild(body);
+                        using (var xml = XmlWriter.Create(writer, new XmlWriterSettings() { Encoding = System.Text.Encoding.UTF8 }))
+                        {
+                            document.WriteTo(xml);
+                        }
                     }
-                    document.AppendChild(html);
-                    html.AppendChild(head);
-                    html.AppendChild(body);
-                    using (var xml = XmlWriter.Create(writer, new XmlWriterSettings() { Encoding = System.Text.Encoding.UTF8 }))
+                }
+                return this;
+            }
+            public Generator GenerateIcon()
+            {
+                if (disposed) return this;
+                if (ResourceEntries.TryGetValue(ResourceType.Icon, out var path)) {
+                    if (!path.EndsWith(".png")) return this;
+                    using var resource = MachineLoader.GetAdditionalResourceStreamWithPath(MachineAssembly, path);
+                    if (resource is not null) 
                     {
-                        document.WriteTo(xml);
+                        using var stream = Folder.IconFile.Create();
+                        resource.CopyTo(stream); 
                     }
                 }
                 return this;
@@ -330,28 +376,51 @@ namespace Wimm.Model.Control
             public Generator GenerateScript()
             {
                 if (disposed) return this;
-                DirectoryInfo scriptFolder = MachineDirectory.CreateSubdirectory("script");
-                File.Create(scriptFolder.FullName + "/initialize.lua").Close();
-                using (var stream = new StreamWriter(File.Create(scriptFolder.FullName + "/control_map.lua")))
+                DirectoryInfo scriptFolder = Folder.MachineDirectory.CreateSubdirectory("script");
+                using(var stream = Folder.ScriptInitializeFile.Create())
                 {
-                    stream.WriteLine("-- コントロールの操作のマッピングを行います。高度な制御がいるならon_controlを使ってネ");
-                    stream.WriteLine("-- map(key_array,button_array,action)");
-                    stream.WriteLine("-- 引数にbuttonsとkeysが与えられます。");
-                    stream.WriteLine("-- buttons : Votice.XInput.GamepadButtons");
-                    stream.WriteLine("-- keys : 未定、現在参照できません map関数の入力は受け入れますが何もしません");
+                    if (ResourceEntries.TryGetValue(ResourceType.ScriptInitialize, out var path))
+                    {
+                        using var resource = MachineLoader.GetAdditionalResourceStreamWithPath(MachineAssembly, path);
+                        if (resource is not null) { resource.CopyTo(stream); }
+                    }
                 }
-                using (var stream = new StreamWriter(File.Create(scriptFolder.FullName + "/on_control.lua")))
+                using (var stream = Folder.ScriptControlMapFile.Create())
                 {
-                    stream.WriteLine("-- 毎制御ごとに呼び出します。以下引数");
-                    stream.WriteLine("-- {Root Module Name} - StructuredModlues これの名前はマシンDLL依存なんだけどよくないかな");
-                    stream.WriteLine("-- buttons : Votice.XInput.GamepadButtons - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/GamepadButtons.cs");
-                    stream.WriteLine("-- gamepad : Vortice.Xinput.Gamepad - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/Gamepad.cs");
-                    stream.WriteLine("-- input : Wimm.Model.Control.Script.InputSupporter");
-                    stream.WriteLine("-- wimm : Wimm.Model.Control.Script.WimmFeatureProvider");
+                    if (ResourceEntries.TryGetValue(ResourceType.ScriptControlMap, out var path))
+                    {
+                        using var resource = MachineLoader.GetAdditionalResourceStreamWithPath(MachineAssembly, path);
+                        if (resource is not null) { resource.CopyTo(stream); }
+                    }
+                    else using(var writer = new StreamWriter(stream))
+                    {
+                        writer.WriteLine("-- コントロールの操作のマッピングを行います。高度な制御が必要ならon_controlを使ってください");
+                        writer.WriteLine("-- map(key_list,button_list,action)");
+                        writer.WriteLine("-- 引数にbuttonsとkeysが与えられます。");
+                        writer.WriteLine("-- buttons : Votice.XInput.GamepadButtons");
+                        writer.WriteLine("-- keys : 未定、現在参照できません map関数の入力は受け入れますが何もしません");
+                    }
                 }
-                var macroFolder = new DirectoryInfo(scriptFolder + "/macro");
-                if (!macroFolder.Exists) { Directory.CreateDirectory(macroFolder.FullName); }
-                using var macroFileStream = File.Create(macroFolder + "/macros.json");
+                using (var stream = Folder.ScriptOnControlFile.Create())
+                {
+                    if (ResourceEntries.TryGetValue(ResourceType.ScriptOnControl, out var path))
+                    {
+                        using var resource = MachineLoader.GetAdditionalResourceStreamWithPath(MachineAssembly, path);
+                        if (resource is not null) { resource.CopyTo(stream); }
+                    }
+                    else using (var writer = new StreamWriter(stream))
+                    {
+                        writer.WriteLine("-- 毎制御ごとに呼び出します。以下引数");
+                        writer.WriteLine("-- {Root Module Name} - StructuredModlues これの名前はマシンDLL依存なんだけどよくないかな");
+                        writer.WriteLine("-- buttons : Votice.XInput.GamepadButtons - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/GamepadButtons.cs");
+                        writer.WriteLine("-- gamepad : Vortice.Xinput.Gamepad - https://github.com/amerkoleci/Vortice.Windows/blob/main/src/Vortice.XInput/Gamepad.cs");
+                        writer.WriteLine("-- input : Wimm.Model.Control.Script.InputSupporter");
+                        writer.WriteLine("-- wimm : Wimm.Model.Control.Script.WimmFeatureProvider");
+                    }
+                }
+
+                if (!Folder.MacroDirectory.Exists) { Folder.MacroDirectory.Create(); }
+                using var macroFileStream = Folder.MacroRegistryFile.Create();
                 using (var macros = new Utf8JsonWriter(macroFileStream))
                 {
                     var data = new JsonObject
@@ -365,7 +434,7 @@ namespace Wimm.Model.Control
                 };
                     example.WriteTo(macros);
                 };
-                File.Create(macroFolder.FullName + "/1.neo.lua").Close();
+                File.Create(Folder.MacroDirectory.FullName + "/1.neo.lua").Close();
                 return this;
             }
             public Generator GenerateAll()
@@ -375,9 +444,9 @@ namespace Wimm.Model.Control
                 GenerateMetaInfo();
                 GenerateConfig();
                 GenerateScript();
+                GenerateIcon();
                 return this;
             }
-            public MachineFolder GetMachineFolder() => new MachineFolder(MachineDirectory);
             public void Dispose()
             {
                 if (disposed) return; else Machine?.Dispose();

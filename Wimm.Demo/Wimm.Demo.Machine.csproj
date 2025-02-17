@@ -7,6 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\description.txt" />
+    <None Remove="Resources\icon.png" />
+    <None Remove="Resources\Script\initialize.lua" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\description.txt" />
+    <EmbeddedResource Include="Resources\icon.png" />
+    <EmbeddedResource Include="Resources\Script\initialize.lua" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Wimm.Common\Wimm.Common.csproj" />
     <ProjectReference Include="..\Wimm.Machines\Wimm.Machines.csproj" />
   </ItemGroup>

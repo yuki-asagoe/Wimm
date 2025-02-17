@@ -139,8 +139,7 @@ namespace Wimm.Ui.ViewModel
                     MachineController? controller = null;
                     try
                     {
-                        controller = MachineController
-                            .Builder
+                        controller = MachineLoader
                             .Build(
                                 MachineDirectory,
                                 WimmFeatureProvider,

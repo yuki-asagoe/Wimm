@@ -93,7 +93,7 @@ namespace Wimm.Model.Control
                 DeviceDirectory = folder.DeviceDirectory;
                 AssemblyFile = folder.DeviceAssemblyFile;
                 var deviceAssemblyFile = new FileInfo($"{folder.DeviceDirectory.FullName}/{DeviceDirectory.Name}.dll");
-                Device = MachineController.Builder.GetDevice(deviceAssemblyFile, null);
+                Device = MachineLoader.GetDevice(deviceAssemblyFile, null);
                 DeviceFolder = new DeviceFolder(DeviceDirectory);
             }
             /// <summary>
@@ -103,7 +103,7 @@ namespace Wimm.Model.Control
             public Generator(FileInfo assemblyFile)
             {
                 AssemblyFile = assemblyFile;
-                Device = MachineController.Builder.GetDevice(assemblyFile, null);
+                Device = MachineLoader.GetDevice(assemblyFile, null);
                 var root = GetDeviceRootFolder();
                 if (root is null)
                 {
