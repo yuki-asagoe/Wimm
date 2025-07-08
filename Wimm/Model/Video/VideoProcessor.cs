@@ -58,10 +58,13 @@ namespace Wimm.Model.Video
         }
         public bool IsReadyToReceive => DrawTask?.IsCompleted ?? true;
         public Task<BitmapSource>? DrawTask { get; set; }
-        public async void OnReceiveData(FrameData[] frames)
+        public void OnReceiveData(FrameData[] frames)
         {
             DrawTask = Draw(frames);
-            ImageUpdated?.Invoke(await DrawTask);
+            //このメソッドがUIスレッドと非同期に実行されるので同期待機で問題ない
+            //DrawTaskがTaskなのは IsReadyToReceive で完了状態を参照するため
+            DrawTask.Wait();
+            ImageUpdated?.Invoke(DrawTask.Result);
             if (IsQRDetectionRequested)
             {
                 using Mat image = frames[0].Frame.Clone();
