@@ -60,6 +60,12 @@ namespace Wimm.Model.Control
             ControlEnvironment.DefineFunction("getdevice", this.GetDevice);
             try
             {
+                if (machineFolder.ScriptDefinitionFile.Exists)
+                {
+                    ControlEnvironment.DoChunk(machineFolder.ScriptDefinitionFile.FullName);
+                    logger?.Info($"[{machineFolder.ScriptDefinitionFile.Name}]ファイルの実行が完了しました");
+                    logger?.Warn($"[{machineFolder.ScriptDefinitionFile.Name}]は現在非推奨です。代わりに[{machineFolder.ScriptInitializeFile.Name}]の使用を検討してください");
+                }
                 if (machineFolder.ScriptInitializeFile.Exists)
                 {
                     ControlEnvironment.DoChunk(

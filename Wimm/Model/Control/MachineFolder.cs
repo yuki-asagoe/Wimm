@@ -40,6 +40,7 @@ namespace Wimm.Model.Control
             {
                 ScriptOnControlFile = new FileInfo($"{machineDirectory.FullName}/script/on_control.lua");
             }
+            ScriptDefinitionFile = new FileInfo($"{machineDirectory.FullName}/script/definition.neo.lua");
             MacroDirectory = new DirectoryInfo($"{machineDirectory.FullName}/script/macro");
             MacroRegistryFile = new FileInfo($"{machineDirectory.FullName}/script/macro/macros.json");
             LinkedList<FileInfo> buffer = new();
@@ -85,6 +86,10 @@ namespace Wimm.Model.Control
         public FileInfo ScriptInitializeFile { get; }
         public FileInfo ScriptControlMapFile { get; }
         public FileInfo ScriptOnControlFile { get; }
+        /// <summary>
+        /// Deprecated
+        /// </summary>
+        public FileInfo ScriptDefinitionFile { get; }
         public FileInfo DescriptionFile { get; }
         public FileInfo MachineAssemblyFile
         {
