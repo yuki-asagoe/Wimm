@@ -22,17 +22,7 @@ namespace Wimm.Logging
                 stream.Write("[Wimm Crash Report]\n\n");
                 stream.Write(message);
                 stream.Write("\n\n[Exception And Stack Trace]\n\n");
-                stream.Write($"{e.GetType().FullName} : {e.Message}\n");
-                stream.Write(e.StackTrace);
-                stream.Write("\n\n");
-                Exception? innerException = e;
-                while ((innerException = innerException?.InnerException) is not null)
-                {
-                    stream.Write("-- Caused by --\n");
-                    stream.Write($"{e.GetType().FullName}\n : {e.Message}\n");
-                    stream.Write(e.StackTrace);
-                    stream.Write("\n\n");
-                }
+                stream.Write(getDetailedExceptionString(e));
                 stream.WriteLine("[Environment]");
                 stream.WriteLine($"OS : {Environment.OSVersion.VersionString}");
                 stream.WriteLine($"Runtime : {RuntimeInformation.FrameworkDescription}");
@@ -41,6 +31,22 @@ namespace Wimm.Logging
 
                 stream.WriteLine("\n-** I wish it run correctly in next time **-");
             }
+        }
+        public static string getDetailedExceptionString(Exception e)
+        {
+            var builder = new StringBuilder();
+            builder.Append($"{e.GetType().FullName} : {e.Message}\n");
+            builder.Append(e.StackTrace);
+            builder.Append("\n\n");
+            Exception? innerException = e;
+            while ((innerException = innerException?.InnerException) is not null)
+            {
+                builder.Append("-- Caused by --\n");
+                builder.Append($"{e.GetType().FullName}\n : {e.Message}\n");
+                builder.Append(e.StackTrace);
+                builder.Append("\n\n");
+            }
+            return builder.ToString();
         }
     }
 }

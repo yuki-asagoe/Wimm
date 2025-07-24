@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using Wimm.Logging;
 using Wimm.Machines.Video;
 using Wimm.Ui.ViewModel;
 
@@ -80,7 +81,10 @@ namespace Wimm.Ui
             await controller.CloseAsync();
             if(result is not null)
             {
-                await this.ShowMessageAsync("エラーが発生しました。", $"{result.GetType().Name}:{result.Message}");
+                var errorMessageTask=this.ShowMessageAsync("エラーが発生しました", $"{result.GetType().Name}:{result.Message}");
+                ViewModel.TerminalController.Post("ロボット制御モデルの初期化中にエラーが発生しました");
+                ViewModel.TerminalController.Post(CrashReport.getDetailedExceptionString(result));
+                await errorMessageTask;
                 Close();
             }
             else
